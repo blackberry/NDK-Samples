@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+
+<qnx xmlns="http://www.qnx.com/schemas/application/1.0">
+
+   <id>com.example.BelligerentBlocks</id>
+
+   <name>BBlocks</name>
+
+   <versionNumber>1.0.0</versionNumber>
+   <buildId>10</buildId>
+
+   <description>The Belligerent Blocks application</description>
+
+   <author>Nick</author>
+   <authorId>gYAAgBCI5M5R1tDO2eqZpWppG0U</authorId>
+
+   <initialWindow>
+      <systemChrome>none</systemChrome>
+      <transparent>false</transparent>
+      <autoOrients>true</autoOrients>
+   </initialWindow>
+
+   <category>core.games</category>
+
+   <!-- Graphic resources -->
+   <asset path="Assets/Background.png">Background.png</asset>
+   <asset path="Assets/belligerent.png">belligerent.png</asset>
+   <asset path="Assets/button_pressed.png">button_pressed.png</asset>
+   <asset path="Assets/button_regular.png">button_regular.png</asset>
+   <asset path="Assets/leaderboard.png">leaderboard.png</asset>
+   <asset path="Assets/resting.png">resting.png</asset>
+   <asset path="Assets/icon.png">icon.png</asset>
+   <asset path="Assets/splash.png">splash.png</asset>
+   <asset path="Assets/belligerent_small.png">belligerent_small.png</asset>
+   <asset path="Assets/resting_small.png">resting_small.png</asset>
+   <asset path="Assets/ground.png">ground.png</asset>
+
+    <!-- Sound resources -->
+   <asset path="Assets/background.wav">background.wav</asset>
+   <asset path="Assets/blockfall.wav">blockfall.wav</asset>
+   <asset path="Assets/click1.wav">click1.wav</asset>
+   <asset path="Assets/click2.wav">click2.wav</asset>
+   <asset path="Assets/clickreverb.wav">clickreverb.wav</asset>
+
+   <!-- High score database -->
+   <asset path="Assets/scores.db">data/scores.db</asset>
+
+   <!-- target-override libraries that need to be bundled onto the device -->
+
+   <icon><image>icon.png</image></icon>
+   <splashscreen>splash.png</splashscreen>
+
+   <action system="true">run_native</action>
+
+   <!-- Permission needed for Scoreloop -->
+   <action>read_device_identifying_information</action>
+   
+   <env var="LD_LIBRARY_PATH" value="app/native/lib"/>
+   
+   <configuration id="com.qnx.qcc.configuration.exe.release.1871319401" name="Device-Release">
+      <asset path="${QNX_TARGET}\..\target-override\armle-v7\usr\lib\libbps.so.1" type="Qnx/Elf">lib/libbps.so.1</asset>
+      <asset path="${QNX_TARGET}\..\target-override\armle-v7\usr\lib\libOpenAL.so.1" type="Qnx/Elf">lib/libOpenAL.so.1</asset>
+      <asset path="${QNX_TARGET}\..\target-override\armle-v7\usr\lib\libalut.so.1" type="Qnx/Elf">lib/libalut.so.1</asset>
+      <asset path="Device-Release/Blocks" entry="true" type="Qnx/Elf">blocks</asset>
+   </configuration>
+
+   <configuration id="com.qnx.qcc.configuration.exe.debug.834434315" name="Simulator">
+      <asset path="${QNX_TARGET}\..\target-override\x86\usr\lib\libOpenAL.so.1" type="Qnx/Elf">lib/libOpenAL.so.1</asset>
+      <asset path="${QNX_TARGET}\..\target-override\x86\usr\lib\libalut.so.1" type="Qnx/Elf">lib/libalut.so.1</asset>
+   	  <asset path="${QNX_TARGET}\..\target-override\x86\usr\lib\libbps.so.1" type="Qnx/Elf">lib/libbps.so.1</asset>
+      <asset path="Simulator/Blocks" entry="true" type="Qnx/Elf">blocks</asset>     
+   </configuration>
+
+   <configuration id="com.qnx.qcc.configuration.exe.debug.2070588019" name="Device-Debug">
+   	  <asset path="${QNX_TARGET}\..\target-override\armle-v7\usr\lib\libOpenAL.so.1" type="Qnx/Elf">lib/libOpenAL.so.1</asset>
+      <asset path="${QNX_TARGET}\..\target-override\armle-v7\usr\lib\libalut.so.1" type="Qnx/Elf">lib/libalut.so.1</asset>
+   	  <asset path="${QNX_TARGET}\..\target-override\armle-v7\usr\lib\libbps.so.1" type="Qnx/Elf">lib/libbps.so.1</asset>
+      <asset path="Device-Debug/Blocks" entry="true" type="Qnx/Elf">blocks</asset>
+   </configuration>
+</qnx>
