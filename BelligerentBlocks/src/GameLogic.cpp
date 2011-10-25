@@ -61,7 +61,7 @@ GameLogic::GameLogic(Platform &platform)
     , m_timeStep(1.0f / 60.0f)
     , m_velocityIterations(6)
     , m_positionIterations(2)
-    , m_world(b2Vec2(0.0f, -10.0f), true)
+    , m_world(b2Vec2(0.0f, -10.0f))
     , m_contactListener(m_clickReverb)
 {
 
