@@ -251,11 +251,10 @@ void Platform::processEvents() {
                 int pointerButton;
                 screen_get_event_property_iv(screenEvent, SCREEN_PROPERTY_BUTTONS, &pointerButton);
 
-                if (pointerButton == SCREEN_LEFT_MOUSE_BUTTON) {
-                    ASSERT(!m_buttonPressed);
+                if ((pointerButton & SCREEN_LEFT_MOUSE_BUTTON) && !m_buttonPressed) {
                     m_buttonPressed = true;
                     m_handler->onLeftPress(static_cast<float>(screenEventPosition[0]), static_cast<float>(screenEventPosition[1]));
-                } else if (m_buttonPressed) {
+                } else if (!(pointerButton & SCREEN_LEFT_MOUSE_BUTTON) && m_buttonPressed) {
                     m_handler->onLeftRelease(static_cast<float>(screenEventPosition[0]), static_cast<float>(screenEventPosition[1]));
                     m_buttonPressed = false;
                 }
