@@ -496,12 +496,13 @@ void GameLogic::reset() {
 
 void GameLogic::onLeftRelease(float x, float y) {
     if (m_state == LeaderBoard && m_leaderBoardReady) {
-        if (m_playButton.isPressed && m_playButton.isWithin(x, m_sceneHeight - y)) {
-            reset();
+        if (m_playButton.isPressed) {
+            m_playButton.isPressed = false;
+            m_playButton.textY--;
+            if (m_playButton.isWithin(x, m_sceneHeight - y)) {
+                reset();
+            }
         }
-
-        m_playButton.isPressed = false;
-        m_playButton.textY--;
     } else if (m_state == GamePlay) {
         if (m_gamePaused) {
             m_gamePaused = false;
