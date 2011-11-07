@@ -73,9 +73,9 @@ private:
     enum GameState { FetchUser, GamePlay, LeaderBoard };
     GameState m_state;
 
-    const font_t* m_font;
-    const font_t* m_scoreFont;
-    const font_t* m_leaderboardFont;
+    font_t* m_font;
+    font_t* m_scoreFont;
+    font_t* m_leaderboardFont;
 
     float m_sceneWidth, m_sceneHeight;
 
@@ -130,7 +130,7 @@ private:
         Sprite* pressed;
         float textX;
         float textY;
-        const font_t* font;
+        font_t* font;
         const char* text;
 
         void draw() const;

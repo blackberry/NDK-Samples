@@ -74,8 +74,8 @@ Platform::Platform()
     dialog_request_events(0);
 
     // Lock in landscape mode.
+    bbutil_init_egl(m_screenContext, GL_ES_1);
     navigator_rotation_lock(true);
-    bbutil_init_egl(m_screenContext, GL_ES_1, LANDSCAPE);
 }
 
 Platform::~Platform() {
