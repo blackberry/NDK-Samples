@@ -27,6 +27,7 @@
 #include "bbutil.h"
 #include "Sprite.h"
 
+#include <math.h>
 #include "Box2D/Box2D.h"
 
 #include <GLES/gl.h>

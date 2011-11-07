@@ -243,66 +243,31 @@ bbutil_init_egl(screen_context_t ctx, enum RENDERING_API api, enum ORIENTATION o
         return EXIT_FAILURE;
     }
 
-    if (orientation != AUTO) {
-        int screen_resolution[2];
+	int screen_resolution[2];
 
-        rc = screen_get_display_property_iv(screen_disp, SCREEN_PROPERTY_SIZE, screen_resolution);
-        if (rc) {
-            perror("screen_get_display_property_iv");
-            bbutil_terminate();
-            return EXIT_FAILURE;
-        }
+	rc = screen_get_display_property_iv(screen_disp, SCREEN_PROPERTY_SIZE, screen_resolution);
+	if (rc) {
+		perror("screen_get_display_property_iv");
+		bbutil_terminate();
+		return EXIT_FAILURE;
+	}
 
-        int angle = atoi(getenv("ORIENTATION"));
-        int buffer_size[2] = {screen_resolution[0], screen_resolution[1]};
-        int flip = false;
+	int angle = atoi(getenv("ORIENTATION"));
+	int buffer_size[2] = {screen_resolution[0], screen_resolution[1]};
 
-        if ((orientation == LANDSCAPE) && (buffer_size[0] < buffer_size[1])){
-            //In portrait, rotate to landscape
-            buffer_size[0] = screen_resolution[1];
-            buffer_size[1] = screen_resolution[0];
+	rc = screen_set_window_property_iv(screen_win, SCREEN_PROPERTY_ROTATION, &angle);
+	if (rc) {
+		perror("screen_set_window_property_iv");
+		bbutil_terminate();
+		return EXIT_FAILURE;
+	}
 
-            if ((angle == 0) || (angle == 180)) {
-                //Portrait device in portrait mode
-                angle = 90;
-            } else if ((angle == 90) || (angle == 270)) {
-                //Landscape device in portrait mode
-                angle = 0;
-            }
-
-            flip = true;
-        } else if ((orientation == PORTRAIT) && (buffer_size[0] > buffer_size[1])) {
-            //In landscape, rotate to portrait
-            buffer_size[0] = screen_resolution[1];
-            buffer_size[1] = screen_resolution[0];
-
-            if ((angle == 0) || (angle == 180)) {
-                //Landscape device in landscape mode
-                angle = 90;
-            } else if ((angle == 90) || (angle == 270)) {
-                //Portrait device in landscape mode
-                angle = 0;
-            }
-
-            flip = true;
-        }
-
-        if (flip) {
-            rc = screen_set_window_property_iv(screen_win, SCREEN_PROPERTY_ROTATION, &angle);
-            if (rc) {
-                perror("screen_set_window_property_iv");
-                bbutil_terminate();
-                return EXIT_FAILURE;
-            }
-
-            rc = screen_set_window_property_iv(screen_win, SCREEN_PROPERTY_BUFFER_SIZE, buffer_size);
-            if (rc) {
-                perror("screen_set_window_property_iv");
-                bbutil_terminate();
-                return EXIT_FAILURE;
-            }
-        }
-    }
+	rc = screen_set_window_property_iv(screen_win, SCREEN_PROPERTY_BUFFER_SIZE, buffer_size);
+	if (rc) {
+		perror("screen_set_window_property_iv");
+		bbutil_terminate();
+		return EXIT_FAILURE;
+	}
 
     rc = screen_create_window_buffers(screen_win, nbuffers);
     if (rc) {

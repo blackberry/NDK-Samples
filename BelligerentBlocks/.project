@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>Blocks</name>
+	<name>BelligerentBlocks</name>
 	<comment></comment>
 	<projects>
 		<project>box2d</project>
@@ -28,7 +28,7 @@
 				</dictionary>
 				<dictionary>
 					<key>org.eclipse.cdt.make.core.buildLocation</key>
-					<value>${workspace_loc:/Blocks/Device-Release}</value>
+					<value>${workspace_loc:/BelligerentBlocks/Device-Debug}</value>
 				</dictionary>
 				<dictionary>
 					<key>org.eclipse.cdt.make.core.contents</key>
@@ -73,6 +73,5 @@
 		<nature>org.eclipse.cdt.managedbuilder.core.managedBuildNature</nature>
 		<nature>org.eclipse.cdt.managedbuilder.core.ScannerConfigNature</nature>
 		<nature>com.qnx.tools.ide.bbt.core.bbtnature</nature>
-		<nature>org.eclipse.cdt.core.ccnature</nature>
 	</natures>
 </projectDescription>
