@@ -1,16 +1,6 @@
 GoodCitizen
 
 ========================================================================
-Using a managed project vs. using a makefile project
-
- This package contains two different types of project options. One is an eclipse-based 
- managed project and the other is a makefile project. The managed project leverages 
- Eclipse to manage the build process so that you don’t have to worry about makefiles. 
- When using this option you can adjust build settings through the project properties. 
- The makefile project allows you to see and edit makefiles for direct control of the 
- build process. 
-
-========================================================================
 Sample Description:
  
  The GoodCitizen sample is an application that is designed to introduce you to a number of 
