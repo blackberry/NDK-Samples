@@ -22,7 +22,8 @@ This section will be expanded after DevCon 2011 America
 **Repository Committers** 
 
 * [Jonathan Hoffmann](https://github.com/jhoffmannrim)
-* [Dimitry Tomilovskiy](TBD)
+* [Dimitry Tomilovskiy](https://github.com/dtomilovskiy)
+* [Nick Landry](https://github.com/nlandry)
 
 
 ## Bug Reporting and Feature Requests
