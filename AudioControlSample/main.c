@@ -70,7 +70,7 @@ print_audio_event(bps_event_t *event)
     fprintf(stderr, "Speaker Mute: %s\n", bool_str(audiomixer_event_get_output_mute(event, AUDIOMIXER_OUTPUT_SPEAKER)));
     fprintf(stderr, "Input Mute: %s\n", bool_str(audiomixer_event_get_input_mute(event, AUDIOMIXER_INPUT)));
 
-    fprintf(stderr, "Available Output Channel: %s\n\n", get_channel_name(audiomixer_event_get_input_mute(event, AUDIOMIXER_INPUT)));
+    fprintf(stderr, "Available Output Channel: %s\n\n", get_channel_name(audiomixer_event_get_available(event)));
 }
 
 
