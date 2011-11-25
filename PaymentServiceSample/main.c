@@ -91,14 +91,14 @@ fail:
 void failureCommon(bps_event_t *event)
 {
     if (event == NULL) {
-        printf("Invalid event.\n");
+        fprintf(stderr, "Invalid event.\n");
         return;
     }
 
     int error_id = paymentservice_event_get_error_id(event);
     const char* error_text = paymentservice_event_get_error_text(event);
 
-    printf("Payment System error: ID: %d  Text: %s\n", error_id, error_text ? error_text : "N/A");
+    fprintf(stderr, "Payment System error: ID: %d  Text: %s\n", error_id, error_text ? error_text : "N/A");
 }
 
 /**
@@ -108,7 +108,7 @@ void failureCommon(bps_event_t *event)
 void onPurchaseSuccess(bps_event_t *event)
 {
     if (event == NULL) {
-        printf("Invalid event.\n");
+        fprintf(stderr, "Invalid event.\n");
         return;
     }
 
@@ -119,7 +119,7 @@ void onPurchaseSuccess(bps_event_t *event)
     const char* metadata = paymentservice_event_get_metadata(event, 0);
     const char* transaction_id = paymentservice_event_get_transaction_id(event, 0);
 
-    printf("Purchase success.\n Date: %s\n DigitalGoodID: %s\n SKU: %s\n License: %s\n Metadata: %s\n TransactionId: %s",
+    fprintf(stderr, "Purchase success.\n Date: %s\n DigitalGoodID: %s\n SKU: %s\n License: %s\n Metadata: %s\n TransactionId: %s",
         date,
         digital_good ? digital_good : "N/A",
         digital_sku ? digital_sku : "N/A",
@@ -135,14 +135,14 @@ void onPurchaseSuccess(bps_event_t *event)
 void onGetExistingPurchasesSuccess(bps_event_t *event)
 {
     if (event == NULL) {
-        printf("Invalid event.\n");
+        fprintf(stderr, "Invalid event.\n");
         return;
     }
 
     int purchases = paymentservice_event_get_number_purchases(event);
 
-    printf("Number of existing purchases: %d\n", purchases);
-    printf("Existing purchases:\n");
+    fprintf(stderr, "Number of existing purchases: %d\n", purchases);
+    fprintf(stderr, "Existing purchases:\n");
 
     int i = 0;
     for (i = 0; i<purchases; i++) {
@@ -152,7 +152,7 @@ void onGetExistingPurchasesSuccess(bps_event_t *event)
         const char* license_key = paymentservice_event_get_license_key(event, i);
         const char* metadata = paymentservice_event_get_metadata(event, i);
 
-        printf("Date: %s  DigitalGoodID: %s  SKU: %s  License: %s  Metadata: %s\n",
+        fprintf(stderr, "Date: %s  DigitalGoodID: %s  SKU: %s  License: %s  Metadata: %s\n",
             date ? date : "N/A",
             digital_good ? digital_good : "N/A",
             digital_sku ? digital_sku : "N/A",
@@ -201,7 +201,7 @@ main(int argc, char *argv[])
      * the Payment Service dialogs to be displayed.
      */
     if (setup_screen() != EXIT_SUCCESS) {
-        printf("Unable to initialize screen.");
+        fprintf(stderr, "Unable to initialize screen.");
         exit(0);
     }
 
@@ -254,7 +254,7 @@ main(int argc, char *argv[])
                     if (PURCHASE_RESPONSE == bps_event_get_code(event)) {
                         onPurchaseSuccess(event);
                         if (paymentservice_get_existing_purchases(false, get_window_group_id()) != BPS_SUCCESS) {
-                            printf("Error: get existing purchases failed.\n");
+                            fprintf(stderr, "Error: get existing purchases failed.\n");
                         }
                     } else
                         onGetExistingPurchasesSuccess(event);
@@ -276,10 +276,9 @@ main(int argc, char *argv[])
                     exit_application = 1;
                 } else if (NAVIGATOR_SWIPE_DOWN == bps_event_get_code(event)) {
                     if (paymentservice_purchase(params, get_window_group_id()) != BPS_SUCCESS) {
-                        printf("Error: purchase request failed.\n");
+                        fprintf(stderr, "Error: purchase request failed.\n");
                     }
                 }
-                break;
             }
         }
     }
