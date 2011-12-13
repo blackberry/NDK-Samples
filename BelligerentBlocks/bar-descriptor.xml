@@ -46,8 +46,6 @@
    <!-- High score database -->
    <asset path="Assets/scores.db">data/scores.db</asset>
 
-
-   <!-- target-override libraries that need to be bundled onto the device -->
    <icon><image>icon.png</image></icon>
    <splashscreen>splash.png</splashscreen>
 
@@ -55,9 +53,11 @@
 
    <!-- Permission needed for Scoreloop -->
    <action>read_device_identifying_information</action>
+   <action>play_audio</action>
    
    <env var="LD_LIBRARY_PATH" value="app/native/lib"/>
    
+   <!-- target-override libraries that need to be bundled onto the device -->   
    <configuration id="com.qnx.qcc.configuration.exe.debug.286133895" name="Device-Debug">
       <asset path="${QNX_TARGET}\..\target-override\armle-v7\usr\lib\libbps.so.1" type="Qnx/Elf">lib/libbps.so.1</asset>
       <asset path="${QNX_TARGET}\..\target-override\armle-v7\usr\lib\libOpenAL.so.1" type="Qnx/Elf">lib/libOpenAL.so.1</asset>
@@ -65,7 +65,7 @@
       <asset path="Device-Debug/BelligerentBlocks" entry="true" type="Qnx/Elf">BelligerentBlocks</asset>
    </configuration>
    <configuration id="com.qnx.qcc.configuration.exe.release.1268219428" name="Device-Release">
-       <asset path="${QNX_TARGET}\..\target-override\armle-v7\usr\lib\libbps.so.1" type="Qnx/Elf">lib/libbps.so.1</asset>
+      <asset path="${QNX_TARGET}\..\target-override\armle-v7\usr\lib\libbps.so.1" type="Qnx/Elf">lib/libbps.so.1</asset>
       <asset path="${QNX_TARGET}\..\target-override\armle-v7\usr\lib\libOpenAL.so.1" type="Qnx/Elf">lib/libOpenAL.so.1</asset>
       <asset path="${QNX_TARGET}\..\target-override\armle-v7\usr\lib\libalut.so.1" type="Qnx/Elf">lib/libalut.so.1</asset>
       <asset path="Device-Release/BelligerentBlocks" entry="true" type="Qnx/Elf">BelligerentBlocks</asset>
@@ -77,15 +77,27 @@
       <asset path="Simulator/BelligerentBlocks" entry="true" type="Qnx/Elf">BelligerentBlocks</asset>
    </configuration>
    <configuration id="com.qnx.qcc.configuration.exe.profile.568639964" name="Device-Profile">
+      <asset path="${QNX_TARGET}\..\target-override\armle-v7\usr\lib\libbps.so.1" type="Qnx/Elf">lib/libbps.so.1</asset>
+      <asset path="${QNX_TARGET}\..\target-override\armle-v7\usr\lib\libOpenAL.so.1" type="Qnx/Elf">lib/libOpenAL.so.1</asset>
+      <asset path="${QNX_TARGET}\..\target-override\armle-v7\usr\lib\libalut.so.1" type="Qnx/Elf">lib/libalut.so.1</asset>
       <asset path="Device-Profile/BelligerentBlocks" entry="true" type="Qnx/Elf">BelligerentBlocks</asset>
    </configuration>
    <configuration id="com.qnx.qcc.configuration.exe.profile.coverage.1490198268" name="Device-Coverage">
+      <asset path="${QNX_TARGET}\..\target-override\armle-v7\usr\lib\libbps.so.1" type="Qnx/Elf">lib/libbps.so.1</asset>
+      <asset path="${QNX_TARGET}\..\target-override\armle-v7\usr\lib\libOpenAL.so.1" type="Qnx/Elf">lib/libOpenAL.so.1</asset>
+      <asset path="${QNX_TARGET}\..\target-override\armle-v7\usr\lib\libalut.so.1" type="Qnx/Elf">lib/libalut.so.1</asset>
       <asset path="Device-Coverage/BelligerentBlocks" entry="true" type="Qnx/Elf">BelligerentBlocks</asset>
    </configuration>
    <configuration id="com.qnx.qcc.configuration.exe.profile.113216683" name="Simulator-Profile">
+      <asset path="${QNX_TARGET}\..\target-override\x86\usr\lib\libOpenAL.so.1" type="Qnx/Elf">lib/libOpenAL.so.1</asset>
+      <asset path="${QNX_TARGET}\..\target-override\x86\usr\lib\libalut.so.1" type="Qnx/Elf">lib/libalut.so.1</asset>
+      <asset path="${QNX_TARGET}\..\target-override\x86\usr\lib\libbps.so.1" type="Qnx/Elf">lib/libbps.so.1</asset>   
       <asset path="Simulator-Profile/BelligerentBlocks" entry="true" type="Qnx/Elf">BelligerentBlocks</asset>
    </configuration>
    <configuration id="com.qnx.qcc.configuration.exe.profile.coverage.339504475" name="Simulator-Coverage">
+      <asset path="${QNX_TARGET}\..\target-override\x86\usr\lib\libOpenAL.so.1" type="Qnx/Elf">lib/libOpenAL.so.1</asset>
+      <asset path="${QNX_TARGET}\..\target-override\x86\usr\lib\libalut.so.1" type="Qnx/Elf">lib/libalut.so.1</asset>
+      <asset path="${QNX_TARGET}\..\target-override\x86\usr\lib\libbps.so.1" type="Qnx/Elf">lib/libbps.so.1</asset>   
       <asset path="Simulator-Coverage/BelligerentBlocks" entry="true" type="Qnx/Elf">BelligerentBlocks</asset>
    </configuration>
 </qnx>

@@ -19,7 +19,7 @@
 						<toolChain id="com.qnx.qcc.toolChain.exe.debug.1335340190" name="QNX QCC" superClass="com.qnx.qcc.toolChain">
 							<option id="com.qnx.qcc.option.cpu.1211616888" name="Target CPU:" superClass="com.qnx.qcc.option.cpu" value="com.qnx.qcc.option.gen.cpu.armle-v7" valueType="enumerated"/>
 							<targetPlatform archList="all" binaryParser="com.qnx.tools.ide.qde.core.QDEBynaryParser" id="com.qnx.qcc.targetPlatform.1408902953" osList="all" superClass="com.qnx.qcc.targetPlatform"/>
-							<builder buildPath="${workspace_loc:/BelligerentBlocks/Device-Debug}" id="com.qnx.nto.2101376621" keepEnvironmentInBuildfile="false" name="CDT Internal Builder" superClass="com.qnx.nto"/>
+							<builder buildPath="${workspace_loc:/BelligerentBlocks/Device-Debug}" id="org.eclipse.cdt.build.core.internal.builder.1142774569" superClass="org.eclipse.cdt.build.core.internal.builder"/>
 							<tool id="com.qnx.qcc.tool.compiler.868577170" name="QCC Compiler" superClass="com.qnx.qcc.tool.compiler">
 								<option id="com.qnx.qcc.option.compile.debug.875162179" name="Debug (-g)" superClass="com.qnx.qcc.option.compile.debug" value="true" valueType="boolean"/>
 								<option id="com.qnx.qcc.option.compiler.security.583437287" name="Enhanced Security (-fstack-protector-all)" superClass="com.qnx.qcc.option.compiler.security" value="true" valueType="boolean"/>
