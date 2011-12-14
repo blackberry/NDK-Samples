@@ -48,18 +48,18 @@ static int nbuffers = 2;
 static int initialized = 0;
 
 struct font_t {
-	unsigned int font_texture;
-	float pt;
-	float advance[128];
-	float width[128];
-	float height[128];
-	float tex_x1[128];
-	float tex_x2[128];
-	float tex_y1[128];
-	float tex_y2[128];
-	float offset_x[128];
-	float offset_y[128];
-	int initialized;
+    unsigned int font_texture;
+    float pt;
+    float advance[128];
+    float width[128];
+    float height[128];
+    float tex_x1[128];
+    float tex_x2[128];
+    float tex_y1[128];
+    float tex_y2[128];
+    float offset_x[128];
+    float offset_y[128];
+    int initialized;
 };
 
 
@@ -105,8 +105,10 @@ bbutil_init_egl(screen_context_t ctx, enum RENDERING_API api) {
     if (api == GL_ES_1) {
         usage = SCREEN_USAGE_OPENGL_ES1 | SCREEN_USAGE_ROTATION;
     } else if (api == GL_ES_2) {
+        attrib_list[11] = EGL_OPENGL_ES2_BIT;
         usage = SCREEN_USAGE_OPENGL_ES2 | SCREEN_USAGE_ROTATION;
     } else if (api == VG) {
+        attrib_list[11] = EGL_OPENVG_BIT;
         usage = SCREEN_USAGE_OPENVG | SCREEN_USAGE_ROTATION;
     } else {
         fprintf(stderr, "invalid api setting\n");
@@ -187,31 +189,57 @@ bbutil_init_egl(screen_context_t ctx, enum RENDERING_API api) {
         return EXIT_FAILURE;
     }
 
-	int screen_resolution[2];
+    int angle = atoi(getenv("ORIENTATION"));
 
-	rc = screen_get_display_property_iv(screen_disp, SCREEN_PROPERTY_SIZE, screen_resolution);
-	if (rc) {
-		perror("screen_get_display_property_iv");
-		bbutil_terminate();
-		return EXIT_FAILURE;
-	}
+    screen_display_mode_t screen_mode;
+    rc = screen_get_display_property_pv(screen_disp, SCREEN_PROPERTY_MODE, (void**)&screen_mode);
+    if (rc) {
+        perror("screen_get_display_property_pv");
+        bbutil_terminate();
+        return EXIT_FAILURE;
+    }
 
-	int angle = atoi(getenv("ORIENTATION"));
-	int buffer_size[2] = {screen_resolution[0], screen_resolution[1]};
+    int size[2];
+    rc = screen_get_window_property_iv(screen_win, SCREEN_PROPERTY_BUFFER_SIZE, size);
+    if (rc) {
+        perror("screen_get_window_property_iv");
+        bbutil_terminate();
+        return EXIT_FAILURE;
+    }
 
-	rc = screen_set_window_property_iv(screen_win, SCREEN_PROPERTY_ROTATION, &angle);
-	if (rc) {
-		perror("screen_set_window_property_iv");
-		bbutil_terminate();
-		return EXIT_FAILURE;
-	}
+    int buffer_size[2] = {size[0], size[1]};
 
-	rc = screen_set_window_property_iv(screen_win, SCREEN_PROPERTY_BUFFER_SIZE, buffer_size);
-	if (rc) {
-		perror("screen_set_window_property_iv");
-		bbutil_terminate();
-		return EXIT_FAILURE;
-	}
+    if ((angle == 0) || (angle == 180)) {
+        if (((screen_mode.width > screen_mode.height) && (size[0] < size[1])) ||
+            ((screen_mode.width < screen_mode.height) && (size[0] > size[1]))) {
+                buffer_size[1] = size[0];
+                buffer_size[0] = size[1];
+        }
+    } else if ((angle == 90) || (angle == 270)){
+        if (((screen_mode.width > screen_mode.height) && (size[0] > size[1])) ||
+            ((screen_mode.width < screen_mode.height && size[0] < size[1]))) {
+                buffer_size[1] = size[0];
+                buffer_size[0] = size[1];
+        }
+    } else {
+         fprintf(stderr, "Navigator returned an unexpected orientation angle.\n");
+         bbutil_terminate();
+         return EXIT_FAILURE;
+    }
+
+    rc = screen_set_window_property_iv(screen_win, SCREEN_PROPERTY_BUFFER_SIZE, buffer_size);
+    if (rc) {
+        perror("screen_set_window_property_iv");
+        bbutil_terminate();
+        return EXIT_FAILURE;
+    }
+
+    rc = screen_set_window_property_iv(screen_win, SCREEN_PROPERTY_ROTATION, &angle);
+    if (rc) {
+        perror("screen_set_window_property_iv");
+        bbutil_terminate();
+        return EXIT_FAILURE;
+    }
 
     rc = screen_create_window_buffers(screen_win, nbuffers);
     if (rc) {
@@ -792,7 +820,7 @@ int bbutil_calculate_dpi(screen_context_t ctx) {
 }
 
 int bbutil_rotate_screen_surface(int angle) {
-    int rc, rotation, skip = 1, temp;;
+    int rc, rotation, skip = 1, temp;
     EGLint interval = 1;
     int size[2];
 

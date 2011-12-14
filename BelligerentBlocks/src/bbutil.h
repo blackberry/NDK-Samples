@@ -39,7 +39,7 @@ extern "C" {
  *
  * @param libscreen context that will be used for EGL setup
  * @param rendering API that will be used
- * \return EXIT_SUCCESS if initialization succeeded otherwise EXIT_FAILURE
+ * @return EXIT_SUCCESS if initialization succeeded otherwise EXIT_FAILURE
  */
 int bbutil_init_egl(screen_context_t ctx, enum RENDERING_API api);
 
@@ -59,7 +59,7 @@ void bbutil_swap();
  * @param font_file string indicating the absolute path of the font file
  * @param point_size used for glyph generation
  * @param dpi used for glyph generation
- * \return pointer to font_t structure on success or NULL on failure
+ * @return pointer to font_t structure on success or NULL on failure
  */
 font_t* bbutil_load_font(const char* font_file, int point_size, int dpi);
 
@@ -102,7 +102,7 @@ void bbutil_measure_text(font_t* font, const  char* msg, float* width, float* he
  * @param return width of texture
  * @param return height of texture
  * @param return gl texture handle
- * \return EXIT_SUCCESS if texture loading succeeded otherwise EXIT_FAILURE
+ * @return EXIT_SUCCESS if texture loading succeeded otherwise EXIT_FAILURE
  */
 
 int bbutil_load_texture(const char* filename, int* width, int* height, float* tex_x, float* tex_y, unsigned int* tex);
@@ -112,7 +112,7 @@ int bbutil_load_texture(const char* filename, int* width, int* height, float* te
 
  *
  * @param ctx path libscreen context that corresponds to display of interest
- * \return dpi for a given screen
+ * @return dpi for a given screen
  */
 
 int bbutil_calculate_dpi(screen_context_t ctx);
@@ -122,7 +122,7 @@ int bbutil_calculate_dpi(screen_context_t ctx);
 
  *
  * @param angle to rotate screen surface to, must by 0, 90, 180, or 270
- * \return EXIT_SUCCESS if texture loading succeeded otherwise EXIT_FAILURE
+ * @return EXIT_SUCCESS if texture loading succeeded otherwise EXIT_FAILURE
  */
 
 int bbutil_rotate_screen_surface(int angle);
