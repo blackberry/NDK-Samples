@@ -31,10 +31,21 @@
 #include <screen/screen.h>
 #include <sys/asoundlib.h>
 
+#include <bps/bps.h>
+#include <bps/audiomixer.h>
+#include <bps/dialog.h>
+#include <bps/navigator.h>
+
+#include "dialogutil.h"
+/*
+ * buffer to store messages that we will display in the dialog
+ */
+#define MSG_SIZE 1024
+static char msg[MSG_SIZE];
+
 const char *riff_id = "RIFF";
 const char *wave_id = "WAVE";
 
-#define COLOR_PURPLE 0xffff00ff
 #define WAV_RELATIVE_PATH "/app/native/sample.wav"
 
 typedef struct
@@ -64,9 +75,10 @@ typedef struct
 wave_hdr;
 
 int
-err (char *msg)
+err (char *message)
 {
-    perror (msg);
+    snprintf (msg, MSG_SIZE, "%s\n%s", message, strerror(errno));
+    show_dialog_message(msg);
     return -1;
 }
 
@@ -83,7 +95,7 @@ find_tag (FILE * fp, const char *tag)
         // If this is our tag, set the length and break.
         if (strncmp (tag, tag_bfr.tag, sizeof tag_bfr.tag) == 0)
         {
-        	ret_val = ENDIAN_LE32 (tag_bfr.length);
+            ret_val = ENDIAN_LE32 (tag_bfr.length);
             break;
         }
 
@@ -126,7 +138,6 @@ main (int argc, char **argv)
     int     sample_bits;
     char   *sample_buffer;
     int     fragsize = -1;
-    int     verbose = 0;
 
     int     rtn;
     int     final_return_code = -1;
@@ -143,64 +154,41 @@ main (int argc, char **argv)
     int     num_frags = -1;
     char input_file[PATH_MAX];
     char cwd[PATH_MAX];
-    screen_context_t screen_cxt;
-    screen_window_t screen_win;
-    screen_buffer_t screen_buf;
-    int screen_fill_attribs[] = { SCREEN_BLIT_COLOR, COLOR_PURPLE, SCREEN_BLIT_END };
-    int screen_dirty[4] = { 0, 0, 1024, 600 }; //start with sane default values
+    int exit_application = 0;
 
-    int idle_mode = SCREEN_IDLE_MODE_KEEP_AWAKE;
-    int usage = SCREEN_USAGE_NATIVE;
+    /*
+     * Before we can listen for events from the BlackBerry Tablet OS platform
+     * services, we need to initialize the BPS infrastructure
+     */
+    bps_initialize();
 
-    if (screen_create_context(&screen_cxt, 0) != 0)
-    {
-    	return err("failed to create context");
+    if (setup_screen() != EXIT_SUCCESS) {
+        printf("Unable to set up the screen. Exiting.");
+        return 0;
     }
 
-    if (screen_create_window(&screen_win, screen_cxt) != 0)
-    {
-    	err("failed to create window");
-    	goto fail1;
+    /*
+     * Once the BPS infrastructure has been initialized we can register for
+     * events from the various BlackBerry Tablet OS platform services. The
+     * Navigator service manages and delivers application life cycle and
+     * visibility events.
+     * For this sample, we request Navigator events so we can track when
+     * the system is terminating the application (NAVIGATOR_EXIT event). This allows
+     * us to clean up application resources.
+     */
+    if (BPS_SUCCESS != navigator_request_events(0)) {
+        fprintf(stderr, "Error requesting navigator events: %s", strerror(errno));
+        exit(-1);
     }
 
-    if (screen_set_window_property_iv(screen_win, SCREEN_PROPERTY_USAGE, &usage) != 0)
-    {
-    	err("failed to set native usage mode");
-    	goto fail2;
+    if (BPS_SUCCESS != dialog_request_events(0)) {
+        fprintf(stderr, "Error requesting dialog events: %s", strerror(errno));
+        exit(-1);
     }
-
-    if (screen_create_window_buffers(screen_win, 1) != 0)
-    {
-    	err("failed to set native usage mode");
-    	goto fail2;
-    }
-
-    if(screen_get_window_property_pv(screen_win, SCREEN_PROPERTY_RENDER_BUFFERS, (void **)&screen_buf) != 0)
-    {
-    	err("failed to get screen buffer");
-    	goto fail2;
-    }
-
-    if (screen_fill(screen_cxt, screen_buf, screen_fill_attribs) != 0) {
-    	err("failed to fill the screen");
-    	goto fail3;
-    }
-
-    if (screen_get_window_property_iv(screen_win, SCREEN_PROPERTY_BUFFER_SIZE, screen_dirty+2) != 0) {
-    	err("failed to get window size");
-    	goto fail3;
-    }
-
-    if (screen_set_window_property_iv(screen_win, SCREEN_PROPERTY_IDLE_MODE, &idle_mode) != 0)
-    {
-    	err("failed to set idle mode");
-    	goto fail3;
-    }
-
-    if (screen_post_window(screen_win, screen_buf, 1, screen_dirty, 0) != 0) {
-    	err("failed to post the window");
-    	goto fail3;
-    }
+    /*
+     * Create and display the dialog.
+     */
+    create_dialog();
 
     if ((rtn = snd_pcm_open_preferred (&pcm_handle, &card, &dev, SND_PCM_OPEN_PLAYBACK)) < 0)
     {
@@ -212,17 +200,18 @@ main (int argc, char **argv)
     rtn = snprintf(input_file, PATH_MAX, "%s%s", cwd, WAV_RELATIVE_PATH);
     if (rtn > PATH_MAX - 1)
     {
-    	err ("File name and path too long");
-    	goto fail4;
+        err ("File name and path too long");
+        goto fail4;
     }
 
     if ((file = fopen (input_file, "r")) == 0)
     {
-    	err ("File open failed");
-    	goto fail4;
+        err ("File open failed");
+        goto fail4;
     }
 
-    if (check_hdr (file) == -1) {
+    if (check_hdr (file) == -1)
+    {
         err ("check_hdr failed");
         goto fail5;
     }
@@ -235,15 +224,17 @@ main (int argc, char **argv)
     sample_channels = ENDIAN_LE16 (wav_header.channels);
     sample_bits = ENDIAN_LE16 (wav_header.bits_per_sample);
 
-    printf ("SampleRate = %d, channels = %d, SampleBits = %d\n", sample_rate, sample_channels,
+    snprintf(msg, MSG_SIZE, "SampleRate = %d, channels = %d, SampleBits = %d\n", sample_rate, sample_channels,
         sample_bits);
+    show_dialog_message(msg);
 
     /* disabling mmap is not actually required in this example but it is included to
      * demonstrate how it is used when it is required.
      */
     if ((rtn = snd_pcm_plugin_set_disable (pcm_handle, PLUGIN_DISABLE_MMAP)) < 0)
     {
-        fprintf (stderr, "snd_pcm_plugin_set_disable failed: %s\n", snd_strerror (rtn));
+        snprintf(msg, MSG_SIZE, "snd_pcm_plugin_set_disable failed: %s\n", snd_strerror (rtn));
+        show_dialog_message(msg);
         goto fail5;
     }
 
@@ -251,7 +242,8 @@ main (int argc, char **argv)
     pi.channel = SND_PCM_CHANNEL_PLAYBACK;
     if ((rtn = snd_pcm_plugin_info (pcm_handle, &pi)) < 0)
     {
-        fprintf (stderr, "snd_pcm_plugin_info failed: %s\n", snd_strerror (rtn));
+        snprintf(msg, MSG_SIZE, "snd_pcm_plugin_info failed: %s\n", snd_strerror (rtn));
+        show_dialog_message(msg);
         goto fail5;
     }
 
@@ -288,12 +280,14 @@ main (int argc, char **argv)
     strcpy (pp.sw_mixer_subchn_name, "Wave playback channel");
     if ((rtn = snd_pcm_plugin_params (pcm_handle, &pp)) < 0)
     {
-        fprintf (stderr, "snd_pcm_plugin_params failed: %s\n", snd_strerror (rtn));
+        snprintf(msg, MSG_SIZE, "snd_pcm_plugin_params failed: %s\n", snd_strerror (rtn));
+        show_dialog_message(msg);
         goto fail5;
     }
 
     if ((rtn = snd_pcm_plugin_prepare (pcm_handle, SND_PCM_CHANNEL_PLAYBACK)) < 0) {
-        fprintf (stderr, "snd_pcm_plugin_prepare failed: %s\n", snd_strerror (rtn));
+        snprintf(msg, MSG_SIZE, "snd_pcm_plugin_prepare failed: %s\n", snd_strerror (rtn));
+        show_dialog_message(msg);
         goto fail5;
     }
 
@@ -316,30 +310,40 @@ main (int argc, char **argv)
 
     if ((rtn = snd_pcm_plugin_setup (pcm_handle, &setup)) < 0)
     {
-        fprintf (stderr, "snd_pcm_plugin_setup failed: %s\n", snd_strerror (rtn));
+        snprintf(msg, MSG_SIZE, "snd_pcm_plugin_setup failed: %s\n", snd_strerror (rtn));
+        show_dialog_message(msg);
         goto fail5;
     }
-
-    printf ("Format %s \n", snd_pcm_get_format_name (setup.format.format));
-    printf ("Frag Size %d \n", setup.buf.block.frag_size);
-    printf ("Total Frags %d \n", setup.buf.block.frags);
-    printf ("Rate %d \n", setup.format.rate);
-    printf ("Voices %d \n", setup.format.voices);
-    bsize = setup.buf.block.frag_size;
 
     if (group.gid.name[0] == 0)
     {
-        fprintf (stderr, "Mixer Pcm Group [%s] Not Set \n", group.gid.name);
+        snprintf(msg, MSG_SIZE, "Mixer Pcm Group [%s] Not Set \n", group.gid.name);
+        show_dialog_message(msg);
         goto fail5;
     }
 
-    printf ("Mixer Pcm Group [%s]\n", group.gid.name);
     if ((rtn = snd_mixer_open (&mixer_handle, card, setup.mixer_device)) < 0)
     {
-        fprintf (stderr, "snd_mixer_open failed: %s\n", snd_strerror (rtn));
+        snprintf(msg, MSG_SIZE, "snd_mixer_open failed: %s\n", snd_strerror (rtn));
+        show_dialog_message(msg);
         goto fail5;
     }
 
+    char tmp[MSG_SIZE];
+    snprintf (msg, MSG_SIZE, "Format %s \n", snd_pcm_get_format_name (setup.format.format));
+    snprintf (tmp, MSG_SIZE, "Frag Size %d \n", setup.buf.block.frag_size);
+    strlcat(msg, tmp, MSG_SIZE);
+    snprintf (tmp, MSG_SIZE, "Total Frags %d \n", setup.buf.block.frags);
+    strlcat(msg, tmp, MSG_SIZE);
+    snprintf (tmp, MSG_SIZE, "Rate %d \n", setup.format.rate);
+    strlcat(msg, tmp, MSG_SIZE);
+    snprintf (tmp, MSG_SIZE, "Voices %d \n", setup.format.voices);
+    strlcat(msg, tmp, MSG_SIZE);
+    snprintf (tmp, MSG_SIZE, "Mixer Pcm Group [%s]\n", group.gid.name);
+    strlcat(msg, tmp, MSG_SIZE);
+    show_dialog_message(msg);
+
+    bsize = setup.buf.block.frag_size;
     samples = find_tag (file, "data");
     sample_buffer = malloc (bsize);
     FD_ZERO (&rfds);
@@ -357,8 +361,8 @@ main (int argc, char **argv)
 
         if (select (rtn + 1, &rfds, &wfds, NULL, NULL) == -1)
         {
-        	err ("select");
-        	goto fail6;
+            err ("select");
+            goto fail6;
         }
 
         if (FD_ISSET (snd_pcm_file_descriptor (pcm_handle, SND_PCM_CHANNEL_PLAYBACK), &wfds))
@@ -369,16 +373,13 @@ main (int argc, char **argv)
             if ((bytes_read = fread (sample_buffer, 1, min (samples - total_written, bsize), file)) <= 0)
                 continue;
             written = snd_pcm_plugin_write (pcm_handle, sample_buffer, bytes_read);
-            if (verbose)
-                printf ("bytes written = %d \n", written);
-
             if (written < bytes_read)
             {
                 memset (&status, 0, sizeof (status));
                 status.channel = SND_PCM_CHANNEL_PLAYBACK;
                 if (snd_pcm_plugin_status (pcm_handle, &status) < 0)
                 {
-                    fprintf (stderr, "underrun: playback channel status error\n");
+                    show_dialog_message("underrun: playback channel status error\n");
                     goto fail6;
                 }
 
@@ -387,7 +388,7 @@ main (int argc, char **argv)
                 {
                     if (snd_pcm_plugin_prepare (pcm_handle, SND_PCM_CHANNEL_PLAYBACK) < 0)
                     {
-                        fprintf (stderr, "underrun: playback channel prepare error\n");
+                        show_dialog_message("underrun: playback channel prepare error\n");
                         goto fail6;
                     }
                 }
@@ -409,10 +410,38 @@ fail5:
 fail4:
     rtn = snd_pcm_close (pcm_handle);
 fail3:
-    screen_destroy_buffer(screen_buf);
-fail2:
-    screen_destroy_window(screen_win);
-fail1:
-    screen_destroy_context(screen_cxt);
+
+   /*
+    * Process Navigator events until we receive a NAVIGATOR_EXIT event.
+    */
+    while (!exit_application) {
+        /*
+         * Using a negative timeout (-1) in the call to bps_get_event(...)
+         * ensures that we don't busy wait by blocking until an event is
+         * available.
+         */
+        bps_event_t *event = NULL;
+        bps_get_event(&event, -1);
+
+        if (event) {
+            /*
+             * If it is a NAVIGATOR_EXIT event then set the exit_application
+             * flag so the application will stop processing events, clean up
+             * and exit
+             */
+            if (bps_event_get_domain(event) == navigator_get_domain()) {
+                if (NAVIGATOR_EXIT == bps_event_get_code(event)) {
+                    exit_application = 1;
+                }
+            }
+        }
+    }
+    /*
+     * Destroy the dialog, if it exists and cleanup screen resources.
+     */
+    destroy_dialog();
+    cleanup_screen();
+    bps_shutdown();
+
     return final_return_code;
 }

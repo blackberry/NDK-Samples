@@ -36,11 +36,14 @@
 
     <!--  Name of author which is used for signing. Must match the developer name of your development certificate. -->
     <author>Example Inc.</author>
+    <splashscreen>sample-splashscreen-landscape.png:sample-splashscreen-portrait.png</splashscreen>
     
     <!--  Unique author ID assigned by signing authority. Required if using debug tokens. -->
     <!-- <authorId>ABC1234YjsnUk235h</authorId> -->
    
     <initialWindow>
+        <aspectRatio>landscape</aspectRatio>
+        <autoOrients>false</autoOrients>
         <systemChrome>none</systemChrome>
         <transparent>false</transparent>
     </initialWindow>
@@ -48,23 +51,24 @@
     <!--  The category where the application appears. Either core.games or core.media. -->
     <category>core.games</category>
     <asset path="icon.png">icon.png</asset>
-    <asset path="${QNX_TARGET}/../target-override/${CPUVARDIR}/usr/lib/libbps.so" type="Qnx/Elf">lib/libbps.so.1</asset>
+    <asset path="sample-splashscreen-landscape.png">sample-splashscreen-landscape.png</asset>
+    <asset path="sample-splashscreen-portrait.png">sample-splashscreen-portrait.png</asset>
     <asset path="HelloWorld_smaller_bubble.png">HelloWorld_smaller_bubble.png</asset>
     <asset path="LICENSE">LICENSE</asset>
     <asset path="NOTICE">NOTICE</asset>
-    <configuration id="com.qnx.qcc.toolChain.1331462594" name="Default">
+    <configuration id="com.qnx.qcc.toolChain.192623460" name="Default">
        <platformArchitecture>armle-v7</platformArchitecture>
        <asset path="arm/o.le-v7-g/HelloWorldDisplay" entry="true" type="Qnx/Elf">HelloWorldDisplay</asset>
     </configuration>
-    <configuration id="com.qnx.qcc.toolChain.532194076" name="Device-Debug">
+    <configuration id="com.qnx.qcc.toolChain.1891632748" name="Device-Debug">
        <platformArchitecture>armle-v7</platformArchitecture>
        <asset path="arm/o.le-v7-g/HelloWorldDisplay" entry="true" type="Qnx/Elf">HelloWorldDisplay</asset>
     </configuration>
-    <configuration id="com.qnx.qcc.toolChain.488792020" name="Device-Release">
+    <configuration id="com.qnx.qcc.toolChain.14003343" name="Device-Release">
        <platformArchitecture>armle-v7</platformArchitecture>
        <asset path="arm/o.le-v7/HelloWorldDisplay" entry="true" type="Qnx/Elf">HelloWorldDisplay</asset>
     </configuration>
-    <configuration id="com.qnx.qcc.toolChain.1665990617" name="Simulator">
+    <configuration id="com.qnx.qcc.toolChain.1986243596" name="Simulator-Debug">
        <platformArchitecture>x86</platformArchitecture>
        <asset path="x86/o-g/HelloWorldDisplay" entry="true" type="Qnx/Elf">HelloWorldDisplay</asset>
     </configuration>

@@ -42,6 +42,8 @@
     <!-- <authorId>ABC1234YjsnUk235h</authorId> -->
    
     <initialWindow>
+        <aspectRatio>landscape</aspectRatio>
+        <autoOrients>false</autoOrients>
         <systemChrome>none</systemChrome>
         <transparent>false</transparent>
     </initialWindow>
@@ -49,24 +51,23 @@
     <!--  The category where the application appears. Either core.games or core.media. -->
     <category>core.games</category>
     <asset path="icon.png">icon.png</asset>
-    <asset path="${QNX_TARGET}/../target-override/${CPUVARDIR}/usr/lib/libbps.so" type="Qnx/Elf">lib/libbps.so.1</asset>
     <asset path="sample-splashscreen-landscape.png">sample-splashscreen-landscape.png</asset>
     <asset path="sample-splashscreen-portrait.png">sample-splashscreen-portrait.png</asset>
     <asset path="LICENSE">LICENSE</asset>
     <asset path="NOTICE">NOTICE</asset>
-    <configuration id="com.qnx.qcc.toolChain.1010719456" name="Default">
+    <configuration id="com.qnx.qcc.toolChain.1770974274" name="Default">
        <platformArchitecture>armle-v7</platformArchitecture>
        <asset path="arm/o.le-v7-g/LocaleSample" entry="true" type="Qnx/Elf">LocaleSample</asset>
     </configuration>
-    <configuration id="com.qnx.qcc.toolChain.360771870" name="Device-Debug">
+    <configuration id="com.qnx.qcc.toolChain.1993598475" name="Device-Debug">
        <platformArchitecture>armle-v7</platformArchitecture>
        <asset path="arm/o.le-v7-g/LocaleSample" entry="true" type="Qnx/Elf">LocaleSample</asset>
     </configuration>
-    <configuration id="com.qnx.qcc.toolChain.719666126" name="Device-Release">
+    <configuration id="com.qnx.qcc.toolChain.1929246934" name="Device-Release">
        <platformArchitecture>armle-v7</platformArchitecture>
        <asset path="arm/o.le-v7/LocaleSample" entry="true" type="Qnx/Elf">LocaleSample</asset>
     </configuration>
-    <configuration id="com.qnx.qcc.toolChain.815941178" name="Simulator">
+    <configuration id="com.qnx.qcc.toolChain.1652804756" name="Simulator-Debug">
        <platformArchitecture>x86</platformArchitecture>
        <asset path="x86/o-g/LocaleSample" entry="true" type="Qnx/Elf">LocaleSample</asset>
     </configuration>
