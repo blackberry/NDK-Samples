@@ -820,7 +820,7 @@ int bbutil_calculate_dpi(screen_context_t ctx) {
 }
 
 int bbutil_rotate_screen_surface(int angle) {
-    int rc, rotation, skip = 1, temp;
+    int rc, rotation, skip = 1, temp;;
     EGLint interval = 1;
     int size[2];
 

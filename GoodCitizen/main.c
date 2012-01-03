@@ -38,7 +38,7 @@ static GLfloat radio_btn_unselected_tex_coord[8],
 		radio_btn_selected_tex_coord[8], shadow_tex_coord[8];
 static GLuint radio_btn_unselected, radio_btn_selected, shadow;
 static screen_context_t screen_cxt;
-static const font_t* font;
+static font_t* font;
 static float width, height, angle;
 static int shutdown, menu_active, menu_hide_animation, menu_show_animation;
 static int selected;
@@ -225,7 +225,7 @@ static void handleNavigatorEvent(bps_event_t *event) {
 }
 
 static void handle_events() {
-	int rc;
+	int rc = BPS_SUCCESS;
 
 	//Request and process available BPS events
 	for(;;) {
@@ -270,7 +270,7 @@ int resize(bps_event_t *event) {
 
 	EGLint err = eglGetError();
 	if (err != 0x3000) {
-		fprintf(stderr, "Unable to query egl surface dimensions\n");
+		fprintf(stderr, "Unable to query EGL surface dimensions\n");
 		return EXIT_FAILURE;
 	}
 
@@ -595,7 +595,7 @@ void render() {
 
 int read_from_file() {
 	//open file as binary
-	FILE *fp = fopen("app/native/save.dat", "rb");
+	FILE *fp = fopen("data/save.dat", "rb");
 
 	if (!fp) {
 		return false;
@@ -641,7 +641,7 @@ int read_from_file() {
 
 void save_to_file() {
 	//open file as binary
-	FILE *fp = fopen("app/native/save.dat", "wb");
+	FILE *fp = fopen("data/save.dat", "wb");
 
 	if (!fp) {
 		return;
@@ -659,8 +659,8 @@ int main(int argc, char *argv[]) {
 	//Initialize BPS library
 	bps_initialize();
 
-	//Use utility code to initialize EGL for 2D rendering with GL ES 1.1
-	if (EXIT_SUCCESS != bbutil_init_egl(screen_cxt, GL_ES_1, AUTO)) {
+	//Use utility code to initialize EGL for rendering with GL ES 1.1
+	if (EXIT_SUCCESS != bbutil_init_egl(screen_cxt, GL_ES_1)) {
 		fprintf(stderr, "bbutil_init_egl failed\n");
 		bbutil_terminate();
 		screen_destroy_context(screen_cxt);

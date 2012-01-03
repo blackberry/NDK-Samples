@@ -36,6 +36,7 @@
 
     <!--  Name of author which is used for signing. Must match the developer name of your development certificate. -->
     <author>Example Inc.</author>
+    <splashscreen>sample-splashscreen-landscape.png:sample-splashscreen-portrait.png</splashscreen>
     
     <!--  Unique author ID assigned by signing authority. Required if using debug tokens. -->
     <!-- <authorId>ABC1234YjsnUk235h</authorId> -->
@@ -48,22 +49,23 @@
     <!--  The category where the application appears. Either core.games or core.media. -->
     <category>core.games</category>
     <asset path="icon.png">icon.png</asset>
-    <asset path="${QNX_TARGET}/../target-override/${CPUVARDIR}/usr/lib/libbps.so" type="Qnx/Elf">lib/libbps.so.1</asset>
+    <asset path="sample-splashscreen-landscape.png">sample-splashscreen-landscape.png</asset>
+    <asset path="sample-splashscreen-portrait.png">sample-splashscreen-portrait.png</asset>
     <asset path="LICENSE">LICENSE</asset>
     <asset path="NOTICE">NOTICE</asset>
-    <configuration id="com.qnx.qcc.toolChain.659480902" name="Default">
+    <configuration id="com.qnx.qcc.toolChain.241773269" name="Default">
        <platformArchitecture>armle-v7</platformArchitecture>
        <asset path="arm/o.le-v7-g/HelloWorldConsole" entry="true" type="Qnx/Elf">HelloWorldConsole</asset>
     </configuration>
-    <configuration id="com.qnx.qcc.toolChain.1832540210" name="Device-Debug">
+    <configuration id="com.qnx.qcc.toolChain.296664683" name="Device-Debug">
        <platformArchitecture>armle-v7</platformArchitecture>
        <asset path="arm/o.le-v7-g/HelloWorldConsole" entry="true" type="Qnx/Elf">HelloWorldConsole</asset>
     </configuration>
-    <configuration id="com.qnx.qcc.toolChain.1654309397" name="Device-Release">
+    <configuration id="com.qnx.qcc.toolChain.2133515247" name="Device-Release">
        <platformArchitecture>armle-v7</platformArchitecture>
        <asset path="arm/o.le-v7/HelloWorldConsole" entry="true" type="Qnx/Elf">HelloWorldConsole</asset>
     </configuration>
-    <configuration id="com.qnx.qcc.toolChain.1948960006" name="Simulator">
+    <configuration id="com.qnx.qcc.toolChain.1418667674" name="Simulator-Debug">
        <platformArchitecture>x86</platformArchitecture>
        <asset path="x86/o-g/HelloWorldConsole" entry="true" type="Qnx/Elf">HelloWorldConsole</asset>
     </configuration>

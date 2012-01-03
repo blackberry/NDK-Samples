@@ -22,7 +22,7 @@
 #include <sys/keycodes.h>
 #include <screen/screen.h>
 #include <assert.h>
-#include <bps/accelerometer.h>
+#include <bps/sensor.h>
 #include <bps/navigator.h>
 #include <bps/screen.h>
 #include <bps/bps.h>
@@ -81,7 +81,7 @@ int init_blocks() {
 
 	EGLint err = eglGetError();
 	if (err != 0x3000) {
-		fprintf(stderr, "Unable to query egl surface dimensions\n");
+		fprintf(stderr, "Unable to query EGL surface dimensions\n");
 		return EXIT_FAILURE;
 	}
 
@@ -325,38 +325,21 @@ static void handleNavigatorEvent(bps_event_t *event) {
 	}
 }
 
-static void handleAccelerometer() {
-	static bool first = true;
-	double result_x = 0.0f, result_y = -1.0f;
+static void handleSensorEvent(bps_event_t *event) {
+	if (SENSOR_AZIMUTH_PITCH_ROLL_READING == bps_event_get_code(event)) {
+		float azimuth, pitch, roll;
+		float result_x = 0.0f, result_y = -1.0f;
 
-	//At this point accelerometer is not supported on simulator
-	if (accelerometer_is_supported()) {
-		int rc;
+		sensor_event_get_apr(event, &azimuth, &pitch, &roll);
 
-		if (first) {
-			//Set accelerometer update frequency on the first pass.
-			rc = accelerometer_set_update_frequency(FREQ_40_HZ);
-			assert(rc == BPS_SUCCESS);
-
-			first = false;
-		}
-
-		double x, y, z;
-		rc = accelerometer_read_forces(&x, &y, &z);
-		assert(rc == BPS_SUCCESS);
-
-		double roll = ACCELEROMETER_CALCULATE_ROLL(x, y, z);
-		double pitch = ACCELEROMETER_CALCULATE_PITCH(x, y, z);
-
-		double radians = abs(roll) * M_PI / 180; //+ adjustment_angle;
-		double horizontal = sin(radians) * 0.5f;
-		double vertical = cos(radians) * 0.5f;
+		float radians = abs(roll) * M_PI / 180 ;//+ adjustment_angle;
+		float horizontal = sin(radians) * 0.5f;
+		float vertical = cos(radians) * 0.5f;
 
 		if (pitch < 0) {
 			vertical = -vertical;
 		}
-
-		if (roll < 0) {
+		if (roll >= 0) {
 			horizontal = -horizontal;
 		}
 
@@ -374,32 +357,36 @@ static void handleAccelerometer() {
 			result_x = vertical;
 			result_y = -horizontal;
 		}
-	}
 
-	set_gravity(result_x, result_y);
+		set_gravity(result_x, result_y);
+	}
 }
 
 static void handle_events() {
-	int rc;
+	int screen_domain = screen_get_domain();
+	int navigator_domain = navigator_get_domain();
+	int sensor_domain = sensor_get_domain();
 
-	handleAccelerometer();
+	int rc;
 
 	//Request and process available BPS events
 	for(;;) {
 		bps_event_t *event = NULL;
 		rc = bps_get_event(&event, 0);
-
 		assert(rc == BPS_SUCCESS);
 
 		if (event) {
 			int domain = bps_event_get_domain(event);
 
-			if (domain == screen_get_domain()) {
+			if (domain == screen_domain) {
 				handleScreenEvent(event);
-			} else if (domain == navigator_get_domain()) {
+			} else if (domain == navigator_domain) {
 				handleNavigatorEvent(event);
+			} else if (domain == sensor_domain) {
+				handleSensorEvent(event);
 			}
 		} else {
+			//No more events in the queue
 			break;
 		}
 	}
@@ -418,8 +405,8 @@ int main(int argc, char **argv) {
 	orientation_direction_t direction;
 	orientation_get(&direction, &orientation_angle);
 
-	//Use utility code to initialize EGL for 2D rendering with GL ES 1.1
-	if (EXIT_SUCCESS != bbutil_init_egl(screen_cxt, GL_ES_1, AUTO)) {
+	//Use utility code to initialize EGL for rendering with GL ES 1.1
+	if (EXIT_SUCCESS != bbutil_init_egl(screen_cxt, GL_ES_1)) {
 		fprintf(stderr, "bbutil_init_egl failed\n");
 		bbutil_terminate();
 		screen_destroy_context(screen_cxt);
@@ -457,11 +444,28 @@ int main(int argc, char **argv) {
 		return 0;
 	}
 
+	//Setup Sensors
+	if (sensor_is_supported(SENSOR_TYPE_AZIMUTH_PITCH_ROLL)) {
+		//Microseconds between sensor reads. This is the rate at which the
+		//sensor data will be updated from hardware. The hardware update
+		//rate is set below using sensor_set_rate.
+		static const int SENSOR_RATE = 25000;
+
+		//Initialize the sensor by setting the rates at which the
+		//sensor values will be updated from hardware
+		sensor_set_rate(SENSOR_TYPE_AZIMUTH_PITCH_ROLL, SENSOR_RATE);
+
+		sensor_set_skip_duplicates(SENSOR_TYPE_AZIMUTH_PITCH_ROLL, true);
+		sensor_request_events(SENSOR_TYPE_AZIMUTH_PITCH_ROLL);
+	} else {
+		set_gravity(0.0f, -1.0f);
+	}
+
 	//Start with one cube on the screen
 	add_cube(200, 100);
 
 	while (!shutdown) {
-		// Handle user input and accelerometer
+		// Handle user input and sensors
 		handle_events();
 
 		//Update cube positions

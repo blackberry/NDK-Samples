@@ -32,3 +32,5 @@ include $(MKFILES_ROOT)/qtargets.mk
 
 OPTIMIZE_TYPE_g=none
 OPTIMIZE_TYPE=$(OPTIMIZE_TYPE_$(filter g, $(VARIANTS)))
+
+-include $(PROJECT_ROOT)/../samples.mk

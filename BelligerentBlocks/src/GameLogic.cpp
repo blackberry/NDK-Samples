@@ -356,12 +356,14 @@ void GameLogic::renderGame() {
     //Display score
     char buf[100];
     sprintf(buf, "%i\0", m_score);
+
     glColor4f(0.75f, 0.75f, 0.75f, 1.0f);
     bbutil_render_text(m_scoreFont, buf, m_scorePosX, m_scorePosY);
 
     //Display timer if it is available
     if (m_showClock) {
         sprintf(buf, "Time left %i\0", m_time - m_scoreTime - 1l);
+        glColor4f(0.75f, 0.75f, 0.75f, 1.0f);
         bbutil_render_text(m_font, buf, m_timerPosX, m_timerPosY);
     }
 
@@ -403,11 +405,13 @@ void GameLogic::renderLeadBoard() {
 
         for (int i = 0; i < static_cast<int>(m_leaderboard.size()); i++) {
             sprintf(buf, "%i. %s", m_leaderboard[i].rank(), m_leaderboard[i].name().c_str());
+            glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
             bbutil_render_text(m_leaderboardFont, buf, m_leaderBoard.PosX() - m_leaderBoard.Width() / 2 + LEADERBOARD_LINE_OFFSET_X, posY);
 
             sprintf(buf, "%i", m_leaderboard[i].score());
             bbutil_measure_text(m_leaderboardFont, buf, &sizeX, &sizeY);
 
+            glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
             bbutil_render_text(m_leaderboardFont, buf, m_leaderBoard.PosX() + m_leaderBoard.Width() / 2 - sizeX - LEADERBOARD_LINE_OFFSET_X, posY);
 
             posY -= sizeY + 10.0f;
@@ -496,13 +500,12 @@ void GameLogic::reset() {
 
 void GameLogic::onLeftRelease(float x, float y) {
     if (m_state == LeaderBoard && m_leaderBoardReady) {
-        if (m_playButton.isPressed) {
-            m_playButton.isPressed = false;
-            m_playButton.textY--;
-            if (m_playButton.isWithin(x, m_sceneHeight - y)) {
-                reset();
-            }
+        if (m_playButton.isPressed && m_playButton.isWithin(x, m_sceneHeight - y)) {
+            reset();
         }
+
+        m_playButton.isPressed = false;
+        m_playButton.textY--;
     } else if (m_state == GamePlay) {
         if (m_gamePaused) {
             m_gamePaused = false;

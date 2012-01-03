@@ -74,8 +74,8 @@ Platform::Platform()
     dialog_request_events(0);
 
     // Lock in landscape mode.
-    bbutil_init_egl(m_screenContext, GL_ES_1);
     navigator_rotation_lock(true);
+    bbutil_init_egl(m_screenContext, GL_ES_1);
 }
 
 Platform::~Platform() {
@@ -95,7 +95,7 @@ Platform::~Platform() {
 
 bool Platform::init() {
     // Fire up BBM Game SDK (Scoreloop)
-    PAL_InitData_Init(&m_scoreloopInitData);
+    SC_InitData_Init(&m_scoreloopInitData);
 
     SC_Error_t rc = SC_Client_New(&m_scoreloopClient,
             &m_scoreloopInitData,
@@ -212,7 +212,7 @@ void Platform::processEvents() {
 
         // Give Scoreloop the first shot at handling the event
         // (for callbacks)
-        if (PAL_HandleBPSEvent(&m_scoreloopInitData, event) == BPS_SUCCESS) {
+        if (SC_HandleBPSEvent(&m_scoreloopInitData, event) == BPS_SUCCESS) {
             continue;
         }
 
@@ -251,10 +251,11 @@ void Platform::processEvents() {
                 int pointerButton;
                 screen_get_event_property_iv(screenEvent, SCREEN_PROPERTY_BUTTONS, &pointerButton);
 
-                if ((pointerButton & SCREEN_LEFT_MOUSE_BUTTON) && !m_buttonPressed) {
+                if (pointerButton == SCREEN_LEFT_MOUSE_BUTTON) {
+                    ASSERT(!m_buttonPressed);
                     m_buttonPressed = true;
                     m_handler->onLeftPress(static_cast<float>(screenEventPosition[0]), static_cast<float>(screenEventPosition[1]));
-                } else if (!(pointerButton & SCREEN_LEFT_MOUSE_BUTTON) && m_buttonPressed) {
+                } else if (m_buttonPressed) {
                     m_handler->onLeftRelease(static_cast<float>(screenEventPosition[0]), static_cast<float>(screenEventPosition[1]));
                     m_buttonPressed = false;
                 }

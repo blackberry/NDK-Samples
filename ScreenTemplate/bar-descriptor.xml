@@ -36,7 +36,6 @@
 
     <!--  Name of author which is used for signing. Must match the developer name of your development certificate. -->
     <author>Example Inc.</author>
-    <splashscreen>sample-splashscreen-landscape.png:sample-splashscreen-portrait.png</splashscreen>
     
     <!--  Unique author ID assigned by signing authority. Required if using debug tokens. -->
     <!-- <authorId>ABC1234YjsnUk235h</authorId> -->
@@ -48,32 +47,28 @@
     
     <!--  The category where the application appears. Either core.games or core.media. -->
     <category>core.games</category>
-    <asset path="icon.png">icon.png</asset>
-    <asset path="${QNX_TARGET}/../target-override/${CPUVARDIR}/usr/lib/libbps.so" type="Qnx/Elf">lib/libbps.so.1</asset>
-    <asset path="sample-splashscreen-landscape.png">sample-splashscreen-landscape.png</asset>
-    <asset path="sample-splashscreen-portrait.png">sample-splashscreen-portrait.png</asset>
     <asset path="LICENSE">LICENSE</asset>
     <asset path="NOTICE">NOTICE</asset>
-    <configuration id="com.qnx.qcc.toolChain.1202871030" name="Default">
+    <configuration id="com.qnx.qcc.toolChain.285988061" name="Default">
        <platformArchitecture>armle-v7</platformArchitecture>
        <asset path="arm/o.le-v7-g/ScreenTemplate" entry="true" type="Qnx/Elf">ScreenTemplate</asset>
     </configuration>
-    <configuration id="com.qnx.qcc.toolChain.1761467997" name="Device-Debug">
+    <configuration id="com.qnx.qcc.toolChain.2119956823" name="Device-Debug">
        <platformArchitecture>armle-v7</platformArchitecture>
        <asset path="arm/o.le-v7-g/ScreenTemplate" entry="true" type="Qnx/Elf">ScreenTemplate</asset>
     </configuration>
-    <configuration id="com.qnx.qcc.toolChain.45505423" name="Device-Release">
+    <configuration id="com.qnx.qcc.toolChain.1411721548" name="Device-Release">
        <platformArchitecture>armle-v7</platformArchitecture>
        <asset path="arm/o.le-v7/ScreenTemplate" entry="true" type="Qnx/Elf">ScreenTemplate</asset>
     </configuration>
-    <configuration id="com.qnx.qcc.toolChain.858157969" name="Simulator">
+    <configuration id="com.qnx.qcc.toolChain.1534282551" name="Simulator-Debug">
        <platformArchitecture>x86</platformArchitecture>
        <asset path="x86/o-g/ScreenTemplate" entry="true" type="Qnx/Elf">ScreenTemplate</asset>
     </configuration>
     
     <!--  The icon for the application, which should be 86x86. -->
     <icon>
-       <image>icon.png</image>
+       <image></image>
     </icon>
     
     <!--  The splash screen that will appear when your application is launching. Should be 1024x600. -->

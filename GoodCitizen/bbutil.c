@@ -47,6 +47,22 @@ static screen_display_t screen_disp;
 static int nbuffers = 2;
 static int initialized = 0;
 
+struct font_t {
+	unsigned int font_texture;
+	float pt;
+	float advance[128];
+	float width[128];
+	float height[128];
+	float tex_x1[128];
+	float tex_x2[128];
+	float tex_y1[128];
+	float tex_y2[128];
+	float offset_x[128];
+	float offset_y[128];
+	int initialized;
+};
+
+
 static void
 bbutil_egl_perror(const char *msg) {
     static const char *errmsg[] = {
@@ -69,99 +85,30 @@ bbutil_egl_perror(const char *msg) {
 
     fprintf(stderr, "%s: %s\n", msg, errmsg[eglGetError() - EGL_SUCCESS]);
 }
-EGLConfig bbutil_choose_config(EGLDisplay egl_disp, enum RENDERING_API api) {
-    EGLConfig egl_conf = (EGLConfig)0;
-    EGLConfig *egl_configs;
-    EGLint egl_num_configs;
-    EGLint val;
-    EGLBoolean rc;
-    EGLint i;
-
-    rc = eglGetConfigs(egl_disp, NULL, 0, &egl_num_configs);
-    if (rc != EGL_TRUE) {
-        bbutil_egl_perror("eglGetConfigs");
-        return egl_conf;
-    }
-    if (egl_num_configs == 0) {
-        fprintf(stderr, "eglGetConfigs: could not find a configuration\n");
-        return egl_conf;
-    }
-
-    egl_configs = malloc(egl_num_configs * sizeof(*egl_configs));
-    if (egl_configs == NULL) {
-        fprintf(stderr, "could not allocate memory for %d EGL configs\n", egl_num_configs);
-        return egl_conf;
-    }
-
-    rc = eglGetConfigs(egl_disp, egl_configs,
-        egl_num_configs, &egl_num_configs);
-    if (rc != EGL_TRUE) {
-        bbutil_egl_perror("eglGetConfigs");
-        free(egl_configs);
-        return egl_conf;
-    }
-
-    for (i = 0; i < egl_num_configs; i++) {
-        eglGetConfigAttrib(egl_disp, egl_configs[i], EGL_SURFACE_TYPE, &val);
-        if (!(val & EGL_WINDOW_BIT)) {
-            continue;
-        }
-
-        eglGetConfigAttrib(egl_disp, egl_configs[i], EGL_RENDERABLE_TYPE, &val);
-        if (!(val & api)) {
-            continue;
-        }
-
-        eglGetConfigAttrib(egl_disp, egl_configs[i], EGL_DEPTH_SIZE, &val);
-        if ((api & (GL_ES_1|GL_ES_2)) && (val == 0)) {
-            continue;
-        }
-
-        eglGetConfigAttrib(egl_disp, egl_configs[i], EGL_RED_SIZE, &val);
-        if (val != 8) {
-            continue;
-        }
-        eglGetConfigAttrib(egl_disp, egl_configs[i], EGL_GREEN_SIZE, &val);
-        if (val != 8) {
-            continue;
-        }
-
-        eglGetConfigAttrib(egl_disp, egl_configs[i], EGL_BLUE_SIZE, &val);
-        if (val != 8) {
-            continue;
-        }
-
-        eglGetConfigAttrib(egl_disp, egl_configs[i], EGL_BUFFER_SIZE, &val);
-        if (val != 32) {
-            continue;
-        }
-
-        egl_conf = egl_configs[i];
-        break;
-    }
-
-    free(egl_configs);
-
-    if (egl_conf == (EGLConfig)0) {
-        fprintf(stderr, "bbutil_choose_config: could not find a matching configuration\n");
-    }
-
-    return egl_conf;
-}
 
 int
-bbutil_init_egl(screen_context_t ctx, enum RENDERING_API api, enum ORIENTATION orientation) {
+bbutil_init_egl(screen_context_t ctx, enum RENDERING_API api) {
     int usage;
     int format = SCREEN_FORMAT_RGBX8888;
     EGLint interval = 1;
-    int rc;
+    int rc, num_configs;
     EGLint attributes[] = { EGL_CONTEXT_CLIENT_VERSION, 2, EGL_NONE };
+
+    EGLint attrib_list[]= { EGL_RED_SIZE,        8,
+                            EGL_GREEN_SIZE,      8,
+                            EGL_BLUE_SIZE,       8,
+                            EGL_BLUE_SIZE,       8,
+                            EGL_SURFACE_TYPE,    EGL_WINDOW_BIT,
+                            EGL_RENDERABLE_TYPE, EGL_OPENGL_ES_BIT,
+                            EGL_NONE};
 
     if (api == GL_ES_1) {
         usage = SCREEN_USAGE_OPENGL_ES1 | SCREEN_USAGE_ROTATION;
     } else if (api == GL_ES_2) {
+    	attrib_list[11] = EGL_OPENGL_ES2_BIT;
         usage = SCREEN_USAGE_OPENGL_ES2 | SCREEN_USAGE_ROTATION;
     } else if (api == VG) {
+    	attrib_list[11] = EGL_OPENVG_BIT;
         usage = SCREEN_USAGE_OPENVG | SCREEN_USAGE_ROTATION;
     } else {
         fprintf(stderr, "invalid api setting\n");
@@ -197,8 +144,7 @@ bbutil_init_egl(screen_context_t ctx, enum RENDERING_API api, enum ORIENTATION o
         return EXIT_FAILURE;
     }
 
-    egl_conf = bbutil_choose_config(egl_disp, api);
-    if (egl_conf == (EGLConfig)0) {
+    if(!eglChooseConfig(egl_disp, attrib_list, &egl_conf, 1, &num_configs)) {
         bbutil_terminate();
         return EXIT_FAILURE;
     }
@@ -243,65 +189,56 @@ bbutil_init_egl(screen_context_t ctx, enum RENDERING_API api, enum ORIENTATION o
         return EXIT_FAILURE;
     }
 
-    if (orientation != AUTO) {
-        int screen_resolution[2];
+    int angle = atoi(getenv("ORIENTATION"));
 
-        rc = screen_get_display_property_iv(screen_disp, SCREEN_PROPERTY_SIZE, screen_resolution);
-        if (rc) {
-            perror("screen_get_display_property_iv");
-            bbutil_terminate();
-            return EXIT_FAILURE;
-        }
+	screen_display_mode_t screen_mode;
+	rc = screen_get_display_property_pv(screen_disp, SCREEN_PROPERTY_MODE, (void**)&screen_mode);
+	if (rc) {
+		perror("screen_get_display_property_pv");
+		bbutil_terminate();
+		return EXIT_FAILURE;
+	}
 
-        int angle = atoi(getenv("ORIENTATION"));
-        int buffer_size[2] = {screen_resolution[0], screen_resolution[1]};
-        int flip = 0;
+	int size[2];
+	rc = screen_get_window_property_iv(screen_win, SCREEN_PROPERTY_BUFFER_SIZE, size);
+	if (rc) {
+		perror("screen_get_window_property_iv");
+		bbutil_terminate();
+		return EXIT_FAILURE;
+	}
 
-        if ((orientation == LANDSCAPE) && (buffer_size[0] < buffer_size[1])){
-            //In portrait, rotate to landscape
-            buffer_size[0] = screen_resolution[1];
-            buffer_size[1] = screen_resolution[0];
+	int buffer_size[2] = {size[0], size[1]};
 
-            if ((angle == 0) || (angle == 180)) {
-                //Portrait device in portrait mode
-                angle = 90;
-            } else if ((angle == 90) || (angle == 270)) {
-                //Landscape device in portrait mode
-                angle = 0;
-            }
+	if ((angle == 0) || (angle == 180)) {
+		if (((screen_mode.width > screen_mode.height) && (size[0] < size[1])) ||
+			((screen_mode.width < screen_mode.height) && (size[0] > size[1]))) {
+				buffer_size[1] = size[0];
+				buffer_size[0] = size[1];
+		}
+	} else if ((angle == 90) || (angle == 270)){
+		if (((screen_mode.width > screen_mode.height) && (size[0] > size[1])) ||
+			((screen_mode.width < screen_mode.height && size[0] < size[1]))) {
+				buffer_size[1] = size[0];
+				buffer_size[0] = size[1];
+		}
+	} else {
+		 fprintf(stderr, "Navigator returned an unexpected orientation angle.\n");
+		 bbutil_terminate();
+		 return EXIT_FAILURE;
+	}
 
-            flip = 1;
-        } else if ((orientation == PORTRAIT) && (buffer_size[0] > buffer_size[1])) {
-            //In landscape, rotate to portrait
-            buffer_size[0] = screen_resolution[1];
-            buffer_size[1] = screen_resolution[0];
+	rc = screen_set_window_property_iv(screen_win, SCREEN_PROPERTY_BUFFER_SIZE, buffer_size);
+    if (rc) {
+        perror("screen_set_window_property_iv");
+        bbutil_terminate();
+        return EXIT_FAILURE;
+    }
 
-            if ((angle == 0) || (angle == 180)) {
-                //Landscape device in landscape mode
-                angle = 90;
-            } else if ((angle == 90) || (angle == 270)) {
-                //Portrait device in landscape mode
-                angle = 0;
-            }
-
-            flip = 1;
-        }
-
-        if (flip) {
-            rc = screen_set_window_property_iv(screen_win, SCREEN_PROPERTY_ROTATION, &angle);
-            if (rc) {
-                perror("screen_set_window_property_iv");
-                bbutil_terminate();
-                return EXIT_FAILURE;
-            }
-
-            rc = screen_set_window_property_iv(screen_win, SCREEN_PROPERTY_BUFFER_SIZE, buffer_size);
-            if (rc) {
-                perror("screen_set_window_property_iv");
-                bbutil_terminate();
-                return EXIT_FAILURE;
-            }
-        }
+    rc = screen_set_window_property_iv(screen_win, SCREEN_PROPERTY_ROTATION, &angle);
+    if (rc) {
+        perror("screen_set_window_property_iv");
+        bbutil_terminate();
+        return EXIT_FAILURE;
     }
 
     rc = screen_create_window_buffers(screen_win, nbuffers);
@@ -379,7 +316,7 @@ nextp2(int x)
     return val;
 }
 
-const font_t* bbutil_load_font(const char* path, int point_size, int dpi) {
+font_t* bbutil_load_font(const char* path, int point_size, int dpi) {
     FT_Library library;
     FT_Face face;
     int c;
@@ -525,7 +462,7 @@ const font_t* bbutil_load_font(const char* path, int point_size, int dpi) {
     return font;
 }
 
-void bbutil_render_text(const font_t* font, const char* msg, float x, float y) {
+void bbutil_render_text(font_t* font, const char* msg, float x, float y) {
     int i, c;
     GLfloat *vertices;
     GLfloat *texture_coords;
@@ -644,17 +581,17 @@ void bbutil_render_text(const font_t* font, const char* msg, float x, float y) {
     free(indices);
 }
 
-void bbutil_destroy_font(const font_t* font) {
+void bbutil_destroy_font(font_t* font) {
     if (!font) {
         return;
     }
 
     glDeleteTextures(1, &(font->font_texture));
 
-    free((void *)font);
+    free(font);
 }
 
-void bbutil_measure_text(const font_t* font, const char* msg, float* width, float* height) {
+void bbutil_measure_text(font_t* font, const char* msg, float* width, float* height) {
     int i, c;
 
     if (!msg) {
