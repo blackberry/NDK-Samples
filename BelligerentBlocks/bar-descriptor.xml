@@ -14,14 +14,15 @@
 
    <author>Nick</author>
    <authorId>gYAAgBCI5M5R1tDO2eqZpWppG0U</authorId>
-   <category>core.games</category>
 
    <initialWindow>
       <systemChrome>none</systemChrome>
       <transparent>false</transparent>
-      <autoOrients>false</autoOrients>
       <aspectRatio>landscape</aspectRatio>
+      <autoOrients>false</autoOrients>
    </initialWindow>
+
+   <category>core.games</category>
 
    <!-- Graphic resources -->
    <asset path="Assets/Background.png">Background.png</asset>
@@ -31,10 +32,10 @@
    <asset path="Assets/leaderboard.png">leaderboard.png</asset>
    <asset path="Assets/resting.png">resting.png</asset>
    <asset path="Assets/icon.png">icon.png</asset>
+   <asset path="Assets/splash.png">splash.png</asset>
    <asset path="Assets/belligerent_small.png">belligerent_small.png</asset>
    <asset path="Assets/resting_small.png">resting_small.png</asset>
    <asset path="Assets/ground.png">ground.png</asset>
-   <asset path="Assets/splash.png">splash.png</asset>
 
     <!-- Sound resources -->
    <asset path="Assets/background.wav">background.wav</asset>
@@ -45,6 +46,7 @@
 
    <!-- High score database -->
    <asset path="Assets/scores.db">data/scores.db</asset>
+
 
    <icon><image>icon.png</image></icon>
    <splashscreen>splash.png</splashscreen>
@@ -57,47 +59,15 @@
    
    <env var="LD_LIBRARY_PATH" value="app/native/lib"/>
    
-   <!-- target-override libraries that need to be bundled onto the device -->   
-   <configuration id="com.qnx.qcc.configuration.exe.debug.286133895" name="Device-Debug">
-      <asset path="${QNX_TARGET}\..\target-override\armle-v7\usr\lib\libbps.so.1" type="Qnx/Elf">lib/libbps.so.1</asset>
-      <asset path="${QNX_TARGET}\..\target-override\armle-v7\usr\lib\libOpenAL.so.1" type="Qnx/Elf">lib/libOpenAL.so.1</asset>
-      <asset path="${QNX_TARGET}\..\target-override\armle-v7\usr\lib\libalut.so.1" type="Qnx/Elf">lib/libalut.so.1</asset>
-      <asset path="Device-Debug/BelligerentBlocks" entry="true" type="Qnx/Elf">BelligerentBlocks</asset>
+   <configuration id="com.qnx.qcc.configuration.exe.release.1871319401" name="Device-Release">
+      <asset path="Device-Release/BelligerentBlocks" entry="true" type="Qnx/Elf">Blocks</asset>
    </configuration>
-   <configuration id="com.qnx.qcc.configuration.exe.release.1268219428" name="Device-Release">
-      <asset path="${QNX_TARGET}\..\target-override\armle-v7\usr\lib\libbps.so.1" type="Qnx/Elf">lib/libbps.so.1</asset>
-      <asset path="${QNX_TARGET}\..\target-override\armle-v7\usr\lib\libOpenAL.so.1" type="Qnx/Elf">lib/libOpenAL.so.1</asset>
-      <asset path="${QNX_TARGET}\..\target-override\armle-v7\usr\lib\libalut.so.1" type="Qnx/Elf">lib/libalut.so.1</asset>
-      <asset path="Device-Release/BelligerentBlocks" entry="true" type="Qnx/Elf">BelligerentBlocks</asset>
+
+   <configuration id="com.qnx.qcc.configuration.exe.debug.834434315" name="Simulator">
+      <asset path="Simulator/BelligerentBlocks" entry="true" type="Qnx/Elf">Blocks</asset>
    </configuration>
-   <configuration id="com.qnx.qcc.configuration.exe.debug.1459937202" name="Simulator">
-      <asset path="${QNX_TARGET}\..\target-override\x86\usr\lib\libOpenAL.so.1" type="Qnx/Elf">lib/libOpenAL.so.1</asset>
-      <asset path="${QNX_TARGET}\..\target-override\x86\usr\lib\libalut.so.1" type="Qnx/Elf">lib/libalut.so.1</asset>
-   	  <asset path="${QNX_TARGET}\..\target-override\x86\usr\lib\libbps.so.1" type="Qnx/Elf">lib/libbps.so.1</asset>
-      <asset path="Simulator/BelligerentBlocks" entry="true" type="Qnx/Elf">BelligerentBlocks</asset>
-   </configuration>
-   <configuration id="com.qnx.qcc.configuration.exe.profile.568639964" name="Device-Profile">
-      <asset path="${QNX_TARGET}\..\target-override\armle-v7\usr\lib\libbps.so.1" type="Qnx/Elf">lib/libbps.so.1</asset>
-      <asset path="${QNX_TARGET}\..\target-override\armle-v7\usr\lib\libOpenAL.so.1" type="Qnx/Elf">lib/libOpenAL.so.1</asset>
-      <asset path="${QNX_TARGET}\..\target-override\armle-v7\usr\lib\libalut.so.1" type="Qnx/Elf">lib/libalut.so.1</asset>
-      <asset path="Device-Profile/BelligerentBlocks" entry="true" type="Qnx/Elf">BelligerentBlocks</asset>
-   </configuration>
-   <configuration id="com.qnx.qcc.configuration.exe.profile.coverage.1490198268" name="Device-Coverage">
-      <asset path="${QNX_TARGET}\..\target-override\armle-v7\usr\lib\libbps.so.1" type="Qnx/Elf">lib/libbps.so.1</asset>
-      <asset path="${QNX_TARGET}\..\target-override\armle-v7\usr\lib\libOpenAL.so.1" type="Qnx/Elf">lib/libOpenAL.so.1</asset>
-      <asset path="${QNX_TARGET}\..\target-override\armle-v7\usr\lib\libalut.so.1" type="Qnx/Elf">lib/libalut.so.1</asset>
-      <asset path="Device-Coverage/BelligerentBlocks" entry="true" type="Qnx/Elf">BelligerentBlocks</asset>
-   </configuration>
-   <configuration id="com.qnx.qcc.configuration.exe.profile.113216683" name="Simulator-Profile">
-      <asset path="${QNX_TARGET}\..\target-override\x86\usr\lib\libOpenAL.so.1" type="Qnx/Elf">lib/libOpenAL.so.1</asset>
-      <asset path="${QNX_TARGET}\..\target-override\x86\usr\lib\libalut.so.1" type="Qnx/Elf">lib/libalut.so.1</asset>
-      <asset path="${QNX_TARGET}\..\target-override\x86\usr\lib\libbps.so.1" type="Qnx/Elf">lib/libbps.so.1</asset>   
-      <asset path="Simulator-Profile/BelligerentBlocks" entry="true" type="Qnx/Elf">BelligerentBlocks</asset>
-   </configuration>
-   <configuration id="com.qnx.qcc.configuration.exe.profile.coverage.339504475" name="Simulator-Coverage">
-      <asset path="${QNX_TARGET}\..\target-override\x86\usr\lib\libOpenAL.so.1" type="Qnx/Elf">lib/libOpenAL.so.1</asset>
-      <asset path="${QNX_TARGET}\..\target-override\x86\usr\lib\libalut.so.1" type="Qnx/Elf">lib/libalut.so.1</asset>
-      <asset path="${QNX_TARGET}\..\target-override\x86\usr\lib\libbps.so.1" type="Qnx/Elf">lib/libbps.so.1</asset>   
-      <asset path="Simulator-Coverage/BelligerentBlocks" entry="true" type="Qnx/Elf">BelligerentBlocks</asset>
+
+   <configuration id="com.qnx.qcc.configuration.exe.debug.2070588019" name="Device-Debug">
+      <asset path="Device-Debug/BelligerentBlocks" entry="true" type="Qnx/Elf">Blocks</asset>
    </configuration>
 </qnx>
