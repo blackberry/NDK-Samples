@@ -15,10 +15,19 @@
  */
 
 #include <bps/bps.h>
+#include <bps/dialog.h>
 #include <bps/locale.h>
 #include <bps/navigator.h>
 #include <stdio.h>
 #include <stdlib.h>
+
+#include "dialogutil.h"
+/*
+ * buffer to store messages that we will display in the dialog
+ */
+#define MSG_SIZE 1024
+static char msg[MSG_SIZE];
+
 
 /**
  * Print the Locale data.
@@ -32,12 +41,16 @@ display_locale(const char *language, const char *country)
     /*
      * Print the locale values
      */
-    if(language) {
-        printf("Language: %s\n", language); fflush(stdout);
+    if(language == NULL) {
+       language = "None";
     }
-    if(country) {
-        printf("Country: %s\n", country); fflush(stdout);
+
+    if(country == NULL) {
+       country = "None";
     }
+
+    snprintf(msg, MSG_SIZE, "Language: %s\n Country: %s\n", language, country);
+    show_dialog_message(msg);
 }
 
 /**
@@ -54,6 +67,11 @@ main(int argc, char *argv[])
      */
     bps_initialize();
 
+    if (setup_screen() != EXIT_SUCCESS) {
+        printf("Unable to set up the screen. Exiting.");
+        return 0;
+    }
+
     /*
      * Once the BPS infrastructure has been initialized we can register for
      * events from the various BlackBerry Tablet OS platform services. The
@@ -65,6 +83,12 @@ main(int argc, char *argv[])
      */
     navigator_request_events(0);
     locale_request_events(0);
+    dialog_request_events(0);
+
+    /*
+     * Create and display the dialog.
+     */
+    create_dialog();
 
     /*
      * Retrieve and display the current Locale using the locale_get(...) API
@@ -73,8 +97,8 @@ main(int argc, char *argv[])
     char* language = NULL;
     locale_get(&language, &country);
     display_locale(language, country);
-    free((char*)language);
-    free((char*)country);
+    bps_free((char*)language);
+    bps_free((char*)country);
 
    /*
     * Process Locale and Navigator events until we receive a NAVIGATOR_EXIT event.
@@ -127,6 +151,12 @@ main(int argc, char *argv[])
             }
         }
     }
+
+    /*
+     * Destroy the dialog, if it exists and cleanup screen resources.
+     */
+    destroy_dialog();
+    cleanup_screen();
 
     /*
      * Clean up the BPS infrastructure and exit

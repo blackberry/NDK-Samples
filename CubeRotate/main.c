@@ -160,7 +160,7 @@ int main(int argc, char *argv[]) {
 	bps_initialize();
 
 	//Use utility code to initialize EGL in landscape orientation
-	if (EXIT_SUCCESS != bbutil_init_egl(screen_cxt, GL_ES_1, LANDSCAPE)) {
+	if (EXIT_SUCCESS != bbutil_init_egl(screen_cxt, GL_ES_1)) {
 		fprintf(stderr, "bbutil_init_egl failed\n");
 		bbutil_terminate();
 		screen_destroy_context(screen_cxt);

@@ -24,7 +24,7 @@
 #define PLATFORM_H_
 
 #include <scoreloop/sc_client.h>
-#include <scoreloop/qnx/pal_init.h>
+#include <scoreloop/sc_init.h>
 
 #include <screen/screen.h>
 
@@ -325,7 +325,7 @@ private:
     void submitLocalScore(const char* login, double score);
     void fetchLocalScores(std::vector<Score>& scores);
 
-    PAL_InitData_t m_scoreloopInitData;
+    SC_InitData_t m_scoreloopInitData;
     std::vector<Score> m_leaderboard;
 
     PlatformEventHandler* m_handler;

@@ -22,7 +22,6 @@
 #include <sys/keycodes.h>
 #include <screen/screen.h>
 #include <assert.h>
-#include <bps/accelerometer.h>
 #include <bps/navigator.h>
 #include <bps/screen.h>
 #include <bps/bps.h>
@@ -44,7 +43,7 @@ static GLfloat tex_coord[8];
 static screen_context_t screen_cxt;
 static float pos_x, pos_y;
 
-static const font_t* font;
+static font_t* font;
 
 int init() {
 	EGLint surface_width, surface_height;
@@ -73,7 +72,7 @@ int init() {
 
 	EGLint err = eglGetError();
 	if (err != 0x3000) {
-		fprintf(stderr, "Unable to query egl surface dimensions\n");
+		fprintf(stderr, "Unable to query EGL surface dimensions\n");
 		return EXIT_FAILURE;
 	}
 
@@ -161,8 +160,8 @@ int main(int argc, char **argv) {
 	//Initialize BPS library
 	bps_initialize();
 
-	//Use utility code to initialize EGL for 2D rendering with GL ES 1.1
-	if (EXIT_SUCCESS != bbutil_init_egl(screen_cxt, GL_ES_1, LANDSCAPE)) {
+	//Use utility code to initialize EGL for rendering with GL ES 1.1
+	if (EXIT_SUCCESS != bbutil_init_egl(screen_cxt, GL_ES_1)) {
 		fprintf(stderr, "Unable to initialize EGL\n");
 		screen_destroy_context(screen_cxt);
 		return 0;

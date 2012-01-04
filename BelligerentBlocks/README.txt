@@ -4,8 +4,7 @@ Belligerent Blocks
 Sample Description:
 
  Belligerent Blocks is a 1 level game created as part of a presentation
- made at DevCon. Please note that this version is not compatible with
- NDK 2.0 due to changes in Scoreloop API.
+ made at DevCon.
 
  Feature summary
  - Rendering 2D graphics
@@ -20,8 +19,8 @@ Sample Description:
 ========================================================================
 Requirements:
 
- - BlackBerry Native SDK for Tablet OS 1.0
- - BlackBerry PlayBook tablet running BlackBerry Tablet OS 1.0 or later
+ - BlackBerry Native SDK for Tablet OS 2.0 or later
+ - BlackBerry PlayBook tablet running BlackBerry Tablet OS 2.0 or later
  - Box2D installed or added as a project dependency
  - Scoreloop's SDK installed from the beta site
 

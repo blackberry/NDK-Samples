@@ -42,6 +42,8 @@
     <!-- <authorId>ABC1234YjsnUk235h</authorId> -->
    
     <initialWindow>
+        <aspectRatio>landscape</aspectRatio>
+        <autoOrients>false</autoOrients>
         <systemChrome>none</systemChrome>
         <transparent>false</transparent>
     </initialWindow>
@@ -49,25 +51,24 @@
     <!--  The category where the application appears. Either core.games or core.media. -->
     <category>core.games</category>
     <asset path="icon.png">icon.png</asset>
-    <asset path="${QNX_TARGET}/../target-override/${CPUVARDIR}/usr/lib/libbps.so" type="Qnx/Elf">lib/libbps.so.1</asset>
     <asset path="sample-splashscreen-landscape.png">sample-splashscreen-landscape.png</asset>
     <asset path="sample-splashscreen-portrait.png">sample-splashscreen-portrait.png</asset>
     <asset path="sample.wav">sample.wav</asset>
     <asset path="LICENSE">LICENSE</asset>
     <asset path="NOTICE">NOTICE</asset>
-    <configuration id="com.qnx.qcc.toolChain.1868386367" name="Default">
+    <configuration id="com.qnx.qcc.toolChain.1438493019" name="Default">
        <platformArchitecture>armle-v7</platformArchitecture>
        <asset path="arm/o.le-v7-g/PlayWav" entry="true" type="Qnx/Elf">PlayWav</asset>
     </configuration>
-    <configuration id="com.qnx.qcc.toolChain.2139496461" name="Device-Debug">
+    <configuration id="com.qnx.qcc.toolChain.510564674" name="Device-Debug">
        <platformArchitecture>armle-v7</platformArchitecture>
        <asset path="arm/o.le-v7-g/PlayWav" entry="true" type="Qnx/Elf">PlayWav</asset>
     </configuration>
-    <configuration id="com.qnx.qcc.toolChain.1265191919" name="Device-Release">
+    <configuration id="com.qnx.qcc.toolChain.1462655715" name="Device-Release">
        <platformArchitecture>armle-v7</platformArchitecture>
        <asset path="arm/o.le-v7/PlayWav" entry="true" type="Qnx/Elf">PlayWav</asset>
     </configuration>
-    <configuration id="com.qnx.qcc.toolChain.700508058" name="Simulator">
+    <configuration id="com.qnx.qcc.toolChain.841230688" name="Simulator-Debug">
        <platformArchitecture>x86</platformArchitecture>
        <asset path="x86/o-g/PlayWav" entry="true" type="Qnx/Elf">PlayWav</asset>
     </configuration>
