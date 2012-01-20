@@ -25,6 +25,9 @@ AudioControl/arm/o.le-v7-g/AudioControl
 AudioControl/arm/o.le-v7/AudioControl
 AudioControl/x86/o-g/AudioControl
 AudioControl/x86/o/AudioControl
+Channels/arm/o.le-v7-g/Channels
+Channels/arm/o.le-v7/Channels
+Channels/x86/o-g/Channels
 CubeRotate/arm/o.le-v7-g/CubeRotate
 CubeRotate/arm/o.le-v7/CubeRotate
 CubeRotate/x86/o-g/CubeRotate
@@ -97,3 +100,6 @@ VideoPlayback/arm/o.le-v7-g/VideoPlayback
 VideoPlayback/arm/o.le-v7/VideoPlayback
 VideoPlayback/x86/o-g/VideoPlayback
 VideoPlayback/x86/o/VideoPlayback
+VideoWindow/arm/o.le-v7-g/VideoWindow
+VideoWindow/arm/o.le-v7/VideoWindow
+VideoWindow/x86/o-g/VideoWindow
