@@ -40,6 +40,12 @@ FallingBlocks/arm/o.le-v7-g/FallingBlocks
 FallingBlocks/arm/o.le-v7/FallingBlocks
 FallingBlocks/x86/o-g/FallingBlocks
 FallingBlocks/x86/o/FallingBlocks
+GLES11Template/arm/o.le-v7-g/GLES11Template
+GLES11Template/arm/o.le-v7/GLES11Template
+GLES11Template/x86/o-g/GLES11Template
+GLES20Template/arm/o.le-v7-g/GLES20Template
+GLES20Template/arm/o.le-v7/GLES20Template
+GLES20Template/x86/o-g/GLES20Template
 Geolocation/arm/o.le-v7-g/Geolocation
 Geolocation/arm/o.le-v7/Geolocation
 Geolocation/x86/o-g/Geolocation
@@ -76,10 +82,6 @@ NetworkStatus/arm/o.le-v7-g/NetworkStatus
 NetworkStatus/arm/o.le-v7/NetworkStatus
 NetworkStatus/x86/o-g/NetworkStatus
 NetworkStatus/x86/o/NetworkStatus
-OpenGLES11Template/arm/o.le-v7-g/OpenGLES11Template
-OpenGLES11Template/arm/o.le-v7/OpenGLES11Template
-OpenGLES11Template/x86/o-g/OpenGLES11Template
-OpenGLES11Template/x86/o/OpenGLES11Template
 PaymentService/arm/o.le-v7-g/PaymentService
 PaymentService/arm/o.le-v7/PaymentService
 PaymentService/x86/o-g/PaymentService
