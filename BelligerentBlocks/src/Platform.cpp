@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 Research In Motion Limited
+ * Copyright 2011-2012 Research In Motion Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,6 +42,7 @@ namespace blocks {
 
 static const char SCORELOOP_GAME_ID[] = "d346c484-12aa-49a2-a0a0-de2f87492d72";
 static const char SCORELOOP_GAME_SECRET[] = "aAa+DehBfyGO/CYaE3nWomgu7SIbWFczUih+Qwf3/n7u0y3nyq5Hag==";
+static const char SCORELOOP_GAME_VERSION[] = "1.0";
 static const char SCORELOOP_GAME_CURRENCY[] = "ASC";
 static const char SCORELOOP_GAME_LANGUAGE[] = "en";
 
@@ -75,7 +76,7 @@ Platform::Platform()
 
     // Lock in landscape mode.
     navigator_rotation_lock(true);
-    bbutil_init_egl(m_screenContext, GL_ES_1);
+    bbutil_init_egl(m_screenContext);
 }
 
 Platform::~Platform() {
@@ -101,6 +102,7 @@ bool Platform::init() {
             &m_scoreloopInitData,
             SCORELOOP_GAME_ID,
             SCORELOOP_GAME_SECRET,
+            SCORELOOP_GAME_VERSION,
             SCORELOOP_GAME_CURRENCY,
             SCORELOOP_GAME_LANGUAGE);
 

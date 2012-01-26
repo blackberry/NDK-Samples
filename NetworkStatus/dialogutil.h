@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011 Research In Motion Limited.
+ * Copyright (c) 2011-2012 Research In Motion Limited.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,7 +43,7 @@ void destroy_dialog();
 
 /**
  * Displays a message to the dialog created by create_dialog() and
- * outputs that message to stderr.  This means it will get added 
+ * outputs that message to stderr.  This means it will get added
  * to the log file in the sandbox and output to the console.
  *
  * @param msg the message to be displayed.

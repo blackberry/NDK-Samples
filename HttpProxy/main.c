@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011 Research In Motion Limited.
+ * Copyright (c) 2011-2012 Research In Motion Limited.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -165,13 +165,13 @@ int main(void)
     if (proxyWasNotRequired) {
         if (final_return_code == EXIT_SUCCESS) {
             show_dialog_message("No proxy required!\nSUCCESS!!");
-        } else { 
+        } else {
             show_dialog_message("No proxy required!\nFAILED!!");
         }
     } else {
         if (final_return_code == EXIT_SUCCESS) {
             show_dialog_message("SUCCESS!!");
-        } else { 
+        } else {
             show_dialog_message("FAILED!!");
         }
     }
