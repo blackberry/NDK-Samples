@@ -102,7 +102,7 @@ show_alert()
     }
 
     if (dialog_set_alert_message_text(alert_dialog, "Hello World!") != BPS_SUCCESS) {
-    	fprintf(stderr, "Failed to set alert dialog message text.");
+        fprintf(stderr, "Failed to set alert dialog message text.");
         dialog_destroy(alert_dialog);
         alert_dialog = 0;
         return;
@@ -117,7 +117,7 @@ show_alert()
      * Use a button label defined in bps/dialog.h. Attach a context to the button.
      */
     if (dialog_add_button(alert_dialog, DIALOG_CANCEL_LABEL, true, cancel_button_context, true) != BPS_SUCCESS) {
-    	fprintf(stderr, "Failed to add button to alert dialog.");
+        fprintf(stderr, "Failed to add button to alert dialog.");
         dialog_destroy(alert_dialog);
         alert_dialog = 0;
         return;
@@ -127,14 +127,14 @@ show_alert()
      * Use a button label of our own. Don't attach a context to the button.
      */
     if (dialog_add_button(alert_dialog, "Submit", true, 0, true) != BPS_SUCCESS) {
-    	fprintf(stderr, "Failed to add button to alert dialog.");
+        fprintf(stderr, "Failed to add button to alert dialog.");
         dialog_destroy(alert_dialog);
         alert_dialog = 0;
         return;
     }
 
     if (dialog_show(alert_dialog) != BPS_SUCCESS) {
-    	fprintf(stderr, "Failed to show alert dialog.");
+        fprintf(stderr, "Failed to show alert dialog.");
         dialog_destroy(alert_dialog);
         alert_dialog = 0;
         return;
@@ -188,7 +188,7 @@ main(int argc, char *argv[])
      * the dialogs to be displayed.
      */
     if (setup_screen() != EXIT_SUCCESS) {
-    	fprintf(stderr, "Unable to initialize screen.");
+        fprintf(stderr, "Unable to initialize screen.");
         exit(0);
     }
 
