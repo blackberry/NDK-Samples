@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2011 Research In Motion Limited.
+* Copyright (c) 2011-2012 Research In Motion Limited.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -39,7 +39,8 @@
 
 #define MIN_VIEWPORT_SIZE 128
 #define MAX_VIEWPORT_SIZE 4096
-
+screen_context_t screen_ctx;
+screen_window_t screen_win;
 static bool shutdown;
 struct gestures_set * set;
 const char* img_path = "app/native/wallpaper.jpg"; /* Relative path to image asset */
@@ -208,10 +209,15 @@ handle_events()
                 handle_navigator_event(event);
             } else if (domain == screen_get_domain()) {
                 handle_screen_event(event);
+                /* Re-draw the screen after a screen event */
+                screen_set_window_property_iv(screen_win, SCREEN_PROPERTY_SOURCE_POSITION , viewport_pos);
+                screen_set_window_property_iv(screen_win, SCREEN_PROPERTY_SOURCE_SIZE , viewport_size);
+                screen_flush_context(screen_ctx,0);
             }
         } else {
             has_events = false;
         }
+
     }
 }
 
@@ -274,8 +280,6 @@ main(int argc, char **argv)
 {
     const int usage = SCREEN_USAGE_WRITE;
 
-    screen_context_t screen_ctx;
-    screen_window_t screen_win;
     screen_buffer_t screen_buf = NULL;
     int rect[4] = { 0, 0, 0, 0 };
 
@@ -283,8 +287,6 @@ main(int argc, char **argv)
     screen_create_context(&screen_ctx, 0);
     screen_create_window(&screen_win, screen_ctx);
     screen_set_window_property_iv(screen_win, SCREEN_PROPERTY_USAGE, &usage);
-
-    screen_create_window_buffers(screen_win, 1);
 
     load_image(screen_win, img_path);
 
@@ -306,9 +308,6 @@ main(int argc, char **argv)
     while (!shutdown) {
         /* Handle user input */
         handle_events();
-        screen_set_window_property_iv(screen_win, SCREEN_PROPERTY_SOURCE_POSITION , viewport_pos);
-        screen_set_window_property_iv(screen_win, SCREEN_PROPERTY_SOURCE_SIZE , viewport_size);
-        screen_flush_context(screen_ctx,0);
     }
 
     /* Clean up */

@@ -26,6 +26,9 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/box2d}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${QNX_TARGET}/usr/include/freetype2&quot;"/>
 								</option>
+								<option id="com.qnx.qcc.option.compiler.qccoptions.374920975" name="QCC Options" superClass="com.qnx.qcc.option.compiler.qccoptions" valueType="stringList">
+									<listOptionValue builtIn="false" value="-DUSING_GL11"/>
+								</option>
 								<inputType id="com.qnx.qcc.inputType.compiler.306305974" superClass="com.qnx.qcc.inputType.compiler"/>
 							</tool>
 							<tool id="com.qnx.qcc.tool.assembler.1877792982" name="QCC Assembler" superClass="com.qnx.qcc.tool.assembler">
@@ -60,7 +63,7 @@
 								</option>
 								<option id="com.qnx.qcc.option.linker.defLibraryPaths.1516517177" superClass="com.qnx.qcc.option.linker.defLibraryPaths"/>
 								<option id="com.qnx.qcc.option.linker.libraryPaths.519401205" name="Library Paths (-L)" superClass="com.qnx.qcc.option.linker.libraryPaths" valueType="libPaths">
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/box2d/Device-Debug}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/box2d/Device-Release}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/box2d/arm/a-le-v7}&quot;"/>
 								</option>
 								<inputType id="com.qnx.qcc.inputType.linker.1617475221" superClass="com.qnx.qcc.inputType.linker">
@@ -81,7 +84,7 @@
 				<externalSettings containerId="box2d;" factoryId="org.eclipse.cdt.core.cfg.export.settings.sipplier">
 					<externalSetting>
 						<entry flags="VALUE_WORKSPACE_PATH" kind="includePath" name="/box2d"/>
-						<entry flags="VALUE_WORKSPACE_PATH" kind="libraryPath" name="/box2d/Device-Debug"/>
+						<entry flags="VALUE_WORKSPACE_PATH" kind="libraryPath" name="/box2d/Device-Release"/>
 						<entry flags="RESOLVED" kind="libraryFile" name="box2d"/>
 					</externalSetting>
 				</externalSettings>
@@ -110,6 +113,9 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/box2d}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${QNX_TARGET}/../target-override/usr/include&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${QNX_TARGET}/usr/include/freetype2&quot;"/>
+								</option>
+								<option id="com.qnx.qcc.option.compiler.qccoptions.1186023828" superClass="com.qnx.qcc.option.compiler.qccoptions" valueType="stringList">
+									<listOptionValue builtIn="false" value="-DUSING_GL11"/>
 								</option>
 								<inputType id="com.qnx.qcc.inputType.compiler.1394666629" superClass="com.qnx.qcc.inputType.compiler"/>
 							</tool>
@@ -179,6 +185,9 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/box2d}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${QNX_TARGET}/../target-override/usr/include&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${QNX_TARGET}/usr/include/freetype2&quot;"/>
+								</option>
+								<option id="com.qnx.qcc.option.compiler.qccoptions.1718995789" superClass="com.qnx.qcc.option.compiler.qccoptions" valueType="stringList">
+									<listOptionValue builtIn="false" value="-DUSING_GL11"/>
 								</option>
 								<inputType id="com.qnx.qcc.inputType.compiler.153315798" superClass="com.qnx.qcc.inputType.compiler"/>
 							</tool>

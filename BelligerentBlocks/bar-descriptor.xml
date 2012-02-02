@@ -56,9 +56,9 @@
    <!-- Permission needed for Scoreloop -->
    <action>read_device_identifying_information</action>
    <action>play_audio</action>
-   
+
    <env var="LD_LIBRARY_PATH" value="app/native/lib"/>
-   
+
    <configuration id="com.qnx.qcc.configuration.exe.release.1871319401" name="Device-Release">
       <asset path="Device-Release/BelligerentBlocks" entry="true" type="Qnx/Elf">Blocks</asset>
    </configuration>

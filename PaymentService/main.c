@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011 Research In Motion Limited.
+ * Copyright (c) 2011-2012 Research In Motion Limited.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -230,6 +230,14 @@ main(int argc, char *argv[])
      * Define a request ID to hold the returned value from the purchase request.
      */
     unsigned request_id = 0;
+
+    /*
+     * initiate the application with a purchase of the sample digital good.
+     */
+    if (paymentservice_purchase_request(digital_good_id, digital_good_sku, digital_good_name,
+            metadata, purchase_app_name, purchase_app_icon, get_window_group_id(), &request_id) != BPS_SUCCESS) {
+        fprintf(stderr, "Error: purchase request failed.\n");
+    }
 
     /*
      * Process Payment Service and Navigator events until we receive a NAVIGATOR_EXIT event.

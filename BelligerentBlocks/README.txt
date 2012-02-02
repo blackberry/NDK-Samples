@@ -22,7 +22,6 @@ Requirements:
  - BlackBerry Native SDK for Tablet OS 2.0 or later
  - BlackBerry PlayBook tablet running BlackBerry Tablet OS 2.0 or later
  - Box2D installed or added as a project dependency
- - Scoreloop's SDK installed from the beta site
 
 ========================================================================
 Importing a project into the Native SDK:
