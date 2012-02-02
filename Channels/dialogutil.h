@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011 Research In Motion Limited.
+ * Copyright (c) 2011-2012 Research In Motion Limited.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -52,7 +52,7 @@ void show_top_dialog_message(const char *msg);
 
 /**
  * Displays a message to the bottom dialog created by create_dialogs() and
- * outputs that message to stderr.  This means it will get added 
+ * outputs that message to stderr.  This means it will get added
  * to the log file in the sandbox and output to the console.
  *
  * @param msg the message to be displayed.

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011 Research In Motion Limited.
+ * Copyright (c) 2011-2012 Research In Motion Limited.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -138,10 +138,10 @@ display_geolocation_data(int count,
              format_double_data(heading_buf, sizeof heading_buf, "heading", get_bearing(heading),
                                 heading, heading_valid),
              /* Speed is reported in m/s.  To convert to km/h, use the formula:
-              *   1 m/s = 60*60/1000 km/h = 3.6 km/h 
+              *   1 m/s = 60*60/1000 km/h = 3.6 km/h
               */
              format_double_data(speed_buf, sizeof speed_buf, "speed", "km/h",
-                                speed*3.6, speed_valid),  
+                                speed*3.6, speed_valid),
              format_int_data(num_satellites_used_buf, sizeof num_satellites_used_buf, "number of satellites used", "",
                              num_satellites_used, num_satellites_valid)
         );
@@ -175,7 +175,7 @@ handle_geolocation_response(bps_event_t *event)
     bool speed_valid = geolocation_event_is_speed_valid(event);
     double num_satellites_used = geolocation_event_get_num_satellites_used(event);
     bool num_satellites_valid = geolocation_event_is_num_satellites_valid(event);
-    
+
     display_geolocation_data(count++,
                              latitude, longitude, accuracy,
                              altitude, altitude_valid, altitude_accuracy, altitude_accuracy_valid,
@@ -214,7 +214,7 @@ main(int argc, char *argv[])
      * events from the various BlackBerry Tablet OS platform services. The
      * Navigator service manages and delivers application life cycle and
      * visibility events.
-     * 
+     *
      * For this sample, we request Navigator events so that we can track when
      * the system is terminating the application (NAVIGATOR_EXIT event).
      *
@@ -292,7 +292,7 @@ main(int argc, char *argv[])
     }
 
     /*
-     * Stop geolocation events. 
+     * Stop geolocation events.
      */
     geolocation_stop_events(0);
 

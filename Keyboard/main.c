@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2011 Research In Motion Limited.
+* Copyright (c) 2011-2012 Research In Motion Limited.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -14,6 +14,7 @@
 * limitations under the License.
 */
 
+#include <assert.h>
 #include <screen/screen.h>
 #include <bps/navigator.h>
 #include <bps/screen.h>
@@ -40,57 +41,56 @@ static float angle = 0.0;
 
 void handleScreenEvent(bps_event_t *event)
 {
-	screen_event_t screen_event = screen_event_get_event(event);
+    screen_event_t screen_event = screen_event_get_event(event);
 
-	int screen_val;
-	screen_get_event_property_iv(screen_event, SCREEN_PROPERTY_TYPE, &screen_val);
+    int screen_val;
+    screen_get_event_property_iv(screen_event, SCREEN_PROPERTY_TYPE, &screen_val);
 
-	switch (screen_val) {
-	case SCREEN_EVENT_KEYBOARD:
-		screen_get_event_property_iv(screen_event, SCREEN_PROPERTY_KEY_FLAGS, &screen_val);
+    switch (screen_val) {
+    case SCREEN_EVENT_KEYBOARD:
+        screen_get_event_property_iv(screen_event, SCREEN_PROPERTY_KEY_FLAGS, &screen_val);
 
-		if (screen_val & KEY_DOWN) {
-			screen_get_event_property_iv(screen_event, SCREEN_PROPERTY_KEY_SYM,&screen_val);
+        if (screen_val & KEY_DOWN) {
+            screen_get_event_property_iv(screen_event, SCREEN_PROPERTY_KEY_SYM,&screen_val);
 
-			printf("The '%c' key was pressed\n", (char)screen_val);
-			fflush(stdout);
+            printf("The '%c' key was pressed\n", (char)screen_val);
+            fflush(stdout);
 
-			switch (screen_val) {
-			case KEYCODE_I:
-				// Display the email layout with "Send" enter key
-				virtualkeyboard_change_options(VIRTUALKEYBOARD_LAYOUT_EMAIL, VIRTUALKEYBOARD_ENTER_SEND);
-				break;
-			case KEYCODE_O:
-				// Display the phone layout with "Connect" enter key
-				virtualkeyboard_change_options(VIRTUALKEYBOARD_LAYOUT_PHONE, VIRTUALKEYBOARD_ENTER_CONNECT);
-				break;
-			case KEYCODE_P:
-				// Display the default layout with default enter key
-				virtualkeyboard_change_options(VIRTUALKEYBOARD_LAYOUT_DEFAULT, VIRTUALKEYBOARD_ENTER_DEFAULT);
-				break;
-			case KEYCODE_H:
-				// Hide the keyboard
-				virtualkeyboard_hide();
-				break;
-			case KEYCODE_A:
-				// Increment rotation angle
-				angle = fmod(angle + ANGLE_INCREMENT, CIRCLE_DEGREES );
-				break;
-			case KEYCODE_Z:
-				// Decrement rotation angle
-				angle = fmod(angle - ANGLE_INCREMENT, CIRCLE_DEGREES );
-				break;
-			default:
-				break;
-			}
-		}
-		break;
-	}
+            switch (screen_val) {
+            case KEYCODE_I:
+                // Display the email layout with "Send" enter key
+                virtualkeyboard_change_options(VIRTUALKEYBOARD_LAYOUT_EMAIL, VIRTUALKEYBOARD_ENTER_SEND);
+                break;
+            case KEYCODE_O:
+                // Display the phone layout with "Connect" enter key
+                virtualkeyboard_change_options(VIRTUALKEYBOARD_LAYOUT_PHONE, VIRTUALKEYBOARD_ENTER_CONNECT);
+                break;
+            case KEYCODE_P:
+                // Display the default layout with default enter key
+                virtualkeyboard_change_options(VIRTUALKEYBOARD_LAYOUT_DEFAULT, VIRTUALKEYBOARD_ENTER_DEFAULT);
+                break;
+            case KEYCODE_H:
+                // Hide the keyboard
+                virtualkeyboard_hide();
+                break;
+            case KEYCODE_A:
+                // Increment rotation angle
+                angle = fmod(angle + ANGLE_INCREMENT, CIRCLE_DEGREES );
+                break;
+            case KEYCODE_Z:
+                // Decrement rotation angle
+                angle = fmod(angle - ANGLE_INCREMENT, CIRCLE_DEGREES );
+                break;
+            default:
+                break;
+            }
+        }
+        break;
+    }
 }
 
-void initialize()
-{
-	//Initialize vertex and color data
+int initialize() {
+    //Initialize vertex and color data
     vertices[0] = -0.25f;
     vertices[1] = -0.25f;
 
@@ -126,16 +126,40 @@ void initialize()
     //Query width and height of the window surface created by utility code
     EGLint surface_width, surface_height;
 
-	eglQuerySurface(egl_disp, egl_surf, EGL_WIDTH, &surface_width);
+    eglQuerySurface(egl_disp, egl_surf, EGL_WIDTH, &surface_width);
     eglQuerySurface(egl_disp, egl_surf, EGL_HEIGHT, &surface_height);
 
-    glTranslatef((float)(surface_width) / (float)(surface_height) / 2, 0.5f, 0.0f);
+    EGLint err = eglGetError();
+    if (err != 0x3000) {
+        fprintf(stderr, "Unable to query EGL surface dimensions\n");
+        return EXIT_FAILURE;
+    }
+
+    glShadeModel(GL_SMOOTH);
+
+    //set clear color to white
+    glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+
+    glViewport(0, 0, surface_width, surface_height);
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+
+    glOrthof(0.0f, (float) (surface_width) / (float) (surface_height), 0.0f,
+            1.0f, -1.0f, 1.0f);
+
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+
+    glTranslatef((float) (surface_width) / (float) (surface_height) / 2, 0.5f,
+            0.0f);
+
+    return EXIT_SUCCESS;
 }
 
 void render()
 {
     //Typical render pass
-	bbutil_clear();
+	glClear(GL_COLOR_BUFFER_BIT);
 
     glEnableClientState(GL_VERTEX_ARRAY);
     glVertexPointer(2, GL_FLOAT, 0, vertices);
@@ -156,52 +180,85 @@ void render()
 
 int main(int argc, char *argv[])
 {
-    int exit_application = 0;
+    int rc;
+	int exit_application = 0;
 
     screen_context_t screen_cxt;
 
     //Create a screen context that will be used to create an EGL surface to to receive libscreen events
     screen_create_context(&screen_cxt,0);
 
+    //Initialize BPS library
+    bps_initialize();
+
     //Use utility code to initialize EGL for 2D rendering with GL ES 1.1
-    if (EXIT_SUCCESS != bbutil_init(screen_cxt, GL_ES_1)) {
-    	bbutil_terminate();
+    if (EXIT_SUCCESS != bbutil_init_egl(screen_cxt)) {
+        bbutil_terminate();
         screen_destroy_context(screen_cxt);
         return 0;
     }
 
-    //Initialize app data
-    initialize();
-
-    //Initialize BPS library
-    bps_initialize();
+    //Initialize application logic
+    if (EXIT_SUCCESS != initialize()) {
+        fprintf(stderr, "initialize failed\n");
+        bbutil_terminate();
+        screen_destroy_context(screen_cxt);
+        return 0;
+    }
 
     //Signal BPS library that navigator, screen, and keyboard events will be requested
-    screen_request_events(screen_cxt);
-    navigator_request_events(0);
-    virtualkeyboard_request_events(0);
+    if (BPS_SUCCESS != screen_request_events(screen_cxt)) {
+        fprintf(stderr, "screen_request_events failed\n");
+        bbutil_terminate();
+        screen_destroy_context(screen_cxt);
+        return 0;
+    }
+
+    if (BPS_SUCCESS != navigator_request_events(0)) {
+        fprintf(stderr, "navigator_request_events failed\n");
+        bbutil_terminate();
+        screen_destroy_context(screen_cxt);
+        return 0;
+    }
+
+    if (BPS_SUCCESS != virtualkeyboard_request_events(0)) {
+        fprintf(stderr, "navigator_request_events failed\n");
+        bbutil_terminate();
+        screen_destroy_context(screen_cxt);
+        return 0;
+    }
+
+    //Signal BPS library that navigator orientation is not to be locked
+    if (BPS_SUCCESS != navigator_rotation_lock(false)) {
+        fprintf(stderr, "navigator_rotation_lock failed\n");
+        bbutil_terminate();
+        screen_destroy_context(screen_cxt);
+        return 0;
+    }
 
     virtualkeyboard_show();
 
-    for (;;) {
-    	//Request and process BPS next available event
+    while (!exit_application) {
+        //Request and process all available BPS events
         bps_event_t *event = NULL;
-        if (bps_get_event(&event, 0) != BPS_SUCCESS)
-        	return EXIT_FAILURE;
 
-           if (event) {
+        for(;;) {
+            rc = bps_get_event(&event, 0);
+            assert(rc == BPS_SUCCESS);
+
+            if (event) {
                 int domain = bps_event_get_domain(event);
 
                 if (domain == screen_get_domain()) {
                     handleScreenEvent(event);
-                } else if ((domain == navigator_get_domain()) && (NAVIGATOR_EXIT == bps_event_get_code(event)))  {
-                	exit_application = 1;
+                } else if ((domain == navigator_get_domain())
+                        && (NAVIGATOR_EXIT == bps_event_get_code(event))) {
+                    exit_application = 1;
                 }
-            }
-            
-            if (exit_application) {
+            } else {
                 break;
             }
+        }
         render();
     }
 

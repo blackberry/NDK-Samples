@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011 Research In Motion Limited.
+ * Copyright (c) 2011-2012 Research In Motion Limited.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,8 +26,6 @@ extern EGLSurface egl_surf;
 
 typedef struct font_t font_t;
 
-enum RENDERING_API {GL_ES_1 = EGL_OPENGL_ES_BIT, GL_ES_2 = EGL_OPENGL_ES2_BIT, VG = EGL_OPENVG_BIT};
-
 #define BBUTIL_DEFAULT_FONT "/usr/fonts/font_repository/monotype/arial.ttf"
 
 #ifdef __cplusplus
@@ -38,10 +36,9 @@ extern "C" {
  * Initializes EGL
  *
  * @param libscreen context that will be used for EGL setup
- * @param rendering API that will be used
  * @return EXIT_SUCCESS if initialization succeeded otherwise EXIT_FAILURE
  */
-int bbutil_init_egl(screen_context_t ctx, enum RENDERING_API api);
+int bbutil_init_egl(screen_context_t ctx);
 
 /**
  * Terminates EGL
@@ -78,8 +75,9 @@ void bbutil_destroy_font(font_t* font);
  * @param font to use for rendering
  * @param msg the message to display
  * @param x, y position of the bottom-left corner of text string in world coordinate space
+ * @param rgba color for the text to render with
  */
-void bbutil_render_text(font_t* font, const char* msg, float x, float y);
+void bbutil_render_text(font_t* font, const char* msg, float x, float y, float r, float g, float b, float a);
 
 /**
  * Returns the non-scaled width and height of a string

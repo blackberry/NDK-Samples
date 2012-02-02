@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011 Research In Motion Limited.
+ * Copyright (c) 2011-2012 Research In Motion Limited.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -205,55 +205,55 @@ initialize_egl_window(screen_context_t ctx) {
 
     int angle = atoi(getenv("ORIENTATION"));
 
-	screen_display_mode_t g_screen_mode;
-	rc = screen_get_display_property_pv(g_screen_disp, SCREEN_PROPERTY_MODE, (void**)&g_screen_mode);
-	if (rc) {
-		perror("screen_get_display_property_pv");
-		terminate_egl_window();
-		return EXIT_FAILURE;
-	}
+    screen_display_mode_t g_screen_mode;
+    rc = screen_get_display_property_pv(g_screen_disp, SCREEN_PROPERTY_MODE, (void**)&g_screen_mode);
+    if (rc) {
+        perror("screen_get_display_property_pv");
+        terminate_egl_window();
+        return EXIT_FAILURE;
+    }
 
-	int size[2];
-	rc = screen_get_window_property_iv(g_screen_win, SCREEN_PROPERTY_BUFFER_SIZE, size);
-	if (rc) {
-		perror("screen_get_window_property_iv");
-		terminate_egl_window();
-		return EXIT_FAILURE;
-	}
+    int size[2];
+    rc = screen_get_window_property_iv(g_screen_win, SCREEN_PROPERTY_BUFFER_SIZE, size);
+    if (rc) {
+        perror("screen_get_window_property_iv");
+        terminate_egl_window();
+        return EXIT_FAILURE;
+    }
 
-	int buffer_size[2] = {size[0], size[1]};
+    int buffer_size[2] = {size[0], size[1]};
 
-	if ((angle == 0) || (angle == 180)) {
-		if (((g_screen_mode.width > g_screen_mode.height) && (size[0] < size[1])) ||
-			((g_screen_mode.width < g_screen_mode.height) && (size[0] > size[1]))) {
-				buffer_size[1] = size[0];
-				buffer_size[0] = size[1];
-		}
-	} else if ((angle == 90) || (angle == 270)){
-		if (((g_screen_mode.width > g_screen_mode.height) && (size[0] > size[1])) ||
-			((g_screen_mode.width < g_screen_mode.height && size[0] < size[1]))) {
-				buffer_size[1] = size[0];
-				buffer_size[0] = size[1];
-		}
-	} else {
-		 fprintf(stderr, "Navigator returned an unexpected orientation angle.\n");
-		 terminate_egl_window();
-		 return EXIT_FAILURE;
-	}
+    if ((angle == 0) || (angle == 180)) {
+        if (((g_screen_mode.width > g_screen_mode.height) && (size[0] < size[1])) ||
+            ((g_screen_mode.width < g_screen_mode.height) && (size[0] > size[1]))) {
+                buffer_size[1] = size[0];
+                buffer_size[0] = size[1];
+        }
+    } else if ((angle == 90) || (angle == 270)){
+        if (((g_screen_mode.width > g_screen_mode.height) && (size[0] > size[1])) ||
+            ((g_screen_mode.width < g_screen_mode.height && size[0] < size[1]))) {
+                buffer_size[1] = size[0];
+                buffer_size[0] = size[1];
+        }
+    } else {
+         fprintf(stderr, "Navigator returned an unexpected orientation angle.\n");
+         terminate_egl_window();
+         return EXIT_FAILURE;
+    }
 
-	rc = screen_set_window_property_iv(g_screen_win, SCREEN_PROPERTY_BUFFER_SIZE, buffer_size);
-	if (rc) {
-		perror("screen_set_window_property_iv");
-		terminate_egl_window();
-		return EXIT_FAILURE;
-	}
+    rc = screen_set_window_property_iv(g_screen_win, SCREEN_PROPERTY_BUFFER_SIZE, buffer_size);
+    if (rc) {
+        perror("screen_set_window_property_iv");
+        terminate_egl_window();
+        return EXIT_FAILURE;
+    }
 
-	rc = screen_set_window_property_iv(g_screen_win, SCREEN_PROPERTY_ROTATION, &angle);
-	if (rc) {
-		perror("screen_set_window_property_iv");
-		terminate_egl_window();
-		return EXIT_FAILURE;
-	}
+    rc = screen_set_window_property_iv(g_screen_win, SCREEN_PROPERTY_ROTATION, &angle);
+    if (rc) {
+        perror("screen_set_window_property_iv");
+        terminate_egl_window();
+        return EXIT_FAILURE;
+    }
 
     rc = screen_create_window_buffers(g_screen_win, num_window_buffers);
     if (rc) {
@@ -294,7 +294,7 @@ void render(bool paused)
     int orig_x = (int)g_surface_width/2 - ctrl_w/2;
     int orig_y = (int)g_surface_height/2 - ctrl_h/2;
 
-    GLfloat triangle_vertices[] = { orig_x, orig_y, 
+    GLfloat triangle_vertices[] = { orig_x, orig_y,
                                     orig_x, orig_y + ctrl_h,
                                     orig_x+ctrl_w, orig_y + ctrl_h/2
                                     };
@@ -308,7 +308,7 @@ void render(bool paused)
 
     glEnableClientState(GL_VERTEX_ARRAY);
 
-    if (!paused) 
+    if (!paused)
     {
         glVertexPointer(2, GL_FLOAT, 0, square_vertices);
         glColor4f(0.123f, 0.18f, .9f, 1.0f);
@@ -338,7 +338,7 @@ int main(int argc, char *argv[])
     // I/O variables
     int                    video_device_output_id = -1;
     int                    audio_device_output_id = -1;
-    
+
     srand(time(0));
     app_id = rand();
 
@@ -347,21 +347,21 @@ int main(int argc, char *argv[])
     static char video_device_url[PATH_MAX];
     rc = snprintf(video_device_url, PATH_MAX, "screen:?winid=videosamplewindowgroup_%d&wingrp=videosamplewindowgroup_%d", app_id, app_id);
     if (rc >= PATH_MAX) {
-    	fprintf(stderr, "URL too long\n");
+        fprintf(stderr, "URL too long\n");
     }
 
     // Name of video context...with a random number appended.
     static char video_context_name[PATH_MAX];
     rc = snprintf(video_context_name, PATH_MAX, "samplevideocontextname_%d", app_id);
     if (rc >= PATH_MAX) {
-    	fprintf(stderr, "Video context name too long\n");
+        fprintf(stderr, "Video context name too long\n");
     }
 
     // Window group name...with the same random number appended.
     static char window_group_name[PATH_MAX];
     rc = snprintf(window_group_name, PATH_MAX, "videosamplewindowgroup_%d", app_id);
     if (rc >= PATH_MAX) {
-    	fprintf(stderr, "Video context name too long\n");
+        fprintf(stderr, "Video context name too long\n");
     }
 
     // Video file bundled with our app
@@ -380,7 +380,7 @@ int main(int argc, char *argv[])
     /* Create the window and initialize EGL for GL_ES_1 rendering*/
     rc = initialize_egl_window(g_screen_ctx);
     if (rc != EXIT_SUCCESS)
-    	return EXIT_FAILURE;
+        return EXIT_FAILURE;
 
     //Query width and height of the window surface created by utility code
     eglQuerySurface(g_egl_disp, g_egl_surf, EGL_WIDTH, &g_surface_width);
@@ -512,8 +512,8 @@ int main(int argc, char *argv[])
                             screen_val = -1;
                         }
                         if (screen_set_window_property_iv(video_window, SCREEN_PROPERTY_ZORDER, &screen_val) != 0) {
-                        	return EXIT_FAILURE;
-                        	fprintf (stderr, "tubjumer %d", __LINE__);
+                            return EXIT_FAILURE;
+                            fprintf (stderr, "tubjumer %d", __LINE__);
                         }
 
 #if 0
@@ -522,25 +522,25 @@ int main(int argc, char *argv[])
                         screen_data[1] = 0;
                         screen_ret = screen_set_window_property_iv(video_window, SCREEN_PROPERTY_POSITION, screen_data);
                         if (screen_ret != 0) {
-                        	return EXIT_FAILURE;
+                            return EXIT_FAILURE;
                         }
 
                         screen_data[0] = 512;
                         screen_data[1] = 300;
                         screen_ret = screen_set_window_property_iv(video_window, SCREEN_PROPERTY_SIZE, screen_data);
                         if (screen_ret != 0) {
-                        	fprintf (stderr, "tubjumer %d", __LINE__);
-                        	return EXIT_FAILURE;
+                            fprintf (stderr, "tubjumer %d", __LINE__);
+                            return EXIT_FAILURE;
                         }
 #endif
                         screen_val = 1;
                         if (screen_set_window_property_iv(video_window, SCREEN_PROPERTY_VISIBLE, &screen_val) != 0) {
-                        	return EXIT_FAILURE;
+                            return EXIT_FAILURE;
                         }
 
                         rc = screen_flush_context(g_screen_ctx, SCREEN_WAIT_IDLE);
                         if (rc != 0)
-                        	fprintf (stderr, "Warning: Failed to flush\n");
+                            fprintf (stderr, "Warning: Failed to flush\n");
 
                     }
                 }
@@ -555,12 +555,12 @@ int main(int argc, char *argv[])
 
                     rc = screen_get_event_property_pv(screen_event, SCREEN_PROPERTY_WINDOW, (void**)&video_window);
                     if (rc != 0)
-                    	return EXIT_FAILURE;
+                        return EXIT_FAILURE;
                     printf("video_window%d\n",(int)video_window);
 
                     rc = screen_get_window_property_cv(video_window, SCREEN_PROPERTY_ID_STRING, 256, id);
                     if (rc != 0)
-                    	return EXIT_FAILURE;
+                        return EXIT_FAILURE;
 
                     printf ("window ID is %s\n", id);
                     if (strncmp(id, window_group_name, strlen(window_group_name)) != 0)
@@ -570,7 +570,7 @@ int main(int argc, char *argv[])
 
                 else if(event_type == SCREEN_EVENT_MTOUCH_TOUCH) {
 
-                	if (video_speed == 0) {
+                    if (video_speed == 0) {
                         video_speed = 1000;
                         render(false);
                     }

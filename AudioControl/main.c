@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011 Research In Motion Limited.
+ * Copyright (c) 2011-2012 Research In Motion Limited.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -144,38 +144,38 @@ main(int argc, char *argv[])
     if (BPS_FAILURE == audiomixer_request_events(0)) {
         show_dialog_message("Unable to request audio mixer events.");
     } else {
-		/*
-		 * Retrieve and display the current audio mixer status
-		 */
-		float headphone_volume;
-		audiomixer_get_output_level(AUDIOMIXER_OUTPUT_HEADPHONE, &headphone_volume);
-		float speaker_volume;
-		audiomixer_get_output_level(AUDIOMIXER_OUTPUT_SPEAKER, &speaker_volume);
-		float input_gain;
-		audiomixer_get_input_level(AUDIOMIXER_INPUT, &input_gain);
+        /*
+         * Retrieve and display the current audio mixer status
+         */
+        float headphone_volume;
+        audiomixer_get_output_level(AUDIOMIXER_OUTPUT_HEADPHONE, &headphone_volume);
+        float speaker_volume;
+        audiomixer_get_output_level(AUDIOMIXER_OUTPUT_SPEAKER, &speaker_volume);
+        float input_gain;
+        audiomixer_get_input_level(AUDIOMIXER_INPUT, &input_gain);
 
-		bool is_headphone_muted;
-		audiomixer_get_output_mute(AUDIOMIXER_OUTPUT_HEADPHONE, &is_headphone_muted);
-		bool is_speaker_muted;
-		audiomixer_get_output_mute(AUDIOMIXER_OUTPUT_SPEAKER, &is_speaker_muted);
-		bool is_input_muted;
-		audiomixer_get_input_mute(AUDIOMIXER_INPUT, &is_input_muted);
+        bool is_headphone_muted;
+        audiomixer_get_output_mute(AUDIOMIXER_OUTPUT_HEADPHONE, &is_headphone_muted);
+        bool is_speaker_muted;
+        audiomixer_get_output_mute(AUDIOMIXER_OUTPUT_SPEAKER, &is_speaker_muted);
+        bool is_input_muted;
+        audiomixer_get_input_mute(AUDIOMIXER_INPUT, &is_input_muted);
 
-		char tmp[MSG_SIZE];
-		snprintf(msg, MSG_SIZE, "Audio Mixer Status\n");
-		snprintf(tmp, MSG_SIZE, "Headphone Volume: %f\n", headphone_volume);
-		strlcat(msg, tmp, MSG_SIZE);
-		snprintf(tmp, MSG_SIZE, "Speaker Volume: %f\n", speaker_volume);
-		strlcat(msg, tmp, MSG_SIZE);
-		snprintf(tmp, MSG_SIZE, "Input Gain: %f\n", input_gain);
-		strlcat(msg, tmp, MSG_SIZE);
-		snprintf(tmp, MSG_SIZE, "Headphone Muted: %s\n", bool_str(is_headphone_muted));
-		strlcat(msg, tmp, MSG_SIZE);
-		snprintf(tmp, MSG_SIZE, "Speaker Muted: %s\n", bool_str(is_speaker_muted));
-		strlcat(msg, tmp, MSG_SIZE);
-		snprintf(tmp, MSG_SIZE, "Input Muted: %s\n\n", bool_str(is_input_muted));
-		strlcat(msg, tmp, MSG_SIZE);
-		show_dialog_message(msg);
+        char tmp[MSG_SIZE];
+        snprintf(msg, MSG_SIZE, "Audio Mixer Status\n");
+        snprintf(tmp, MSG_SIZE, "Headphone Volume: %f\n", headphone_volume);
+        strlcat(msg, tmp, MSG_SIZE);
+        snprintf(tmp, MSG_SIZE, "Speaker Volume: %f\n", speaker_volume);
+        strlcat(msg, tmp, MSG_SIZE);
+        snprintf(tmp, MSG_SIZE, "Input Gain: %f\n", input_gain);
+        strlcat(msg, tmp, MSG_SIZE);
+        snprintf(tmp, MSG_SIZE, "Headphone Muted: %s\n", bool_str(is_headphone_muted));
+        strlcat(msg, tmp, MSG_SIZE);
+        snprintf(tmp, MSG_SIZE, "Speaker Muted: %s\n", bool_str(is_speaker_muted));
+        strlcat(msg, tmp, MSG_SIZE);
+        snprintf(tmp, MSG_SIZE, "Input Muted: %s\n\n", bool_str(is_input_muted));
+        strlcat(msg, tmp, MSG_SIZE);
+        show_dialog_message(msg);
     }
 
     /*
