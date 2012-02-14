@@ -32,14 +32,27 @@ int setup_screen();
 void cleanup_screen();
 
 /**
- * Show two alert dialogs that will output general data.
+ * Show an alert dialog to display general data along the bottom
+ * of the screen.
  */
-void create_dialogs();
+void create_bottom_dialog();
 
 /**
- * Destroy dialogs that were created by create_dialogs.
+ * Show an alert dialog to display general data along the top
+ * of the screen.
  */
-void destroy_dialogs();
+void create_top_dialog();
+
+/**
+ * Destroy the top dialog that was created by create_top_dialog.
+ */
+void destroy_top_dialog();
+
+/**
+ * Destroy the bottom dialog that was created by create_bottom_dialog.
+ */
+void destroy_bottom_dialog();
+
 
 /**
  * Displays a message to the top dialog created by create_dialogs() and
