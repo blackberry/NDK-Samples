@@ -129,7 +129,7 @@ void cleanup_screen() {
 
 
 void
-create_dialogs()
+create_bottom_dialog()
 {
     if (bottom_dialog == NULL) {
         dialog_create_alert(&bottom_dialog);
@@ -141,7 +141,11 @@ create_dialogs()
         dialog_set_cancel_required(bottom_dialog, true);
         dialog_show(bottom_dialog);
     }
+}
 
+void
+create_top_dialog()
+{
     if (top_dialog == NULL) {
         dialog_create_alert(&top_dialog);
         dialog_set_alert_message_text(top_dialog, "\n");
@@ -156,11 +160,15 @@ create_dialogs()
 }
 
 void
-destroy_dialogs() {
+destroy_top_dialog() {
     if (top_dialog) {
         dialog_destroy(top_dialog);
     }
     top_dialog = 0;
+}
+
+void
+destroy_bottom_dialog() {
 
     if (bottom_dialog) {
         dialog_destroy(bottom_dialog);
