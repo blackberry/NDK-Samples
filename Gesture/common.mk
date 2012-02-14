@@ -26,7 +26,7 @@ CCFLAGS+=-fstack-protector-all -D_FORTIFY_SOURCE=2 \
 LDFLAGS+=-Wl,-z,relro -Wl,-z,now $(if $(filter g so shared,$(VARIANTS)),,-pie)
 
 # Basic libraries required by most native applications
-LIBS+=bps pps screen m img gestures
+LIBS+=bps screen m img gestures
 
 include $(MKFILES_ROOT)/qtargets.mk
 
