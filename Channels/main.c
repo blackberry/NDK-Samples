@@ -165,6 +165,12 @@ accel_main (void *p) {
     pthread_cond_signal(&chidCond);
     pthread_mutex_unlock(&chidMutex);
 
+    /*
+     * Create and display a dialog that will show the data.
+     */
+    create_bottom_dialog();
+    show_bottom_dialog_message("\n\nThis is the Accelerometer Dialog");
+
     if (BPS_SUCCESS != sensor_request_events(SENSOR_TYPE_ACCELEROMETER)) {
         fprintf(stderr, "Error requesting sensor's accelerometer events: %s", strerror(errno));
         bps_shutdown();
@@ -194,6 +200,7 @@ accel_main (void *p) {
     }
 
     sensor_stop_events(0);
+    destroy_bottom_dialog();
 
     bps_shutdown();
 
@@ -266,9 +273,8 @@ main(int argc, char *argv[])
     /*
      * Create and display the dialogs that will show the data.
      */
-    create_dialogs();
+    create_top_dialog();
     show_top_dialog_message("Geolocation getting first fix");
-    show_bottom_dialog_message("\n\nThis is the Accelerometer Dialog");
 
     /*
      * Before initializing the accelerometer service we must ensure the device
@@ -285,7 +291,7 @@ main(int argc, char *argv[])
         /*
          * Destroy the dialog, if it exists and cleanup screen resources.
          */
-        destroy_dialogs();
+        destroy_top_dialog();
         cleanup_screen();
         bps_shutdown();
         return EXIT_FAILURE;
@@ -345,9 +351,9 @@ main(int argc, char *argv[])
     pthread_join(accel_thread, NULL);
 
     /*
-     * Destroy the dialogs, if they exist.
+     * Destroy the dialog, if it exists.
      */
-    destroy_dialogs();
+    destroy_top_dialog();
 
     bps_shutdown();
     cleanup_screen();
