@@ -3,8 +3,8 @@ Channels - Display current location data
 ========================================================================
 Sample Description:
 
- The Channels application demonstrates how to two different threads can
- communicate by sending events through channels.
+ The Channels sample demonstrates how two different threads can communicate by
+ sending events through channels.
 
  We retrieve and display geolocation specific information, such as the latitude,
  longitude, altitude, and bearing of the tablet from the default channel of the

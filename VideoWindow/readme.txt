@@ -4,15 +4,27 @@ VideoWindow
 Sample Description:
 
  The VideoWindow sample is an application that is designed to show you how to
- use some of the multimedia capabilities of the Native SDK.
+ use the multimedia capabilities of the Native SDK in concert with OpenGL ES
+ 2.0.
 
- When you run the application, a video is played on the screen.
+ When the application starts, there is a green "Play" symbol that can be
+ pressed.
+
+ When the button is pressed, the play button turns into a blue stop symbol and
+ video playback begins.  While the video is playing, the user can chose to stop
+ the video by tapping the blue symbol.  The blue stop symbol will then turn into
+ a green play symbol.  When the green symbol is pressed, playback will continue.
+
+ The user may swipe from the top of the bevel into the video (down-swipe) in
+ order to hide the symbol.  This is achieved by changing the z-order of the
+ mmrender video surface.
 
  Feature summary
  - Creating a playback window
  - Connecting and configuring the renderer
  - Configuring video input and output
  - Starting and stopping video playback
+ - OpenGL ES 2.0 graphics composited on top of video
 
 ========================================================================
 Requirements:

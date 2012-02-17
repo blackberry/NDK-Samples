@@ -3,9 +3,9 @@ Geolocation - Display current location data
 ========================================================================
 Sample Description:
 
- The Geolocation is an application that demonstrates how to retrieve geolocation
- specific information, such as the latitude, longitude, altitude, and bearing of
- the tablet.
+ The Geolocation sample is an application that demonstrates how to retrieve
+ geolocation specific information, such as the latitude, longitude, altitude,
+ and bearing of the tablet.
 
  When you run the application, geolocation data is displayed in a dialog.
 

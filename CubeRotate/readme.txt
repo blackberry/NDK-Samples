@@ -4,7 +4,7 @@ CubeRotate
 Sample Description:
 
  The CubeRotate sample is an application that is designed to show you how to
- create a a 3D multi-colored cube using OpenGL ES.
+ create a 3D multi-colored cube using OpenGL ES.
 
  When you run the application, the application displays a cube that rotates on
  the screen.

@@ -3,7 +3,7 @@ Gesture
 ========================================================================
 Sample Description:
 
- The gesture sample is an application that is designed to show you how to handle
+ The Gesture sample is an application that is designed to show you how to handle
  gestures on the screen.
 
  When you run the application, different behaviors are triggered depending on
