@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011 Research In Motion Limited.
+ * Copyright (c) 2011-2012 Research In Motion Limited.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -86,50 +86,50 @@ void handleScreenEvent(bps_event_t *event)
 
 int initialize()
 {
-	EGLint surface_width, surface_height;
+    EGLint surface_width, surface_height;
 
-	eglQuerySurface(egl_disp, egl_surf, EGL_WIDTH, &surface_width);
-	EGLint err = eglGetError();
-	if (err != 0x3000) {
-		return EXIT_FAILURE;
-	}
+    eglQuerySurface(egl_disp, egl_surf, EGL_WIDTH, &surface_width);
+    EGLint err = eglGetError();
+    if (err != 0x3000) {
+        return EXIT_FAILURE;
+    }
 
-	eglQuerySurface(egl_disp, egl_surf, EGL_HEIGHT, &surface_height);
-	err = eglGetError();
-	if (err != 0x3000) {
-		return EXIT_FAILURE;
-	}
+    eglQuerySurface(egl_disp, egl_surf, EGL_HEIGHT, &surface_height);
+    err = eglGetError();
+    if (err != 0x3000) {
+        return EXIT_FAILURE;
+    }
 
     glClearDepthf(1.0f);
     glClearColor(0.0f,0.0f,0.0f,1.0f);
     glEnable(GL_CULL_FACE);
     glShadeModel(GL_SMOOTH);
 
-	glViewport(0, 0, surface_width, surface_height);
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
+    glViewport(0, 0, surface_width, surface_height);
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
 
-	float nearClip = -2.0f;
-	float farClip  = 2.0f;
-	float yFOV  = 75.0f;
-	float yMax = nearClip * tan(yFOV*M_PI/360.0f);
-	float aspect = surface_width/surface_height;
-	float xMin = -yMax * aspect;
-	float xMax = yMax *aspect;
+    float nearClip = -2.0f;
+    float farClip  = 2.0f;
+    float yFOV  = 75.0f;
+    float yMax = nearClip * tan(yFOV*M_PI/360.0f);
+    float aspect = surface_width/surface_height;
+    float xMin = -yMax * aspect;
+    float xMax = yMax *aspect;
 
-	glFrustumf(xMin, xMax, -yMax, yMax, nearClip, farClip);
-	glScalef((float)surface_height/(float)surface_width, 1.0f, 1.0f);
+    glFrustumf(xMin, xMax, -yMax, yMax, nearClip, farClip);
+    glScalef((float)surface_height/(float)surface_width, 1.0f, 1.0f);
 
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
 
-	return EXIT_SUCCESS;
+    return EXIT_SUCCESS;
 }
 
 void render()
 {
     //Typical render pass
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     glEnableClientState(GL_VERTEX_ARRAY);
     glVertexPointer(3, GL_FLOAT, 0, vertices);
@@ -149,85 +149,85 @@ void render()
 }
 
 int main(int argc, char *argv[]) {
-	int rc;
-	int exit_application = 0;
-	static screen_context_t screen_cxt;
+    int rc;
+    int exit_application = 0;
+    static screen_context_t screen_cxt;
 
-	//Create a screen context that will be used to create an EGL surface to to receive libscreen events
-	screen_create_context(&screen_cxt, 0);
+    //Create a screen context that will be used to create an EGL surface to to receive libscreen events
+    screen_create_context(&screen_cxt, 0);
 
-	//Initialize BPS library
-	bps_initialize();
+    //Initialize BPS library
+    bps_initialize();
 
-	//Use utility code to initialize EGL in landscape orientation
-	if (EXIT_SUCCESS != bbutil_init_egl(screen_cxt, GL_ES_1, LANDSCAPE)) {
-		fprintf(stderr, "bbutil_init_egl failed\n");
-		bbutil_terminate();
-		screen_destroy_context(screen_cxt);
-		return 0;
-	}
+    //Use utility code to initialize EGL for rendering with GL ES 1.1
+    if (EXIT_SUCCESS != bbutil_init_egl(screen_cxt)) {
+        fprintf(stderr, "bbutil_init_egl failed\n");
+        bbutil_terminate();
+        screen_destroy_context(screen_cxt);
+        return 0;
+    }
 
-	//Initialize application logic
-	if (EXIT_SUCCESS != initialize()) {
-		fprintf(stderr, "initialize failed\n");
-		bbutil_terminate();
-		screen_destroy_context(screen_cxt);
-		return 0;
-	}
+    //Initialize application logic
+    if (EXIT_SUCCESS != initialize()) {
+        fprintf(stderr, "initialize failed\n");
+        bbutil_terminate();
+        screen_destroy_context(screen_cxt);
+        return 0;
+    }
 
-	//Signal BPS library that navigator and screen events will be requested
-	if (BPS_SUCCESS != screen_request_events(screen_cxt)) {
-		fprintf(stderr, "screen_request_events failed\n");
-		bbutil_terminate();
-		screen_destroy_context(screen_cxt);
-		return 0;
-	}
+    //Signal BPS library that navigator and screen events will be requested
+    if (BPS_SUCCESS != screen_request_events(screen_cxt)) {
+        fprintf(stderr, "screen_request_events failed\n");
+        bbutil_terminate();
+        screen_destroy_context(screen_cxt);
+        return 0;
+    }
 
-	if (BPS_SUCCESS != navigator_request_events(0)) {
-		fprintf(stderr, "navigator_request_events failed\n");
-		bbutil_terminate();
-		screen_destroy_context(screen_cxt);
-		return 0;
-	}
+    if (BPS_SUCCESS != navigator_request_events(0)) {
+        fprintf(stderr, "navigator_request_events failed\n");
+        bbutil_terminate();
+        screen_destroy_context(screen_cxt);
+        return 0;
+    }
 
-	//Signal BPS library that navigator orientation is not to be locked
-	if (BPS_SUCCESS != navigator_rotation_lock(false)) {
-		fprintf(stderr, "navigator_rotation_lock failed\n");
-		bbutil_terminate();
-		screen_destroy_context(screen_cxt);
-		return 0;
-	}
+    //Signal BPS library that navigator orientation is not to be locked
+    if (BPS_SUCCESS != navigator_rotation_lock(false)) {
+        fprintf(stderr, "navigator_rotation_lock failed\n");
+        bbutil_terminate();
+        screen_destroy_context(screen_cxt);
+        return 0;
+    }
 
-	while (!exit_application) {
-		//Request and process BPS next available event
-		bps_event_t *event = NULL;
-		rc = bps_get_event(&event, 0);
-		assert(rc == BPS_SUCCESS);
+    while (!exit_application) {
+        //Request and process BPS next available event
+        bps_event_t *event = NULL;
+        rc = bps_get_event(&event, 0);
+        assert(rc == BPS_SUCCESS);
 
-		if (event) {
-			int domain = bps_event_get_domain(event);
+        if (event) {
+            int domain = bps_event_get_domain(event);
 
-			if (domain == screen_get_domain()) {
-				handleScreenEvent(event);
-			} else if ((domain == navigator_get_domain())
-					&& (NAVIGATOR_EXIT == bps_event_get_code(event))) {
-				exit_application = 1;
-			}
-		}
+            if (domain == screen_get_domain()) {
+                handleScreenEvent(event);
+            } else if ((domain == navigator_get_domain())
+                    && (NAVIGATOR_EXIT == bps_event_get_code(event))) {
+                exit_application = 1;
+            }
+        }
 
-		render();
-	}
+        render();
+    }
 
-	//Stop requesting events from libscreen
-	screen_stop_events(screen_cxt);
+    //Stop requesting events from libscreen
+    screen_stop_events(screen_cxt);
 
-	//Shut down BPS library for this process
-	bps_shutdown();
+    //Shut down BPS library for this process
+    bps_shutdown();
 
-	//Use utility code to terminate EGL setup
-	bbutil_terminate();
+    //Use utility code to terminate EGL setup
+    bbutil_terminate();
 
-	//Destroy libscreen context
-	screen_destroy_context(screen_cxt);
-	return 0;
+    //Destroy libscreen context
+    screen_destroy_context(screen_cxt);
+    return 0;
 }

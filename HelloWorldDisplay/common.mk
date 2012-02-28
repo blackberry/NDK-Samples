@@ -18,6 +18,9 @@ EXTRA_INCVPATH+=$(QNX_TARGET)/usr/include/freetype2 \
 EXTRA_LIBVPATH+=$(QNX_TARGET)/../target-override/$(CPUVARDIR)/lib \
 	$(QNX_TARGET)/../target-override/$(CPUVARDIR)/usr/lib
 
+# Add USING_GL11 to build bbutil for gles 1.1 use
+CCFLAGS+=-DUSING_GL11
+
 # Compiler options for enhanced security
 CCFLAGS+=-fstack-protector-all -D_FORTIFY_SOURCE=2 \
 	$(if $(filter g so shared,$(VARIANTS)),,-fPIE)
@@ -26,9 +29,11 @@ CCFLAGS+=-fstack-protector-all -D_FORTIFY_SOURCE=2 \
 LDFLAGS+=-Wl,-z,relro -Wl,-z,now $(if $(filter g so shared,$(VARIANTS)),,-pie)
 
 # Basic libraries required by most native applications
-LIBS+=bps pps screen EGL GLESv1_CM freetype png
+LIBS+=bps screen EGL GLESv1_CM freetype png
 
 include $(MKFILES_ROOT)/qtargets.mk
 
 OPTIMIZE_TYPE_g=none
 OPTIMIZE_TYPE=$(OPTIMIZE_TYPE_$(filter g, $(VARIANTS)))
+
+-include $(PROJECT_ROOT)/../samples.mk

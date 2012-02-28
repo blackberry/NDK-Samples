@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011 Research In Motion Limited.
+ * Copyright (c) 2011-2012 Research In Motion Limited.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,6 @@
 #include <stdio.h>
 
 int main(int argc, char *argv[]) {
-	fprintf(stderr, "Hello World!\n");
-	return 0;
+    fprintf(stderr, "Hello World!\n");
+    return 0;
 }
