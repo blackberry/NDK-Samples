@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 Research In Motion Limited
+ * Copyright 2011-2012 Research In Motion Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,6 +42,7 @@ namespace blocks {
 
 static const char SCORELOOP_GAME_ID[] = "d346c484-12aa-49a2-a0a0-de2f87492d72";
 static const char SCORELOOP_GAME_SECRET[] = "aAa+DehBfyGO/CYaE3nWomgu7SIbWFczUih+Qwf3/n7u0y3nyq5Hag==";
+static const char SCORELOOP_GAME_VERSION[] = "1.0";
 static const char SCORELOOP_GAME_CURRENCY[] = "ASC";
 static const char SCORELOOP_GAME_LANGUAGE[] = "en";
 
@@ -74,8 +75,8 @@ Platform::Platform()
     dialog_request_events(0);
 
     // Lock in landscape mode.
-    bbutil_init_egl(m_screenContext, GL_ES_1);
     navigator_rotation_lock(true);
+    bbutil_init_egl(m_screenContext);
 }
 
 Platform::~Platform() {
@@ -95,12 +96,13 @@ Platform::~Platform() {
 
 bool Platform::init() {
     // Fire up BBM Game SDK (Scoreloop)
-    PAL_InitData_Init(&m_scoreloopInitData);
+    SC_InitData_Init(&m_scoreloopInitData);
 
     SC_Error_t rc = SC_Client_New(&m_scoreloopClient,
             &m_scoreloopInitData,
             SCORELOOP_GAME_ID,
             SCORELOOP_GAME_SECRET,
+            SCORELOOP_GAME_VERSION,
             SCORELOOP_GAME_CURRENCY,
             SCORELOOP_GAME_LANGUAGE);
 
@@ -212,7 +214,7 @@ void Platform::processEvents() {
 
         // Give Scoreloop the first shot at handling the event
         // (for callbacks)
-        if (PAL_HandleBPSEvent(&m_scoreloopInitData, event) == BPS_SUCCESS) {
+        if (SC_HandleBPSEvent(&m_scoreloopInitData, event) == BPS_SUCCESS) {
             continue;
         }
 
@@ -251,10 +253,11 @@ void Platform::processEvents() {
                 int pointerButton;
                 screen_get_event_property_iv(screenEvent, SCREEN_PROPERTY_BUTTONS, &pointerButton);
 
-                if ((pointerButton & SCREEN_LEFT_MOUSE_BUTTON) && !m_buttonPressed) {
+                if (pointerButton == SCREEN_LEFT_MOUSE_BUTTON) {
+                    ASSERT(!m_buttonPressed);
                     m_buttonPressed = true;
                     m_handler->onLeftPress(static_cast<float>(screenEventPosition[0]), static_cast<float>(screenEventPosition[1]));
-                } else if (!(pointerButton & SCREEN_LEFT_MOUSE_BUTTON) && m_buttonPressed) {
+                } else if (m_buttonPressed) {
                     m_handler->onLeftRelease(static_cast<float>(screenEventPosition[0]), static_cast<float>(screenEventPosition[1]));
                     m_buttonPressed = false;
                 }

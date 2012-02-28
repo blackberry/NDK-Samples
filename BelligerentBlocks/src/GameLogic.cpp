@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 Research In Motion Limited
+ * Copyright 2011-2012 Research In Motion Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -274,15 +274,15 @@ void GameLogic::renderFetchUser() {
     glEnableClientState(GL_TEXTURE_COORD_ARRAY);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    m_background.draw();
 
-    glColor4f(0.75f, 0.75f, 0.75f, 1.0f);
-    bbutil_render_text(m_font, m_message, m_messagePosX, m_messagePosY);
+    m_background.draw();
 
     glDisableClientState(GL_VERTEX_ARRAY);
     glDisableClientState(GL_TEXTURE_COORD_ARRAY);
     glDisable(GL_TEXTURE_2D);
     glDisable(GL_BLEND);
+
+    bbutil_render_text(m_font, m_message, m_messagePosX, m_messagePosY, 0.75f, 0.75f, 0.75f, 1.0f);
 
     m_platform.finishRender();
 }
@@ -304,13 +304,12 @@ void GameLogic::renderGame() {
     m_background.draw();
 
     if (m_gamePaused) {
-        glColor4f(0.75f, 0.75f, 0.75f, 1.0f);
-        bbutil_render_text(m_font, m_message, m_messagePosX, m_messagePosY);
-
         glDisableClientState(GL_VERTEX_ARRAY);
         glDisableClientState(GL_TEXTURE_COORD_ARRAY);
         glDisable(GL_TEXTURE_2D);
         glDisable(GL_BLEND);
+
+        bbutil_render_text(m_font, m_message, m_messagePosX, m_messagePosY, 0.75f, 0.75f, 0.75f, 1.0f);
 
         m_platform.finishRender();
 
@@ -319,8 +318,6 @@ void GameLogic::renderGame() {
 
     //Draw ground
     m_ground.draw();
-
-    glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 
     //Draw in game blocks
     for (unsigned int i = 0; i < m_numBlocks; i++) {
@@ -353,23 +350,22 @@ void GameLogic::renderGame() {
         pos += 0.55f * m_blocks[i - 1].Width() / 2 + 1.5f;
     }
 
-    //Display score
-    char buf[100];
-    sprintf(buf, "%i\0", m_score);
-    glColor4f(0.75f, 0.75f, 0.75f, 1.0f);
-    bbutil_render_text(m_scoreFont, buf, m_scorePosX, m_scorePosY);
-
-    //Display timer if it is available
-    if (m_showClock) {
-        sprintf(buf, "Time left %i\0", m_time - m_scoreTime - 1l);
-        bbutil_render_text(m_font, buf, m_timerPosX, m_timerPosY);
-    }
-
     glDisableClientState(GL_VERTEX_ARRAY);
     glDisableClientState(GL_TEXTURE_COORD_ARRAY);
     glDisable(GL_TEXTURE_2D);
     glDisable(GL_BLEND);
 
+    //Display score
+    char buf[100];
+    sprintf(buf, "%i\0", m_score);
+
+    bbutil_render_text(m_scoreFont, buf, m_scorePosX, m_scorePosY, 0.75f, 0.75f, 0.75f, 1.0f);
+
+    //Display timer if it is available
+    if (m_showClock) {
+        sprintf(buf, "Time left %i\0", m_time - m_scoreTime - 1l);
+        bbutil_render_text(m_font, buf, m_timerPosX, m_timerPosY, 0.75f, 0.75f, 0.75f, 1.0f);
+    }
     m_platform.finishRender();
 }
 
@@ -389,8 +385,12 @@ void GameLogic::renderLeadBoard() {
     m_background.draw();
     m_leaderBoard.draw();
 
-    glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-    bbutil_render_text(m_font, m_message, m_messagePosX, m_messagePosY);
+    glDisableClientState(GL_VERTEX_ARRAY);
+    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+    glDisable(GL_TEXTURE_2D);
+    glDisable(GL_BLEND);
+
+    bbutil_render_text(m_font, m_message, m_messagePosX, m_messagePosY, 1.0f, 1.0f, 1.0f, 1.0f);
 
     if (m_leaderBoardReady) {
         m_playButton.draw();
@@ -403,21 +403,18 @@ void GameLogic::renderLeadBoard() {
 
         for (int i = 0; i < static_cast<int>(m_leaderboard.size()); i++) {
             sprintf(buf, "%i. %s", m_leaderboard[i].rank(), m_leaderboard[i].name().c_str());
-            bbutil_render_text(m_leaderboardFont, buf, m_leaderBoard.PosX() - m_leaderBoard.Width() / 2 + LEADERBOARD_LINE_OFFSET_X, posY);
+            bbutil_render_text(m_leaderboardFont, buf, m_leaderBoard.PosX() - m_leaderBoard.Width() / 2 + LEADERBOARD_LINE_OFFSET_X, posY,
+                               1.0f, 1.0f, 1.0f, 1.0f);
 
             sprintf(buf, "%i", m_leaderboard[i].score());
             bbutil_measure_text(m_leaderboardFont, buf, &sizeX, &sizeY);
 
-            bbutil_render_text(m_leaderboardFont, buf, m_leaderBoard.PosX() + m_leaderBoard.Width() / 2 - sizeX - LEADERBOARD_LINE_OFFSET_X, posY);
+            bbutil_render_text(m_leaderboardFont, buf, m_leaderBoard.PosX() + m_leaderBoard.Width() / 2 - sizeX - LEADERBOARD_LINE_OFFSET_X, posY,
+                               1.0f, 1.0f, 1.0f, 1.0f);
 
             posY -= sizeY + 10.0f;
         }
     }
-
-    glDisableClientState(GL_VERTEX_ARRAY);
-    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-    glDisable(GL_TEXTURE_2D);
-    glDisable(GL_BLEND);
 
     m_platform.finishRender();
 }
@@ -496,13 +493,12 @@ void GameLogic::reset() {
 
 void GameLogic::onLeftRelease(float x, float y) {
     if (m_state == LeaderBoard && m_leaderBoardReady) {
-        if (m_playButton.isPressed) {
-            m_playButton.isPressed = false;
-            m_playButton.textY--;
-            if (m_playButton.isWithin(x, m_sceneHeight - y)) {
-                reset();
-            }
+        if (m_playButton.isPressed && m_playButton.isWithin(x, m_sceneHeight - y)) {
+            reset();
         }
+
+        m_playButton.isPressed = false;
+        m_playButton.textY--;
     } else if (m_state == GamePlay) {
         if (m_gamePaused) {
             m_gamePaused = false;
@@ -533,14 +529,25 @@ void GameLogic::button::setPosition(float x, float y) {
 }
 
 void GameLogic::button::draw() const {
+    glEnable(GL_TEXTURE_2D);
+    glEnableClientState(GL_VERTEX_ARRAY);
+    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
     if (isPressed == true) {
         pressed->draw();
     } else {
         regular->draw();
     }
 
-    glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-    bbutil_render_text(font, text, posX + textX, posY + textY);
+    glDisableClientState(GL_VERTEX_ARRAY);
+    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+    glDisable(GL_TEXTURE_2D);
+    glDisable(GL_BLEND);
+
+    bbutil_render_text(font, text, posX + textX, posY + textY, 1.0f, 1.0f, 1.0f, 1.0f);
 }
 
 void GameLogic::onExit() {
