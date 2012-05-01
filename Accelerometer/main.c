@@ -54,11 +54,13 @@ display_accelerometer_reading(float x, float y, float z)
 }
 
 /**
- * A sample application demonstrates the BlackBerry Native APIs for
- * accelerometer.  The sample initializes and reads the accelerometer
- * periodically until a NAVIGATOR_EXIT event is received.  The application also
- * listens for window state changes from the navigator so that it can stop
- * reading the accelerometer when the application is no longer visible.
+ * A sample application demonstrates the BlackBerry(R) 10 Native SDK APIs for
+ * accelerometer.
+ *
+ * The sample initializes and reads the accelerometer periodically until a
+ * NAVIGATOR_EXIT event is received.  The application also listens for window
+ * state changes from the navigator so that it can stop reading the
+ * accelerometer when the application is no longer visible.
  */
 int
 main(int argc, char *argv[])
@@ -69,8 +71,8 @@ main(int argc, char *argv[])
     float force_x, force_y, force_z;
 
     /*
-     * Before we can listen for events from the BlackBerry Tablet OS platform
-     * services, we need to initialize the BPS infrastructure
+     * Before we can listen for events from the BlackBerry Platform Services, we
+     * need to initialize the BPS infrastructure
      */
     bps_initialize();
 
@@ -81,11 +83,12 @@ main(int argc, char *argv[])
 
     /*
      * Once the BPS infrastructure has been initialized we can register for
-     * events from the various BlackBerry Tablet OS platform services. The
-     * Navigator service manages and delivers application life cycle and
-     * visibility events.
-     * For this sample, we request Navigator events so we can track when
-     * the system is terminating the application (NAVIGATOR_EXIT event). This allows
+     * events from the various BlackBerry Platform Services. The Navigator
+     * service manages and delivers application life cycle and visibility
+     * events.
+     * 
+     * For this sample, we request Navigator events so we can track when the
+     * system is terminating the application (NAVIGATOR_EXIT event). This allows
      * us to clean up application resources.
      */
     navigator_request_events(0);

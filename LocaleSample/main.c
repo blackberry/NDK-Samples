@@ -54,15 +54,15 @@ display_locale(const char *language, const char *country)
 }
 
 /**
- * A sample application that demonstrates the BlackBerry Native APIs for
- * managing locale. The sample queries for the current locale and then listens
- * for locale update events.
+ * A sample application that demonstrates the BlackBerry(R) 10 Native SDK APIs
+ * for managing locale. The sample queries for the current locale and then
+ * listens for locale update events.
  */
 int
 main(int argc, char *argv[])
 {
     /*
-     * Before we can listen for events from the BlackBerry Tablet OS platform
+     * Before we can listen for events from the BlackBerry(R) 10 OS platform
      * services, we need to initialize the BPS infrastructure
      */
     bps_initialize();
@@ -74,7 +74,7 @@ main(int argc, char *argv[])
 
     /*
      * Once the BPS infrastructure has been initialized we can register for
-     * events from the various BlackBerry Tablet OS platform services. The
+     * events from the various BlackBerry(R) 10 OS platform services. The
      * Navigator service manages and delivers application life cycle and
      * visibility events.
      * For this sample, we request Navigator events so that we can track when
