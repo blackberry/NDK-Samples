@@ -15,7 +15,7 @@
  */
 
 /**
- * Sample showing how to use BlackBerry Native APIs for channels to
+ * Sample showing how to use BlackBerry(R) 10 Native SDK APIs for channels to
  * allow different threads to handle events from different services.
  *
  * Note that the main purpose of this sample is to show channels working
@@ -222,7 +222,7 @@ main(int argc, char *argv[])
     int rc;
 
     /*
-     * Before we can listen for events from the BlackBerry Tablet OS platform
+     * Before we can listen for events from the BlackBerry(R) 10 OS platform
      * services, we need to initialize the BPS infrastructure
      */
     bps_initialize();
@@ -238,7 +238,7 @@ main(int argc, char *argv[])
 
     /*
      * Once the BPS infrastructure has been initialized we can register for
-     * events from the various BlackBerry Tablet OS platform services. The
+     * events from the various BlackBerry(R) 10 OS platform services. The
      * Navigator service manages and delivers application life cycle and
      * visibility events.
      *

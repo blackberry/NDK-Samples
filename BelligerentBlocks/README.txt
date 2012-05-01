@@ -19,12 +19,12 @@ Sample Description:
 ========================================================================
 Requirements:
 
- - BlackBerry Native SDK for Tablet OS 2.0 or later
- - BlackBerry PlayBook tablet running BlackBerry Tablet OS 2.0 or later
+ - BlackBerry® 10 Native SDK
+ - BlackBerry® 10 device
  - Box2D installed or added as a project dependency
 
 ========================================================================
-Importing a project into the Native SDK:
+Importing a project into the BlackBerry® 10 Native SDK:
 
  1. From the the Sample apps page, download and extract the sample application.
  2. Launch the Native SDK.

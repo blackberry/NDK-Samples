@@ -2,18 +2,17 @@
 
 
 <qnx xmlns="http://www.qnx.com/schemas/application/1.0">
-   <!-- BlackBerry Tablet OS application descriptor file.
+   <!-- BlackBerry® 10 application descriptor file.
 
-    Specifies parameters for identifying, installing, and launching native applications on BlackBerry Tablet OS.
-
+    Specifies parameters for identifying, installing, and launching native applications on BlackBerry® 10 OS.
 -->
-   <!-- A universally unique application identifier. Must be unique across all BlackBerry Tablet OS applications.
+   <!-- A universally unique application identifier. Must be unique across all BlackBerry® 10 applications.
          Using a reverse DNS-style name as the id is recommended. (Eg. com.example.ExampleApplication.) Required. -->
 
-   <id>blackberry.ndk.sample.VideoWindow</id>
+   <id>com.example.VideoWindow</id>
 
    <!-- Used as the filename for the application. Required. -->
-   <!-- The name that is displayed in the BlackBerry Tablet OS application installer.
+   <!-- The name that is displayed in the BlackBerry® 10 application installer.
          May have multiple values for each language. See samples or xsd schema file. Optional. -->
 
    <name>VideoWindow</name>
@@ -31,7 +30,7 @@
 
    <!-- A string value (such as "v1", "2.5", or "Alpha 1") that represents the version of the application, as it should be shown to users. Optional. -->
    <!-- <versionLabel></versionLabel> -->
-   <!-- Description, displayed in the BlackBerry Tablet OS application installer.
+   <!-- Description, displayed in the BlackBerry® 10 application installer.
          May have multiple values for each language. See samples or xsd schema file. Optional. -->
 
    <description>The VideoWindow application</description>
@@ -80,6 +79,7 @@
    <!--  <permission>read_geolocation</permission> -->
    <!--  <permission>use_camera</permission> -->
    <!--  <permission>access_internet</permission> -->
+   <!--  <action>access_led_control</action> -->
 
    <action>play_audio</action>
 
