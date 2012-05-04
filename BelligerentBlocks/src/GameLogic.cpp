@@ -357,13 +357,13 @@ void GameLogic::renderGame() {
 
     //Display score
     char buf[100];
-    sprintf(buf, "%i\0", m_score);
+    sprintf(buf, "%i", m_score);
 
     bbutil_render_text(m_scoreFont, buf, m_scorePosX, m_scorePosY, 0.75f, 0.75f, 0.75f, 1.0f);
 
     //Display timer if it is available
     if (m_showClock) {
-        sprintf(buf, "Time left %i\0", m_time - m_scoreTime - 1l);
+        sprintf(buf, "Time left %i", m_time - m_scoreTime - 1);
         bbutil_render_text(m_font, buf, m_timerPosX, m_timerPosY, 0.75f, 0.75f, 0.75f, 1.0f);
     }
     m_platform.finishRender();
@@ -406,7 +406,7 @@ void GameLogic::renderLeadBoard() {
             bbutil_render_text(m_leaderboardFont, buf, m_leaderBoard.PosX() - m_leaderBoard.Width() / 2 + LEADERBOARD_LINE_OFFSET_X, posY,
                                1.0f, 1.0f, 1.0f, 1.0f);
 
-            sprintf(buf, "%i", m_leaderboard[i].score());
+            sprintf(buf, "%li", m_leaderboard[i].score());
             bbutil_measure_text(m_leaderboardFont, buf, &sizeX, &sizeY);
 
             bbutil_render_text(m_leaderboardFont, buf, m_leaderBoard.PosX() + m_leaderBoard.Width() / 2 - sizeX - LEADERBOARD_LINE_OFFSET_X, posY,

@@ -54,7 +54,6 @@
    <action system="true">run_native</action>
 
    <!-- Permission needed for Scoreloop -->
-   <action>read_device_identifying_information</action>
    <action>play_audio</action>
 
    <env var="LD_LIBRARY_PATH" value="app/native/lib"/>
