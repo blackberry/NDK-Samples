@@ -65,28 +65,27 @@ GameLogic::GameLogic(Platform &platform)
     , m_contactListener(m_clickReverb)
 {
 
-    m_backgroundMusic.load("app/native/background.wav");
-    m_click1.load("app/native/click1.wav");
-    m_click2.load("app/native/click2.wav");
-    m_clickReverb.load("app/native/clickreverb.wav");
-    m_blockFall.load("app/native/blockfall.wav");
+    m_backgroundMusic.load("app/native/background.ogg");
+    m_click1.load("app/native/click1.ogg");
+    m_clickReverb.load("app/native/clickreverb.ogg");
+    m_blockFall.load("app/native/blockfall.ogg");
 
     m_platform.setEventHandler(this);
     m_platform.getSize(m_sceneWidth, m_sceneHeight);
 
     int dpi = m_platform.getDPI();
 
-    m_font = bbutil_load_font("/usr/fonts/font_repository/adobe/MyriadPro-Bold.otf", 15, dpi);
+    m_font = bbutil_load_font("/usr/fonts/font_repository/monotype/arial.ttf", 15, dpi);
     if (!m_font) {
         fprintf(stderr, "Unable to load font\n");
     }
 
-    m_scoreFont = bbutil_load_font("/usr/fonts/font_repository/adobe/MyriadPro-Bold.otf", 30, dpi);
+    m_scoreFont = bbutil_load_font("/usr/fonts/font_repository/monotype/arial.ttf", 30, dpi);
     if (!m_scoreFont) {
         fprintf(stderr, "Unable to load font\n");
     }
 
-    m_leaderboardFont = bbutil_load_font("/usr/fonts/font_repository/adobe/MyriadPro-Bold.otf", 10, dpi);
+    m_leaderboardFont = bbutil_load_font("/usr/fonts/font_repository/monotype/arial.ttf", 10, dpi);
     if (!m_scoreFont) {
         fprintf(stderr, "Unable to load font\n");
     }

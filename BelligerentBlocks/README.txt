@@ -15,6 +15,7 @@ Sample Description:
  - Using Box2D
  - Processing various navigator events
  - Using SQLite3
+ - Using OggVorbis
 
 ========================================================================
 Requirements:
@@ -22,6 +23,7 @@ Requirements:
  - BlackBerry® 10 Native SDK
  - BlackBerry® 10 device
  - Box2D installed or added as a project dependency
+ - OggVorbis installed
 
 ========================================================================
 Importing a project into the BlackBerry® 10 Native SDK:

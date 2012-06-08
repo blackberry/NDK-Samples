@@ -38,14 +38,13 @@
    <asset path="Assets/ground.png">ground.png</asset>
 
     <!-- Sound resources -->
-   <asset path="Assets/background.wav">background.wav</asset>
-   <asset path="Assets/blockfall.wav">blockfall.wav</asset>
-   <asset path="Assets/click1.wav">click1.wav</asset>
-   <asset path="Assets/click2.wav">click2.wav</asset>
-   <asset path="Assets/clickreverb.wav">clickreverb.wav</asset>
 
    <!-- High score database -->
    <asset path="Assets/scores.db">data/scores.db</asset>
+   <asset path="Assets/background.ogg">background.ogg</asset>
+   <asset path="Assets/blockfall.ogg">blockfall.ogg</asset>
+   <asset path="Assets/click1.ogg">click1.ogg</asset>
+   <asset path="Assets/clickreverb.ogg">clickreverb.ogg</asset>
 
 
    <icon><image>icon.png</image></icon>
