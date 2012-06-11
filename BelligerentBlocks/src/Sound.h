@@ -22,8 +22,7 @@
 #ifndef SOUND_H_
 #define SOUND_H_
 
-#include <AL/alut.h>
-
+#include <AL/al.h>
 #include <vector>
 
 namespace blocks {
@@ -95,6 +94,7 @@ public:
     bool isLoaded() const { return (m_source != 0); }
 
 private:
+    bool loadVorbisFile(const char* file, std::vector<unsigned char>& rawData, ALenum& format, ALfloat& frequency);
     std::vector<ALuint> m_buffers;
     ALuint m_source;
 };

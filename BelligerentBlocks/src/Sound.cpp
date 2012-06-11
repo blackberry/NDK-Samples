@@ -16,8 +16,14 @@
 
 #include "Sound.h"
 
+#include <vorbis/codec.h>
+#include <vorbis/vorbisfile.h>
+
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+
+#include <vector>
 
 #ifndef NDEBUG
 #include <assert.h>
@@ -40,33 +46,80 @@ Sound::~Sound() {
     }
 }
 
-bool Sound::load(const char* fileName) {
-    ASSERT(!isLoaded());
+bool Sound::loadVorbisFile(const char *file, std::vector<unsigned char>& rawData, ALenum& format, ALfloat& frequency) {
+    format = 0;
+    frequency = 0;
 
-    // Clear any old ALUT error
-    alutGetError();
+    FILE *fp = fopen(file, "r");
 
-    ALenum format;
-    ALsizei size;
-    ALfloat frequency;
-    unsigned char* rawData = static_cast<unsigned char*>(alutLoadMemoryFromFile(fileName, &format, &size, &frequency));
-
-    ALenum error = alutGetError();
-    if (error != ALUT_ERROR_NO_ERROR) {
-        fprintf(stderr, "Cannot load background file into memory: %d, %s\n", error, alutGetErrorString(error));
-        free(rawData);
+    if (!fp) {
+        fprintf(stderr, "loadVorbisFile: failed fopen: %s\n", file);
         return false;
     }
 
-    m_buffers.resize(size / BufferSize + 1);
+    OggVorbis_File vf;
+    if (ov_open_callbacks(fp, &vf, 0, 0, OV_CALLBACKS_NOCLOSE) < 0) {
+        fprintf(stderr, "loadVorbisFile: failed ov_open_callbacks: %s\n", file);
+        fclose(fp);
+        return false;
+    }
+
+    vorbis_info* info = ov_info(&vf, -1);
+
+    if (!info) {
+        fprintf(stderr, "loadVorbisFile: failed ov_info for file: %s\n", file);
+        ov_clear(&vf);
+        fclose(fp);
+        return false;
+    }
+
+    if (1 == info->channels) {
+        format = AL_FORMAT_MONO16;
+    } else {
+        format = AL_FORMAT_STEREO16;
+    }
+
+    frequency = (ALfloat)info->rate;
+
+    bool eof = false;
+    int section;
+    while (!eof) {
+        char pcmout[4096];
+        long bytes = ov_read(&vf, pcmout, sizeof(pcmout),0, 2,1,&section);
+        if (0L == bytes) {
+            eof = true;
+        } else if (0L < bytes) {
+            long start = rawData.size();
+            rawData.resize(start + bytes);
+            memcpy(&rawData[start], pcmout, bytes);
+        }
+    }
+
+    ov_clear(&vf);
+    fclose(fp);
+    return true;
+}
+
+bool Sound::load(const char* fileName) {
+    ASSERT(!isLoaded());
+
+    ALenum format;
+    ALfloat frequency;
+
+    std::vector<unsigned char> rawData;
+
+    if (!loadVorbisFile(fileName, rawData, format, frequency)) {
+        return false;
+    }
+
+    m_buffers.resize(rawData.size() / BufferSize + 1);
 
     // Clear old AL error
     alGetError();
     alGenBuffers(m_buffers.size(), &m_buffers[0]);
-    error = alGetError();
+    ALenum error = alGetError();
     if (error != AL_NO_ERROR) {
         fprintf(stderr, "Cannot generate background buffers: %d\n", error);
-        free(rawData);
         return false;
     }
 
@@ -74,14 +127,13 @@ bool Sound::load(const char* fileName) {
     error = alGetError();
     if (error != AL_NO_ERROR) {
         fprintf(stderr, "Cannot generate background source: %d\n", error);
-        free(rawData);
         alDeleteBuffers(m_buffers.size(), &m_buffers[0]);
         m_buffers.clear();
         return false;
     }
 
     for (unsigned int i = 0; i < m_buffers.size(); i++) {
-        int writeSize = size - (i * BufferSize);
+        int writeSize = rawData.size() - (i * BufferSize);
         if (writeSize > BufferSize) {
             writeSize = BufferSize;
         }
@@ -90,7 +142,6 @@ bool Sound::load(const char* fileName) {
         error = alGetError();
         if (error != AL_NO_ERROR) {
             fprintf(stderr, "Cannot copy raw background music into buffer: %d\n", error);
-            free(rawData);
             alDeleteBuffers(m_buffers.size(), &m_buffers[0]);
             m_buffers.clear();
             alDeleteSources(1, &m_source);
@@ -102,7 +153,6 @@ bool Sound::load(const char* fileName) {
         error = alGetError();
         if (error != AL_NO_ERROR) {
             fprintf(stderr, "Cannot queue background buffer: %d\n", error);
-            free(rawData);
             alDeleteBuffers(m_buffers.size(), &m_buffers[0]);
             m_buffers.clear();
             alDeleteSources(1, &m_source);
@@ -111,7 +161,6 @@ bool Sound::load(const char* fileName) {
         }
     }
 
-    free(rawData);
     return true;
 }
 

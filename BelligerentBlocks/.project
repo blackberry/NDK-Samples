@@ -4,6 +4,7 @@
 	<comment></comment>
 	<projects>
 		<project>box2d</project>
+		<project>vorbis</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>

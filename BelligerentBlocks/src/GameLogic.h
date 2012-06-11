@@ -184,7 +184,6 @@ private:
 
     Sound m_backgroundMusic;
     Sound m_click1;
-    Sound m_click2;
     Sound m_clickReverb;
     Sound m_blockFall;
     ContactListener m_contactListener;
