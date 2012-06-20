@@ -316,8 +316,10 @@ void Platform::submitScore(int score) {
         return;
     }
 
-    ASSERT(!m_score);
-    SC_Error_t rc = SC_Score_New(&m_score);
+    ASSERT(NULL == m_score);
+    ASSERT(NULL != m_scoreloopClient);
+
+    SC_Error_t rc = SC_Client_CreateScore(m_scoreloopClient, &m_score);
     if (rc != SC_OK) {
         fprintf(stderr, "Error creating score: %d\n", rc);
         return;
@@ -361,6 +363,8 @@ void Platform::submitScoreComplete(SC_Error_t result) {
 }
 
 void Platform::fetchLeaderboard() {
+    const SC_Range_t scores = {0, NUM_LEADERBOARD_SCORES};
+
     if (m_leaderboardOperationInProgress) {
         // It is a GameLogic error to call fetchLeaderboard more than once
         // before fetchLeaderboardComplete is executed.
@@ -368,7 +372,7 @@ void Platform::fetchLeaderboard() {
         return;
     }
 
-    SC_Error_t rc = SC_ScoresController_LoadRange(m_scoresController, 0, NUM_LEADERBOARD_SCORES);
+    SC_Error_t rc = SC_ScoresController_LoadRange(m_scoresController, scores);
     if (rc != SC_OK) {
         fprintf(stderr, "Error loading leaderboard score range: %d\n", rc);
         return;
@@ -390,10 +394,10 @@ void Platform::fetchLeaderboardComplete(SC_Error_t result) {
             return;
         }
 
-        const unsigned int numScores = SC_ScoreList_GetScoresCount(scoreList);
+        const unsigned int numScores = SC_ScoreList_GetCount(scoreList);
 
         for (unsigned int i = 0; i < numScores; i++) {
-            SC_Score_h score = SC_ScoreList_GetScore(scoreList, i);
+            SC_Score_h score = SC_ScoreList_GetAt(scoreList, i);
             SC_User_h user = SC_Score_GetUser(score);
 
             std::string login = "Unknown";
@@ -423,7 +427,7 @@ void Platform::fetchUser() {
         return;
     }
 
-    SC_Error_t result = SC_UserController_RequestUser(m_userController);
+    SC_Error_t result = SC_UserController_LoadUser(m_userController);
     if (result != SC_OK) {
         fprintf(stderr, "Error requesting scoreloop user: %d\n", result);
     }
