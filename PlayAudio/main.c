@@ -28,7 +28,7 @@
 #include <mm/renderer.h>
 #include <screen/screen.h>
 
-#include "dialogutil.h"
+#include "dialogaudio.h"
 /*
  * buffer to store messages that we will display in the dialog
  */
@@ -75,6 +75,66 @@ static void mmrerror( mmr_context_t *ctxt, const char *errmsg ) {
     show_dialog_message(msg);
 }
 
+static void handle_dialog_response_events(bps_event_t *event) {
+    if (NULL == event) {
+        return;
+    }
+
+    if (NULL == dialog_event_get_selected_context(event)) {
+        return ;
+    }
+
+    float volume;
+    int rc;
+
+    if (0 == strcmp("query", dialog_event_get_selected_context(event))) {
+        rc = audiomixer_get_output_level(AUDIOMIXER_OUTPUT_SPEAKER, &volume);
+        if (BPS_SUCCESS == rc) {
+            snprintf(msg, MSG_SIZE, "Successfully queried the output level.\ncurrent volume is %f\n", volume);
+            show_dialog_message(msg);
+        } else {
+            show_dialog_message("Failed to query the output level.\n");
+        }
+    } else if (0 == strcmp("half", dialog_event_get_selected_context(event))) {
+        rc = audiomixer_get_output_level(AUDIOMIXER_OUTPUT_SPEAKER, &volume);
+        if (BPS_SUCCESS != rc) {
+            show_dialog_message("Failed to query the output level.\n");
+            return;
+        }
+
+        volume /= 2.0;
+
+        rc = audiomixer_set_output_level(AUDIOMIXER_OUTPUT_SPEAKER, volume);
+        if (BPS_SUCCESS == rc) {
+            show_dialog_message("Successfully decreased the volume by half.\n");
+        } else {
+            show_dialog_message("Failed to decrease the volume.\n");
+        }
+    } else if (0 == strcmp("double", dialog_event_get_selected_context(event))) {
+        rc = audiomixer_get_output_level(AUDIOMIXER_OUTPUT_SPEAKER, &volume);
+        if (BPS_SUCCESS != rc) {
+            show_dialog_message("Failed to query the output level.\n");
+            return;
+        }
+
+        volume *= 2.0;
+
+        rc = audiomixer_set_output_level(AUDIOMIXER_OUTPUT_SPEAKER, volume);
+        if (BPS_SUCCESS == rc) {
+            show_dialog_message("Successfully doubled the volume.\n");
+        } else {
+            show_dialog_message("Failed to double the volume.\n");
+        }
+    } else if (0 == strcmp("toggle", dialog_event_get_selected_context(event))) {
+        rc = audiomixer_toggle_output_mute(AUDIOMIXER_OUTPUT_SPEAKER);
+        if (BPS_SUCCESS == rc) {
+            show_dialog_message("Successfully toggled the mute setting.\n");
+        } else {
+            show_dialog_message("Failed to toggle the mute setting.\n");
+        }
+    }
+}
+
 int main( int argc, char **argv ) {
     const char *mmrname = NULL;
     const char *ctxtname = "testplayer";
@@ -82,7 +142,6 @@ int main( int argc, char **argv ) {
     const char *inputtype = "track";
     char cwd[PATH_MAX];
     char inputurl[PATH_MAX];
-    float volume;
     int rc;
     int final_return_code = EXIT_FAILURE;
     int exit_application = 0;
@@ -146,53 +205,7 @@ int main( int argc, char **argv ) {
     } else if ( mmr_play( ctxt ) < 0 ) {
         mmrerror( ctxt, "mmr_play" );
     } else {
-
-        //3 minutes and 5 seconds is the total length of the sample song.
-        rc = audiomixer_get_output_level(AUDIOMIXER_OUTPUT_SPEAKER, &volume);
-        if (rc == BPS_SUCCESS) {
-            snprintf(msg, MSG_SIZE, "Successfully queried the output level.\ncurrent volume is %f\n", volume);
-            show_dialog_message(msg);
-        } else {
-            show_dialog_message("Failed to query the output level.\n");
-        }
-
-        //play for 30 seconds at normal volume
-        sleep(30);
-
-        //decrease the volume and play for 30 seconds
-        audiomixer_set_output_level(AUDIOMIXER_OUTPUT_SPEAKER, volume / 2.0);
-        if (rc == BPS_SUCCESS) {
-            show_dialog_message("Successfully decreased the volume by half.\n");
-        } else {
-            show_dialog_message("Failed to decrease the volume.\n");
-        }
-        sleep(30);
-
-        //set the volume to original level and play for 30 seconds
-        audiomixer_set_output_level(AUDIOMIXER_OUTPUT_SPEAKER, volume);
-        if (rc == BPS_SUCCESS) {
-            show_dialog_message("Successfully set the volume back to original level.\n");
-        } else {
-            show_dialog_message("Failed to set the volume.\n");
-        }
-        sleep(30);
-
-        //mute for 5 seconds
-        audiomixer_set_output_mute(AUDIOMIXER_OUTPUT_SPEAKER, true);
-        if (rc == BPS_SUCCESS) {
-            show_dialog_message("Successfully muted.\n");
-        } else {
-            show_dialog_message("Failed to mute.\n");
-        }
-        sleep(5);
-
-        //toggle the mute setting and play until the end
-        audiomixer_toggle_output_mute(AUDIOMIXER_OUTPUT_SPEAKER);
-        if (rc == BPS_SUCCESS) {
-            show_dialog_message("Successfully toggled the mute setting.\n");
-        } else {
-            show_dialog_message("Failed to toggle the mute setting.\n");
-        }
+        show_dialog_message("Playing Audio\n");
         final_return_code = EXIT_SUCCESS;
     }
 fail:
@@ -215,12 +228,18 @@ fail:
              * and exit
              */
             if (bps_event_get_domain(event) == navigator_get_domain()) {
-                if (NAVIGATOR_EXIT == bps_event_get_code(event) && (final_return_code == EXIT_SUCCESS)) {
-                    mmr_stop( ctxt );             // Not really necessary -- mmr_input_detach() would take care of this
-                    mmr_input_detach( ctxt );     // Not really necessary -- mmr_context_destroy()  would take care of this
-                    mmr_context_destroy( ctxt );  // Not really necessary -- mmr_disconnect() would take care of this
-                    mmr_disconnect( connection ); // Not really necessary -- exiting would take care of this
+                if (NAVIGATOR_EXIT == bps_event_get_code(event)) {
+                    if (final_return_code == EXIT_SUCCESS) {
+                        mmr_stop( ctxt );             // Not really necessary -- mmr_input_detach() would take care of this
+                        mmr_input_detach( ctxt );     // Not really necessary -- mmr_context_destroy()  would take care of this
+                        mmr_context_destroy( ctxt );  // Not really necessary -- mmr_disconnect() would take care of this
+                        mmr_disconnect( connection ); // Not really necessary -- exiting would take care of this
+                    }
                     exit_application = 1;
+                }
+            } else if (bps_event_get_domain(event) == dialog_get_domain()) {
+                if (DIALOG_RESPONSE == bps_event_get_code(event)) {
+                    handle_dialog_response_events(event);
                 }
             }
         }

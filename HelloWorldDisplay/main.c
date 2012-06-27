@@ -21,7 +21,6 @@
 #include <string.h>
 #include <sys/keycodes.h>
 #include <screen/screen.h>
-#include <assert.h>
 #include <bps/navigator.h>
 #include <bps/screen.h>
 #include <bps/bps.h>
@@ -48,22 +47,14 @@ static font_t* font;
 int init() {
     EGLint surface_width, surface_height;
 
-    //On initialize bbutil loads arial as a default font. We are going to load MyriadPro-Bold as it looks a little better and scale it
-    //to fit out bubble nicely.
-    int dpi = bbutil_calculate_dpi(screen_cxt);
-
-    font = bbutil_load_font(
-            "/usr/fonts/font_repository/adobe/MyriadPro-Bold.otf", 15, dpi);
-    if (!font) {
-        return EXIT_FAILURE;
-    }
-
     //Load background texture
     float tex_x, tex_y;
+    int size_x, size_y;
     if (EXIT_SUCCESS
             != bbutil_load_texture("app/native/HelloWorld_smaller_bubble.png",
-                    NULL, NULL, &tex_x, &tex_y, &background)) {
+                    &size_x, &size_y, &tex_x, &tex_y, &background)) {
         fprintf(stderr, "Unable to load background texture\n");
+        return EXIT_FAILURE;
     }
 
     //Query width and height of the window surface created by utility code
@@ -78,6 +69,22 @@ int init() {
 
     width = (float) surface_width;
     height = (float) surface_height;
+
+    int dpi = bbutil_calculate_dpi(screen_cxt);
+
+    //As bbutil renders text using device-specifc dpi, we need to compute a point size
+    //for the font, so that the text string fits into the bubble. Note that Playbook is used
+    //as a reference point in this equation as we know that at dpi of 170, font with point size of
+    //15 fits into the bubble texture.
+    float stretch_factor = (float)surface_width / (float)size_x;
+    int point_size = (int)(15.0f * stretch_factor / ((float)dpi / 170.0f ));
+
+    font = bbutil_load_font("/usr/fonts/font_repository/monotype/arial.ttf", point_size, dpi);
+
+    if (!font) {
+        return EXIT_FAILURE;
+    }
+
 
     //Initialize GL for 2D rendering
     glViewport(0, 0, (int) width, (int) height);
@@ -149,8 +156,6 @@ void render() {
 }
 
 int main(int argc, char **argv) {
-    int rc;
-
     //Create a screen context that will be used to create an EGL surface to to receive libscreen events
     screen_create_context(&screen_cxt, 0);
 
@@ -198,8 +203,10 @@ int main(int argc, char **argv) {
     for (;;) {
         //Request and process BPS next available event
         bps_event_t *event = NULL;
-        rc = bps_get_event(&event, 0);
-        assert(rc == BPS_SUCCESS);
+        if (BPS_SUCCESS != bps_get_event(&event, 0)) {
+            fprintf(stderr, "bps_get_event failed\n");
+            break;
+        }
 
         if ((event) && (bps_event_get_domain(event) == navigator_get_domain())
                 && (NAVIGATOR_EXIT == bps_event_get_code(event))) {
