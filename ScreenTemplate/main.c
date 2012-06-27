@@ -14,7 +14,6 @@
 * limitations under the License.
 */
 
-#include <assert.h>
 #include <bps/bps.h>
 #include <bps/event.h>
 #include <bps/navigator.h>
@@ -67,11 +66,13 @@ handle_navigator_event(bps_event_t *event) {
 static void
 handle_event()
 {
-    int rc, domain;
+    int domain;
 
     bps_event_t *event = NULL;
-    rc = bps_get_event(&event, -1);
-    assert(rc == BPS_SUCCESS);
+    if (BPS_SUCCESS != bps_get_event(&event, -1)) {
+        fprintf(stderr, "bps_get_event() failed\n");
+        return;
+    }
     if (event) {
         domain = bps_event_get_domain(event);
         if (domain == navigator_get_domain()) {

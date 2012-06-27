@@ -21,7 +21,6 @@
 #include <string.h>
 #include <sys/keycodes.h>
 #include <screen/screen.h>
-#include <assert.h>
 #include <bps/sensor.h>
 #include <bps/navigator.h>
 #include <bps/screen.h>
@@ -367,13 +366,13 @@ static void handle_events() {
     int navigator_domain = navigator_get_domain();
     int sensor_domain = sensor_get_domain();
 
-    int rc;
-
     //Request and process available BPS events
     for(;;) {
         bps_event_t *event = NULL;
-        rc = bps_get_event(&event, 0);
-        assert(rc == BPS_SUCCESS);
+        if (BPS_SUCCESS != bps_get_event(&event, 0)) {
+            fprintf(stderr, "bps_get_event failed\n");
+            return;
+        }
 
         if (event) {
             int domain = bps_event_get_domain(event);

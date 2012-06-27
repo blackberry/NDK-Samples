@@ -21,7 +21,7 @@
 #include <bps/bps.h>
 #include <bps/dialog.h>
 #include <bps/navigator.h>
-#include "dialogutil.h"
+#include "dialogaudio.h"
 
 static screen_context_t screen_ctx = 0;
 static screen_window_t screen_win = 0;
@@ -138,6 +138,12 @@ create_dialog()
     dialog_set_size(main_dialog, DIALOG_SIZE_FULL);
     dialog_set_group_id(main_dialog, get_window_group_id());
     dialog_set_cancel_required(main_dialog, true);
+
+    dialog_add_button(main_dialog, "Query", true, "query", true);
+    dialog_add_button(main_dialog, "Half Volume", true, "half", true);
+    dialog_add_button(main_dialog, "Double Volume", true, "double", true);
+    dialog_add_button(main_dialog, "Toggle Mute", true, "toggle", true);
+
     dialog_show(main_dialog);
 }
 

@@ -513,26 +513,8 @@ int main(int argc, char *argv[])
                         }
                         if (screen_set_window_property_iv(video_window, SCREEN_PROPERTY_ZORDER, &screen_val) != 0) {
                             return EXIT_FAILURE;
-                            fprintf (stderr, "tubjumer %d", __LINE__);
                         }
 
-#if 0
-                        //set to 1/4 the screen size.
-                        screen_data[0] = 0;
-                        screen_data[1] = 0;
-                        screen_ret = screen_set_window_property_iv(video_window, SCREEN_PROPERTY_POSITION, screen_data);
-                        if (screen_ret != 0) {
-                            return EXIT_FAILURE;
-                        }
-
-                        screen_data[0] = 512;
-                        screen_data[1] = 300;
-                        screen_ret = screen_set_window_property_iv(video_window, SCREEN_PROPERTY_SIZE, screen_data);
-                        if (screen_ret != 0) {
-                            fprintf (stderr, "tubjumer %d", __LINE__);
-                            return EXIT_FAILURE;
-                        }
-#endif
                         screen_val = 1;
                         if (screen_set_window_property_iv(video_window, SCREEN_PROPERTY_VISIBLE, &screen_val) != 0) {
                             return EXIT_FAILURE;

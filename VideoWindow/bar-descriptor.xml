@@ -63,7 +63,7 @@
 
    <!--  The splash screen that will appear when your application is launching. Should be 1024x600. -->
    <!-- <splashscreen></splashscreen> -->
-   <splashscreen>sample-splashscreen-landscape.png:sample-splashscreen-portrait.png</splashscreen>
+   <splashScreens>sample-splashscreen-landscape.png:sample-splashscreen-portrait.png</splashScreens>
    <asset path="sample-splashscreen-landscape.png">sample-splashscreen-landscape.png</asset>
    <asset path="sample-splashscreen-portrait.png">sample-splashscreen-portrait.png</asset>
 

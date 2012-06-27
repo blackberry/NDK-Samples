@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-#include <assert.h>
 #include <screen/screen.h>
 #include <bps/navigator.h>
 #include <bps/screen.h>
@@ -275,7 +274,6 @@ void render() {
 }
 
 int main(int argc, char *argv[]) {
-    int rc;
     int exit_application = 0;
 
     //Create a screen context that will be used to create an EGL surface to to receive libscreen events
@@ -332,8 +330,10 @@ int main(int argc, char *argv[]) {
         bps_event_t *event = NULL;
 
         for(;;) {
-            rc = bps_get_event(&event, 0);
-            assert(rc == BPS_SUCCESS);
+            if (BPS_SUCCESS != bps_get_event(&event, 0)) {
+                fprintf(stderr, "bps_get_event failed\n");
+                break;
+            }
 
             if (event) {
                 int domain = bps_event_get_domain(event);

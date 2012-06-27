@@ -35,7 +35,7 @@
 
     <!--  Name of author which is used for signing. Must match the developer name of your development certificate. -->
     <author>Example Inc.</author>
-    <splashscreen>sample-splashscreen-landscape.png:sample-splashscreen-portrait.png</splashscreen>
+    <splashScreens>sample-splashscreen-landscape.png:sample-splashscreen-portrait.png</splashScreens>
 
     <!--  Unique author ID assigned by signing authority. Required if using debug tokens. -->
     <!-- <authorId>ABC1234YjsnUk235h</authorId> -->
@@ -53,9 +53,10 @@
     <asset path="sample-splashscreen-portrait.png">sample-splashscreen-portrait.png</asset>
     <asset path="radio_btn_selected.png">radio_btn_selected.png</asset>
     <asset path="radio_btn_unselected.png">radio_btn_unselected.png</asset>
-    <asset path="shadow.png">shadow.png</asset>
     <asset path="LICENSE">LICENSE</asset>
     <asset path="NOTICE">NOTICE</asset>
+    <asset path="background-landscape.png">background-landscape.png</asset>
+    <asset path="background-portrait.png">background-portrait.png</asset>
     <configuration id="com.qnx.qcc.toolChain.418523391" name="Default">
        <platformArchitecture>armle-v7</platformArchitecture>
        <asset path="arm/o.le-v7-g/GoodCitizen" entry="true" type="Qnx/Elf">GoodCitizen</asset>
