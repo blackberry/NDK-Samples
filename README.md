@@ -21,8 +21,9 @@ To add new Samples or make modifications to existing Samples:
 
 **Repository Committers** 
 
-* [Jonathan Hoffmann](https://github.com/jhoffmannrim)
+* [Anthony Hu](https://github.com/anhu)
 * [Dimitry Tomilovskiy](https://github.com/dtomilovskiy)
+* [Jonathan Hoffmann](https://github.com/jhoffmannrim)
 * [Nick Landry](https://github.com/nlandry)
 
 
