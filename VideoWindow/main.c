@@ -35,6 +35,7 @@
  */
 
 #include <fcntl.h>
+#include <math.h>
 #include <time.h>
 #include <stdlib.h>
 #include <string.h>
@@ -43,13 +44,15 @@
 #include <bps/navigator.h>
 #include <bps/screen.h>
 
+#include <EGL/egl.h>
+
+#include <GLES/gl.h>
+#include <GLES/glext.h>
+
 #include <mm/renderer.h>
 
 #include <screen/screen.h>
 
-#include <GLES/gl.h>
-#include <GLES/glext.h>
-#include <EGL/egl.h>
 #include <sys/strm.h>
 
 static EGLDisplay   g_egl_disp = EGL_NO_DISPLAY;
@@ -114,7 +117,7 @@ egl_perror(const char *msg) {
 }
 
 int
-initialize_egl_window(screen_context_t ctx) {
+initialize_egl_window(screen_context_t ctx, char * window_group_name) {
     int usage = SCREEN_USAGE_OPENGL_ES1;
     int format = SCREEN_FORMAT_RGBA8888;
     int sensitivity = SCREEN_SENSITIVITY_ALWAYS;
@@ -174,6 +177,13 @@ initialize_egl_window(screen_context_t ctx) {
         return EXIT_FAILURE;
     }
 
+    /* Create the window group for our window, this is important, as we pass the group name
+     * to MMR which uses it to 'parent' it's CHILD_WINDOW which contains the video
+     */
+    if (screen_create_window_group(g_screen_win, window_group_name) != 0) {
+        return EXIT_FAILURE;
+    }
+
     rc = screen_set_window_property_iv(g_screen_win, SCREEN_PROPERTY_FORMAT, &format);
     if (rc) {
         perror("screen_set_window_property_iv(SCREEN_PROPERTY_FORMAT)");
@@ -222,7 +232,6 @@ initialize_egl_window(screen_context_t ctx) {
     }
 
     int buffer_size[2] = {size[0], size[1]};
-
     if ((angle == 0) || (angle == 180)) {
         if (((g_screen_mode.width > g_screen_mode.height) && (size[0] < size[1])) ||
             ((g_screen_mode.width < g_screen_mode.height) && (size[0] > size[1]))) {
@@ -291,8 +300,9 @@ void render(bool paused)
 
     static const int ctrl_h = 100;
     static const int ctrl_w = 100;
-    int orig_x = (int)g_surface_width/2 - ctrl_w/2;
-    int orig_y = (int)g_surface_height/2 - ctrl_h/2;
+
+    int orig_x = (float) g_surface_width / 2 - ctrl_w / 2;
+    int orig_y = (float)g_surface_height / 2 - ctrl_h / 2;
 
     GLfloat triangle_vertices[] = { orig_x, orig_y,
                                     orig_x, orig_y + ctrl_h,
@@ -326,6 +336,81 @@ void render(bool paused)
 }
 
 
+/* 
+ * we know the video has a resolution of 640x480 so it has an aspect ratio of
+ * of approximately 1.33.  Based on these facts, we can show the video as large
+ * as possible without changing the aspect ratio. 
+ */ 
+strm_dict_t* calculate_rect(int width, int height) {
+    const int image_width = 640;
+    const int image_height = 480;
+    const float image_aspect = (float)image_width / (float)image_height;
+    const float aspect_tolerance = 0.1;
+
+    char buffer[16];
+    strm_dict_t *dict = strm_dict_new();
+
+    if (NULL == dict) {
+        return NULL;
+    }
+
+    //fullscreen is the default.
+    dict = strm_dict_set(dict, "video_dest_x", "0");
+    if (NULL == dict)
+        goto fail;
+    dict = strm_dict_set(dict, "video_dest_y", "0");
+    if (NULL == dict)
+        goto fail;
+    dict = strm_dict_set(dict, "video_dest_w", itoa(width, buffer, 10));
+    if (NULL == dict)
+        goto fail; 
+    dict = strm_dict_set(dict, "video_dest_h", itoa(height, buffer, 10));
+    if (NULL == dict)
+        goto fail;
+
+    float screen_aspect = (float)width/(float)height;
+    if (fabs(screen_aspect - image_aspect) < aspect_tolerance) {
+        /* if the screen is at almost the same aspect as the video, just
+         * do full screen.  Nothing to do here.  Fall through and return 
+         * full screen.
+         */
+    } else if (screen_aspect < image_aspect) {
+        /* The screen is too tall.  We need to centre top to bottom, set the 
+         * width the same as the screen's while maintaining the same aspect 
+         * ratio.
+         */ 
+        dict = strm_dict_set(dict, "video_dest_y", itoa((height - image_height) / 2, buffer, 10));
+        if (NULL == dict)
+            goto fail;
+
+        height = width / image_aspect;
+
+        dict = strm_dict_set(dict, "video_dest_h", itoa(height, buffer, 10));
+        if (NULL == dict)
+            goto fail;
+    } else {
+        /* The screen is too wide.  We need to centre left to right, set the 
+         * height the same as the screen's while maintaining the same aspect 
+         * ratio.
+         */
+        dict = strm_dict_set(dict, "video_dest_x", itoa((width - image_width) / 2, buffer, 10));
+        if (NULL == dict)
+            goto fail;
+
+        width = height * image_aspect;
+
+        dict = strm_dict_set(dict, "video_dest_w", itoa(width, buffer, 10));
+        if (NULL == dict)
+            goto fail;
+    }
+
+    return dict;
+
+fail:
+    strm_dict_destroy(dict);
+    return NULL;
+}
+
 int main(int argc, char *argv[])
 {
     int rc;
@@ -334,6 +419,7 @@ int main(int argc, char *argv[])
     // Renderer variables
     mmr_connection_t*     mmr_connection = 0;
     mmr_context_t*        mmr_context = 0;
+    strm_dict_t*          dict = NULL;
 
     // I/O variables
     int                    video_device_output_id = -1;
@@ -378,7 +464,7 @@ int main(int argc, char *argv[])
     }
 
     /* Create the window and initialize EGL for GL_ES_1 rendering*/
-    rc = initialize_egl_window(g_screen_ctx);
+    rc = initialize_egl_window(g_screen_ctx, window_group_name);
     if (rc != EXIT_SUCCESS)
         return EXIT_FAILURE;
 
@@ -397,21 +483,14 @@ int main(int argc, char *argv[])
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
 
-    glOrthof(0.0f, (int)g_surface_width / (int)g_surface_height, 0.0f, 1.0f, -1.0f, 1.0f);
+    glOrthof(0.0f, 1.0f, 0.0f, 1.0f, -1.0f, 1.0f);
 
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
 
     //Set world coordinates to coincide with screen pixels
-    glScalef(1.0f / (int)g_surface_width, 1.0f / (int)g_surface_height, 1.0f);
+    glScalef(1.0f / (float)g_surface_width, 1.0f / (float)g_surface_height, 1.0f);
 
-
-    /* Create the window group for our window, this is important, as we pass the group name
-     * to MMR which uses it to 'parent' it's CHILD_WINDOW which contains the video
-     */
-    if (screen_create_window_group(g_screen_win, window_group_name) != 0) {
-        return EXIT_FAILURE;
-    }
 
     /*
      * Configure mm-renderer.
@@ -475,6 +554,22 @@ int main(int argc, char *argv[])
     if (mmr_play(mmr_context) != 0) {
         return EXIT_FAILURE;
     }
+
+    /* Do some work to make the aspect ratio correct.
+     */
+    dict = calculate_rect(g_surface_width, g_surface_height);
+    if (NULL == dict) {
+        return EXIT_FAILURE;
+    }
+
+    if (mmr_output_parameters(mmr_context, video_device_output_id, dict) != 0) {
+        return EXIT_FAILURE;
+    }
+
+     /* Note that we allocated memory for the dictionary, but the call to 
+      * mmr_output_parameters() deallocates that memory even on failure.
+      */
+    dict = NULL;
 
     screen_request_events(g_screen_ctx);
     navigator_request_events(0);
