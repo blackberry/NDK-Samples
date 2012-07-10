@@ -192,8 +192,6 @@ static void handleScreenEvent(bps_event_t *event) {
 }
 
 static void handleNavigatorEvent(bps_event_t *event) {
-    bps_event_t *activation_event = NULL;
-
     switch (bps_event_get_code(event)) {
     case NAVIGATOR_ORIENTATION_CHECK:
         //Signal navigator that we intend to resize
@@ -219,9 +217,14 @@ static void handleNavigatorEvent(bps_event_t *event) {
                 break;
             }
 
-            if (bps_event_get_code(activation_event)
-                    == NAVIGATOR_WINDOW_ACTIVE) {
-                break;
+            if (event && (bps_event_get_domain(event) == navigator_get_domain())) {
+                int code = bps_event_get_code(event);
+                if (code == NAVIGATOR_EXIT) {
+                    shutdown = true;
+                    break;
+                } else if (code == NAVIGATOR_WINDOW_ACTIVE) {
+                    break;
+                }
             }
         }
         break;
