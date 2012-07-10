@@ -18,9 +18,7 @@ Sample Description:
 Requirements:
 
  - BlackBerry® 10 Native SDK
- - One of the following:
-   - BlackBerry® 10 device
-   - BlackBerry® 10 simulator
+ - BlackBerry® 10 device
 
 ========================================================================
 Importing a project into the Native SDK:
