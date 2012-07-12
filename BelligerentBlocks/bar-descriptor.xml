@@ -49,7 +49,7 @@
 
 
    <icon><image>icon.png</image></icon>
-   <splashscreen>splash.png</splashscreen>
+   <splashScreens>splash.png</splashScreens>
 
    <action system="true">run_native</action>
 
