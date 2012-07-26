@@ -325,40 +325,13 @@ static void handleNavigatorEvent(bps_event_t *event) {
 }
 
 static void handleSensorEvent(bps_event_t *event) {
-    if (SENSOR_AZIMUTH_PITCH_ROLL_READING == bps_event_get_code(event)) {
-        float azimuth, pitch, roll;
-        float result_x = 0.0f, result_y = -1.0f;
+    if (SENSOR_GRAVITY_READING == bps_event_get_code(event)) {
+        float x, y, z;
 
-        sensor_event_get_apr(event, &azimuth, &pitch, &roll);
-
-        float radians = abs(roll) * M_PI / 180 ;
-        float horizontal = sin(radians) * 0.5f;
-        float vertical = cos(radians) * 0.5f;
-
-        if (pitch < 0) {
-            vertical = -vertical;
-        }
-        if (roll >= 0) {
-            horizontal = -horizontal;
-        }
-
-        //Account for axis change due to different starting orientations
-        if (orientation_angle == 0) {
-            result_x = horizontal;
-            result_y = vertical;
-        } else if (orientation_angle == 90) {
-            result_x = -vertical;
-            result_y = horizontal;
-        } else if (orientation_angle == 180) {
-            result_x = -horizontal;
-            result_y = -vertical;
-        } else if (orientation_angle == 270) {
-            result_x = vertical;
-            result_y = -horizontal;
-        }
-
-        set_gravity(result_x, result_y);
+        sensor_event_get_xyz(event, &x, &y, &z);
+        set_gravity(-x, -y);
     }
+
 }
 
 static void handle_events() {
@@ -444,7 +417,7 @@ int main(int argc, char **argv) {
     }
 
     //Setup Sensors
-    if (sensor_is_supported(SENSOR_TYPE_AZIMUTH_PITCH_ROLL)) {
+    if (sensor_is_supported(SENSOR_TYPE_GRAVITY)) {
         //Microseconds between sensor reads. This is the rate at which the
         //sensor data will be updated from hardware. The hardware update
         //rate is set below using sensor_set_rate.
@@ -452,10 +425,10 @@ int main(int argc, char **argv) {
 
         //Initialize the sensor by setting the rates at which the
         //sensor values will be updated from hardware
-        sensor_set_rate(SENSOR_TYPE_AZIMUTH_PITCH_ROLL, SENSOR_RATE);
+        sensor_set_rate(SENSOR_TYPE_GRAVITY, SENSOR_RATE);
 
-        sensor_set_skip_duplicates(SENSOR_TYPE_AZIMUTH_PITCH_ROLL, true);
-        sensor_request_events(SENSOR_TYPE_AZIMUTH_PITCH_ROLL);
+        sensor_set_skip_duplicates(SENSOR_TYPE_GRAVITY, true);
+        sensor_request_events(SENSOR_TYPE_GRAVITY);
     } else {
         set_gravity(0.0f, -1.0f);
     }

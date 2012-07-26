@@ -51,10 +51,10 @@
    <icon><image>icon.png</image></icon>
    <splashScreens>splash.png</splashScreens>
 
-   <action system="true">run_native</action>
+   <permission system="true">run_native</permission>
 
    <!-- Permission needed for Scoreloop -->
-   <action>play_audio</action>
+   <permission>play_audio</permission>
 
    <env var="LD_LIBRARY_PATH" value="app/native/lib"/>
 

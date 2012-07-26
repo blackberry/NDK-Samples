@@ -19,22 +19,27 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <sys/neutrino.h>
 #include <sys/stat.h>
 
 #include <bps/bps.h>
 #include <bps/audiomixer.h>
 #include <bps/dialog.h>
+#include <bps/mmrenderer.h>
 #include <bps/navigator.h>
 #include <mm/renderer.h>
+#include <mm/renderer/events.h>
+
 #include <screen/screen.h>
 
 #include "dialogaudio.h"
+
 /*
  * buffer to store messages that we will display in the dialog
  */
 #define MSG_SIZE 1024
 static char msg[MSG_SIZE];
-
+static struct sigevent mmr_sigevent;
 
 #if ! defined(DEFAULT_AUDIO_OUT)
     #define DEFAULT_AUDIO_OUT "audio:default"
@@ -60,6 +65,19 @@ static const char *errlist[] = {
     ERR( MMR_ERROR_OUTPUT_UNAVAILABLE ),
     ERR( MMR_ERROR_NO_MEMORY ),
     ERR( MMR_ERROR_RESOURCE_UNAVAILABLE ),
+    ERR( MMR_ERROR_MEDIA_DRM_NO_RIGHTS ),
+    ERR( MMR_ERROR_DRM_CORRUPTED_DATA_STORE ),
+    ERR( MMR_ERROR_DRM_OUTPUT_PROTECTION ),
+    ERR( MMR_ERROR_DRM_OPL_HDMI ),
+    ERR( MMR_ERROR_DRM_OPL_DISPLAYPORT ),
+    ERR( MMR_ERROR_DRM_OPL_DVI ),
+    ERR( MMR_ERROR_DRM_OPL_ANALOG_VIDEO ),
+    ERR( MMR_ERROR_DRM_OPL_ANALOG_AUDIO ),
+    ERR( MMR_ERROR_DRM_OPL_TOSLINK ),
+    ERR( MMR_ERROR_DRM_OPL_SPDIF ),
+    ERR( MMR_ERROR_DRM_OPL_BLUETOOTH ),
+    ERR( MMR_ERROR_DRM_OPL_WIRELESSHD ),
+    ERR( MMR_ERROR_MEDIA_DRM_EXPIRED_LICENSE )
     #undef ERR
 };
 #define NERRS ( sizeof(errlist) / sizeof(errlist[0]) )
@@ -73,6 +91,68 @@ static void mmrerror( mmr_context_t *ctxt, const char *errmsg ) {
     }
     snprintf(msg, MSG_SIZE, "%s: error %d (%s)\n", errmsg, errcode, name );
     show_dialog_message(msg);
+}
+
+static int mmr_sigevent_handler(void *p) {
+    int rc;
+    mmr_context_t *ctxt = (mmr_context_t *)p;
+    if (NULL == p) {
+        show_dialog_message("mmr context error\n");
+        return EXIT_FAILURE;
+    }
+    const mmr_event_t *mmr_event = mmr_event_get( ctxt );
+    if (NULL == mmr_event) {
+        show_dialog_message("mmr event error\n");
+        return EXIT_FAILURE;
+    }
+
+    static mmr_state_t last_state = MMR_EVENT_NONE;
+    static int last_speed = 0;
+
+    if ((last_state != mmr_event->state) || (last_speed != mmr_event->speed)) {
+        last_state = mmr_event->state;
+        last_speed = mmr_event->speed;
+        switch (mmr_event->state) {
+            case MMR_STATE_PLAYING:
+               if (0 == mmr_event->speed)
+                   show_dialog_message("MMRenderer Status: Pausing\n");
+               else 
+                   show_dialog_message("MMRenderer Status: Playing\n");
+               break;
+            case MMR_STATE_STOPPED:
+               show_dialog_message("MMRenderer Status: Stopped\n");
+               break;
+            case MMR_STATE_IDLE:
+               show_dialog_message("MMRenderer Status: Idle\n");
+               break;
+            case MMR_STATE_DESTROYED:
+               show_dialog_message("MMRenderer Status: Destroyed\n");
+               break;
+            default:
+               show_dialog_message("MMRenderer Status: Unknown\n");
+               break;
+        }
+    }
+
+    if ((MMR_EVENT_ERROR == mmr_event->type) && (MMR_STATE_STOPPED == mmr_event->state)){
+        /*
+         * We have reached the end.  Do not rearm. Return failure to signal we 
+         * don't want to be recalled.
+         */
+        show_dialog_message("MMRenderer Status: No more data\n");
+        return EXIT_FAILURE;
+    }
+
+    rc = mmr_event_arm(ctxt, &mmr_sigevent);
+    if ( rc > 0) {
+        //event is already available, manually arm
+        MsgDeliverEvent(0, &mmr_sigevent);
+    } else if ( rc < 0 ) {
+        show_dialog_message("mmr_event_arm() error\n");
+        return EXIT_FAILURE;
+    }
+
+    return EXIT_SUCCESS;
 }
 
 static void handle_dialog_response_events(bps_event_t *event) {
@@ -135,6 +215,29 @@ static void handle_dialog_response_events(bps_event_t *event) {
     }
 }
 
+static int drain_and_arm_mmr_events(mmr_context_t *ctxt) {
+    const mmr_event_t *ev = mmr_event_get(ctxt);
+    int rc;
+
+    while (ev != NULL && ev->type != MMR_EVENT_NONE) {
+        ev = mmr_event_get(ctxt);
+    }
+    if (NULL == ev) {
+        return EXIT_FAILURE;
+    }
+
+    rc = mmr_event_arm(ctxt, &mmr_sigevent);
+    if (rc < 0) {
+        //errno has been set by mmr_event_arm; just return failure
+        return EXIT_FAILURE;
+    } else if (rc > 0) {
+        //event is already available, manually arm
+        MsgDeliverEvent(0, &mmr_sigevent);
+    }
+    //reach here if rc >= 0
+    return EXIT_SUCCESS;
+}
+
 int main( int argc, char **argv ) {
     const char *mmrname = NULL;
     const char *ctxtname = "testplayer";
@@ -165,8 +268,8 @@ int main( int argc, char **argv ) {
      * Navigator service manages and delivers application life cycle and
      * visibility events.
      * For this sample, we request Navigator events so we can track when
-     * the system is terminating the application (NAVIGATOR_EXIT event). This allows
-     * us to clean up application resources.
+     * the system is terminating the application (NAVIGATOR_EXIT event). 
+     * This allows us to clean up application resources.
      */
     navigator_request_events(0);
     dialog_request_events(0);
@@ -181,7 +284,7 @@ int main( int argc, char **argv ) {
     if (rc > PATH_MAX - 1)
     {
           show_dialog_message("File name and path too long");
-           goto fail;
+          goto fail;
     }
 
     mode_t mode = S_IRUSR | S_IXUSR;
@@ -204,10 +307,17 @@ int main( int argc, char **argv ) {
         mmrerror( ctxt, inputurl );
     } else if ( mmr_play( ctxt ) < 0 ) {
         mmrerror( ctxt, "mmr_play" );
+    } else if (BPS_SUCCESS != bps_add_sigevent_handler( &mmr_sigevent, mmr_sigevent_handler, ctxt ) ) { 
+        snprintf( msg, MSG_SIZE, "bps_add_sigevent_handler() failure %s", strerror( errno ) );
+        show_dialog_message( msg );
+    } else if ( drain_and_arm_mmr_events ( ctxt ) ) {
+        snprintf( msg, MSG_SIZE, "drain_and_arm_mmr_events() failure %s", strerror( errno ) );
+        show_dialog_message( msg );
     } else {
-        show_dialog_message("Playing Audio\n");
+        show_dialog_message( "Playing Audio\n" );
         final_return_code = EXIT_SUCCESS;
     }
+
 fail:
     /*
      * Process Navigator events until we receive a NAVIGATOR_EXIT event.

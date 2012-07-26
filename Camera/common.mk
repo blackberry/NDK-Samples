@@ -18,9 +18,6 @@ EXTRA_INCVPATH+=$(QNX_TARGET)/usr/include/freetype2 \
 EXTRA_LIBVPATH+=$(QNX_TARGET)/../target-override/$(CPUVARDIR)/lib \
 	$(QNX_TARGET)/../target-override/$(CPUVARDIR)/usr/lib
 
-# Add USING_GL20 to build bbutil for gles 2.0 use
-CCFLAGS+=-DUSING_GL20
-
 # Compiler options for enhanced security
 CCFLAGS+=-fstack-protector-all -D_FORTIFY_SOURCE=2 \
 	$(if $(filter g so shared,$(VARIANTS)),,-fPIE)
@@ -29,7 +26,7 @@ CCFLAGS+=-fstack-protector-all -D_FORTIFY_SOURCE=2 \
 LDFLAGS+=-Wl,-z,relro -Wl,-z,now $(if $(filter g so shared,$(VARIANTS)),,-pie)
 
 # Basic libraries required by most native applications
-LIBS+=bps screen EGL GLESv2 freetype png m
+LIBS+=bps camapi screen
 
 include $(MKFILES_ROOT)/qtargets.mk
 
