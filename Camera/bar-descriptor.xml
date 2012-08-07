@@ -29,7 +29,6 @@
 
     <!--  Name of author which is used for signing. Must match the developer name of your development certificate. -->
     <author>Example Inc.</author>
-    <splashScreens>sample-splashscreen-landscape.png:sample-splashscreen-portrait.png</splashScreens>
     
     <!--  Unique author ID assigned by signing authority. Required if using debug tokens. -->
     <!-- <authorId>ABC1234YjsnUk235h</authorId> -->
@@ -42,19 +41,19 @@
     <!--  The category where the application appears. Either core.games or core.media. -->
     <category>core.games</category>
     <asset path="icon.png">icon.png</asset>
-    <configuration id="com.qnx.qcc.configuration.exe.debug.876705616" name="Default">
+    <configuration id="com.qnx.qcc.toolChain.705300587" name="Default">
        <platformArchitecture>armle-v7</platformArchitecture>
        <asset path="arm/o.le-v7-g/Camera" entry="true" type="Qnx/Elf">Camera</asset>
     </configuration>
-    <configuration id="com.qnx.qcc.configuration.exe.debug.876705616" name="Device-Debug">
+    <configuration id="com.qnx.qcc.toolChain.540827155" name="Device-Debug">
        <platformArchitecture>armle-v7</platformArchitecture>
        <asset path="arm/o.le-v7-g/Camera" entry="true" type="Qnx/Elf">Camera</asset>
     </configuration>
-    <configuration id="com.qnx.qcc.configuration.exe.release.1679684251" name="Device-Release">
+    <configuration id="com.qnx.qcc.toolChain.1287204639" name="Device-Release">
        <platformArchitecture>armle-v7</platformArchitecture>
        <asset path="arm/o.le-v7/Camera" entry="true" type="Qnx/Elf">Camera</asset>
     </configuration>
-    <configuration id="com.qnx.qcc.configuration.exe.debug.92114765" name="Simulator-Debug">
+    <configuration id="com.qnx.qcc.toolChain.940695055" name="Simulator-Debug">
        <platformArchitecture>x86</platformArchitecture>
        <asset path="x86/o-g/Camera" entry="true" type="Qnx/Elf">Camera</asset>
     </configuration>
@@ -68,24 +67,8 @@
     <!-- <splashscreen></splashscreen> -->
 
     <!-- Request permission to execute native code.  Required for native applications. -->
-    <action system="true">run_native</action>
-    <action>use_camera</action>
-    <action>access_shared</action>
-    
-    <!--  The permissions requested by your application. -->
-    <!--  <action>access_shared</action> -->
-    <!--  <action>record_audio</action> -->
-    <!--  <action>read_geolocation</action> -->
-    <!--  <action>use_camera</action> -->
-    <!--  <action>access_internet</action> -->
-    <!--  <action>play_audio</action> -->
-    <!--  <action>post_notification</action> -->
-    <!--  <action>set_audio_volume</action> -->
-    <!--  <action>read_device_identifying_information</action> -->
-    <!--  <action>access_led_control</action> -->
-    
-
-    <!-- Ensure that shared libraries in the package are found at run-time. -->
-    <env var="LD_LIBRARY_PATH" value="app/native/lib"/>
+    <permission system="true">run_native</permission>
+    <permission>use_camera</permission>
+    <permission>access_shared</permission>
     
 </qnx>

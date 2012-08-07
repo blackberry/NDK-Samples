@@ -512,7 +512,6 @@ void Platform::displayPrompt(const std::string& prompt) {
     }
     dialog_instance_t displayNamePrompt;
     dialog_create_prompt(&displayNamePrompt);
-    dialog_set_size(displayNamePrompt, DIALOG_SIZE_SMALL);
 
     dialog_set_prompt_message_text(displayNamePrompt, prompt.c_str());
     dialog_add_button(displayNamePrompt, DIALOG_OK_LABEL, true, NULL, true);

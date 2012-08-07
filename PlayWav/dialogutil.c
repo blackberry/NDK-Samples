@@ -135,7 +135,6 @@ create_dialog()
 
     dialog_create_alert(&main_dialog);
     dialog_set_alert_message_text(main_dialog, "\n");
-    dialog_set_size(main_dialog, DIALOG_SIZE_FULL);
     dialog_set_group_id(main_dialog, get_window_group_id());
     dialog_set_cancel_required(main_dialog, true);
     dialog_show(main_dialog);
