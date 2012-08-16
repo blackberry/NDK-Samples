@@ -53,10 +53,6 @@
        <platformArchitecture>armle-v7</platformArchitecture>
        <asset path="arm/o.le-v7/Camera" entry="true" type="Qnx/Elf">Camera</asset>
     </configuration>
-    <configuration id="com.qnx.qcc.toolChain.940695055" name="Simulator-Debug">
-       <platformArchitecture>x86</platformArchitecture>
-       <asset path="x86/o-g/Camera" entry="true" type="Qnx/Elf">Camera</asset>
-    </configuration>
     
     <!--  The icon for the application, which should be 86x86. -->
     <icon>
