@@ -26,6 +26,7 @@
 #include <bps/screen.h>
 #include <bps/bps.h>
 #include <bps/event.h>
+#include <bps/deviceinfo.h>
 #include <bps/orientation.h>
 #include <math.h>
 #include <time.h>
@@ -327,7 +328,6 @@ static void handleNavigatorEvent(bps_event_t *event) {
 static void handleSensorEvent(bps_event_t *event) {
     if (SENSOR_AZIMUTH_PITCH_ROLL_READING == bps_event_get_code(event)) {
         float azimuth, pitch, roll;
-        float result_x = 0.0f, result_y = -1.0f;
 
         sensor_event_get_apr(event, &azimuth, &pitch, &roll);
 
@@ -342,22 +342,7 @@ static void handleSensorEvent(bps_event_t *event) {
             horizontal = -horizontal;
         }
 
-        //Account for axis change due to different starting orientations
-        if (orientation_angle == 0) {
-            result_x = horizontal;
-            result_y = vertical;
-        } else if (orientation_angle == 90) {
-            result_x = -vertical;
-            result_y = horizontal;
-        } else if (orientation_angle == 180) {
-            result_x = -horizontal;
-            result_y = -vertical;
-        } else if (orientation_angle == 270) {
-            result_x = vertical;
-            result_y = -horizontal;
-        }
-
-        set_gravity(result_x, result_y);
+        set_gravity(horizontal, vertical);
     }
 }
 
@@ -443,8 +428,23 @@ int main(int argc, char **argv) {
         return 0;
     }
 
+    // Pitch/Roll data doesn't change for the simulator
+    deviceinfo_details_t *details;
+    bool is_simulator = false;
+    if (BPS_SUCCESS == deviceinfo_get_details(&details)) {
+        is_simulator = deviceinfo_details_is_simulator(details);
+        deviceinfo_free_details(&details);
+    }
+
     //Setup Sensors
-    if (sensor_is_supported(SENSOR_TYPE_AZIMUTH_PITCH_ROLL)) {
+    if (!is_simulator && sensor_is_supported(SENSOR_TYPE_AZIMUTH_PITCH_ROLL)) {
+
+        char *orientation = getenv("ORIENTATION");
+
+        if (orientation) {
+            sensor_remap_coordinates(atoi(orientation));
+        }
+
         //Microseconds between sensor reads. This is the rate at which the
         //sensor data will be updated from hardware. The hardware update
         //rate is set below using sensor_set_rate.
