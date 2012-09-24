@@ -411,7 +411,7 @@ int main(int argc, char **argv) {
         return 0;
     }
 
-    // Pitch/Roll data doesn't change for the simulator
+    // Gravity data doesn't change for the simulator
     deviceinfo_details_t *details;
     bool is_simulator = false;
     if (BPS_SUCCESS == deviceinfo_get_details(&details)) {
