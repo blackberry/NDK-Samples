@@ -26,6 +26,7 @@
 #include <bps/screen.h>
 #include <bps/bps.h>
 #include <bps/event.h>
+#include <bps/deviceinfo.h>
 #include <bps/orientation.h>
 #include <math.h>
 #include <time.h>
@@ -36,7 +37,6 @@
 #include "bbutil.h"
 
 static bool shutdown;
-static int orientation_angle;
 static screen_context_t screen_cxt;
 static float width, height, max_size;
 
@@ -331,7 +331,6 @@ static void handleSensorEvent(bps_event_t *event) {
         sensor_event_get_xyz(event, &x, &y, &z);
         set_gravity(-x, -y);
     }
-
 }
 
 static void handle_events() {
@@ -373,10 +372,6 @@ int main(int argc, char **argv) {
     //Initialize BPS library
     bps_initialize();
 
-    //Determine initial orientation angle
-    orientation_direction_t direction;
-    orientation_get(&direction, &orientation_angle);
-
     //Use utility code to initialize EGL for rendering with GL ES 1.1
     if (EXIT_SUCCESS != bbutil_init_egl(screen_cxt)) {
         fprintf(stderr, "bbutil_init_egl failed\n");
@@ -416,8 +411,16 @@ int main(int argc, char **argv) {
         return 0;
     }
 
+    // Pitch/Roll data doesn't change for the simulator
+    deviceinfo_details_t *details;
+    bool is_simulator = false;
+    if (BPS_SUCCESS == deviceinfo_get_details(&details)) {
+        is_simulator = deviceinfo_details_is_simulator(details);
+        deviceinfo_free_details(&details);
+    }
+
     //Setup Sensors
-    if (sensor_is_supported(SENSOR_TYPE_GRAVITY)) {
+    if (!is_simulator && sensor_is_supported(SENSOR_TYPE_GRAVITY)) {
         //Microseconds between sensor reads. This is the rate at which the
         //sensor data will be updated from hardware. The hardware update
         //rate is set below using sensor_set_rate.
