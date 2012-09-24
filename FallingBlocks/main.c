@@ -37,7 +37,6 @@
 #include "bbutil.h"
 
 static bool shutdown;
-static int orientation_angle;
 static screen_context_t screen_cxt;
 static float width, height, max_size;
 
@@ -384,10 +383,6 @@ int main(int argc, char **argv) {
 
     //Initialize BPS library
     bps_initialize();
-
-    //Determine initial orientation angle
-    orientation_direction_t direction;
-    orientation_get(&direction, &orientation_angle);
 
     //Use utility code to initialize EGL for rendering with GL ES 1.1
     if (EXIT_SUCCESS != bbutil_init_egl(screen_cxt)) {
