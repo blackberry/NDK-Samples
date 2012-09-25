@@ -482,7 +482,7 @@ void bbutil_render_text(font_t* font, const char* msg, float x, float y, float r
     int i, c;
     GLfloat *vertices;
     GLfloat *texture_coords;
-    GLshort* indices;
+    GLushort* indices;
 
     float pen_x = 0.0f;
 
@@ -505,7 +505,7 @@ void bbutil_render_text(font_t* font, const char* msg, float x, float y, float r
     vertices = (GLfloat*) malloc(sizeof(GLfloat) * 8 * msg_len);
     texture_coords = (GLfloat*) malloc(sizeof(GLfloat) * 8 * msg_len);
 
-    indices = (GLshort*) malloc(sizeof(GLfloat) * 6 * msg_len);
+    indices = (GLushort*) malloc(sizeof(GLushort) * 6 * msg_len);
 
     for(i = 0; i < msg_len; ++i) {
         c = msg[i];

@@ -75,18 +75,25 @@ GameLogic::GameLogic(Platform &platform)
     m_platform.getSize(m_sceneWidth, m_sceneHeight);
 
     int dpi = m_platform.getDPI();
+    int point_size = (int)(15.0f / ((float)dpi / 170.0f ));
 
-    m_font = bbutil_load_font("/usr/fonts/font_repository/adobe/MyriadPro-Bold.otf", 15, dpi);
+    /* As bbutil renders text using device-specifc dpi, we need to compute
+     * a point size for the font, so that the text string fits into the bubble. 
+     * Note that Playbook is used as a reference point in this equation as we 
+     * know that at dpi of 170, font with point size ofi 15 fits into the 
+     * bubble texture.
+     */
+    m_font = bbutil_load_font("/usr/fonts/font_repository/monotype/arial.ttf", point_size, dpi);
     if (!m_font) {
         fprintf(stderr, "Unable to load font\n");
     }
 
-    m_scoreFont = bbutil_load_font("/usr/fonts/font_repository/adobe/MyriadPro-Bold.otf", 30, dpi);
+    m_scoreFont = bbutil_load_font("/usr/fonts/font_repository/monotype/arial.ttf", point_size, dpi);
     if (!m_scoreFont) {
         fprintf(stderr, "Unable to load font\n");
     }
 
-    m_leaderboardFont = bbutil_load_font("/usr/fonts/font_repository/adobe/MyriadPro-Bold.otf", 10, dpi);
+    m_leaderboardFont = bbutil_load_font("/usr/fonts/font_repository/monotype/arial.ttf", point_size, dpi);
     if (!m_scoreFont) {
         fprintf(stderr, "Unable to load font\n");
     }
