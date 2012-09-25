@@ -13,7 +13,7 @@ Sample Description:
  touched, which then starts moving along with the rest of the blocks.
 
  Feature summary
- - Handling screen, navigator, and accelerometer events
+ - Handling screen, navigator, and sensor events
  - Rendering objects on the screen
 
 ========================================================================

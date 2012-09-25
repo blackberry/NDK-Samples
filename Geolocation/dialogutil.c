@@ -60,6 +60,8 @@ setup_screen()
         return EXIT_FAILURE;
     }
 
+    if (screen_create_window_group(screen_win, get_window_group_id()) != 0) goto fail;
+
     int usage = SCREEN_USAGE_NATIVE;
     if (screen_set_window_property_iv(screen_win, SCREEN_PROPERTY_USAGE, &usage) != 0) goto fail;
 
@@ -97,8 +99,6 @@ setup_screen()
 
     if (screen_create_window_buffers(screen_win, 1) != 0) goto fail;
 
-    if (screen_create_window_group(screen_win, get_window_group_id()) != 0) goto fail;
-
     screen_buffer_t buff;
     if (screen_get_window_property_pv(screen_win, SCREEN_PROPERTY_RENDER_BUFFERS, (void*)&buff) != 0) goto fail;
 
@@ -135,7 +135,6 @@ create_dialog()
 
     dialog_create_alert(&main_dialog);
     dialog_set_alert_message_text(main_dialog, "\n");
-    dialog_set_size(main_dialog, DIALOG_SIZE_FULL);
     dialog_set_group_id(main_dialog, get_window_group_id());
     dialog_set_cancel_required(main_dialog, true);
     dialog_show(main_dialog);

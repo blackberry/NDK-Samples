@@ -41,7 +41,7 @@
     <!-- <authorId>ABC1234YjsnUk235h</authorId> -->
 
     <initialWindow>
-        <aspectRatio>landscape</aspectRatio>
+        <aspectRatio>portrait</aspectRatio>
         <autoOrients>false</autoOrients>
         <systemChrome>none</systemChrome>
         <transparent>false</transparent>
@@ -80,20 +80,8 @@
     <!-- <splashscreen></splashscreen> -->
 
     <!-- Request permission to execute native code.  Required for native applications. -->
-    <action system="true">run_native</action>
-    <action>read_geolocation</action>
-
-    <!--  The permissions requested by your application. -->
-    <!--  <action>access_shared</action> -->
-    <!--  <action>record_audio</action> -->
-    <!--  <action>read_geolocation</action> -->
-    <!--  <action>use_camera</action> -->
-    <!--  <action>access_internet</action> -->
-    <!--  <action>play_audio</action> -->
-    <!--  <action>post_notification</action> -->
-    <!--  <action>set_audio_volume</action> -->
-    <!--  <action>read_device_identifying_information</action> -->
-    <!--  <action>access_led_control</action> -->
+    <permission system="true">run_native</permission>
+    <permission>read_geolocation</permission>
 
     <!-- Ensure that shared libraries in the package are found at run-time. -->
     <env var="LD_LIBRARY_PATH" value="app/native/lib"/>
