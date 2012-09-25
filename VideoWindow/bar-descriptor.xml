@@ -45,7 +45,7 @@
    <!-- <authorId>ABC1234YjsnUk235h</authorId> -->
 
    <initialWindow>
-      <aspectRatio>landscape</aspectRatio>
+      <aspectRatio>portrait</aspectRatio>
       <autoOrients>false</autoOrients>
       <systemChrome>none</systemChrome>
       <transparent>false</transparent>
@@ -69,24 +69,15 @@
 
    <!-- Request permission to execute native code.  Required for native applications. -->
 
-   <action system="true">run_native</action>
+   <permission system="true">run_native</permission>
 
-   <!--  The permissions requested by your application. -->
-
-   <action>access_shared</action>
-
-   <!--  <permission>record_audio</permission> -->
-   <!--  <permission>read_geolocation</permission> -->
-   <!--  <permission>use_camera</permission> -->
-   <!--  <permission>access_internet</permission> -->
-   <!--  <action>access_led_control</action> -->
-
-   <action>play_audio</action>
+   <permission>access_shared</permission>
+   <permission>play_audio</permission>
 
    <!--  <permission>post_notification</permission> -->
 
-   <action>set_audio_volume</action>
-   <action>read_device_identifying_information</action>
+   <permission>set_audio_volume</permission>
+   <permission>read_device_identifying_information</permission>
    <asset path="pb_sample.mp4">pb_sample.mp4</asset>
    <asset path="icon.png">icon.png</asset>
 
