@@ -1,0 +1,45 @@
+NativeAndOpenGLWindows - combining Native and OpenGL windows on single display
+
+========================================================================
+Sample Description:
+
+ The NativeAndOpenGLWindows sample is an application that is designed to show
+ you how to combine rendering to Native window and OpenGL window at the same
+ time.
+
+ When you run the application, you will see four windows on the screen:
+ - Native background window that just serves as a yellow background
+ - Small Native window that draws hour glass with transparent background
+ - Another Native window with moving vertical stripe
+ - And on the top OpenGL window with red semitransparent triangle
+ 
+
+ Feature summary
+ - Initializing and drawing to Native window
+ - Initializing and rendering to OpenGL window
+ - Transparency
+ - Windows Z-order
+
+========================================================================
+Requirements:
+
+ - BlackBerry Native SDK for Tablet OS 2.0 or later
+ - One of the following:
+   - BlackBerry PlayBook tablet running BlackBerry Tablet OS 2.0 or later
+   - BlackBerry Tablet Simulator 2.0 or later
+
+========================================================================
+Importing a project into the Native SDK:
+
+ 1. File->New->Blackberry Tablet OS C/C++ Project
+ 2. In 'Project name' field type in 'NativeAndOpenGLWindows'. Press Next.
+ 3. Select 'Language:' C, 'Build Style:' Managed, 'Project Type:' Empty Application.
+    Press 'Finish'.
+ 4. Right click on this Project's src folder in Project Explorer and choose Import...
+ 5. Choose 'File system' and navigate to main.c file from this repository. Hit Finish.
+ 6. Right click on this Project in Project Explorer and choose Properties.
+ 7. In 'Configuration:' choose preferable configuration (Simulator- or Device-Debug).
+ 8. Under C/C++ Build->Settings->QCC Linker->Libraries add following libraries in
+    'Libraries (-l)' section: screen, egl, GLESv2. Click OK.
+ 9. Build and deploy.
+
