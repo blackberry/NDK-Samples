@@ -83,8 +83,11 @@ init(void *p)
 
     glFrustumf(xMin, xMax, -yMax, yMax, nearClip, farClip);
 
-    // bar-descriptor is forcing landscape so we know width > height.
-    glScalef((float)surface_height/(float)surface_width, 1.0f, 1.0f);
+    if (surface_width > surface_height) {
+        glScalef((float)surface_height/(float)surface_width, 1.0f, 1.0f);
+    } else {
+        glScalef(1.0f, (float)surface_width/(float)surface_height, 1.0f);
+    }
 
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
