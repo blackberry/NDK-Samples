@@ -10,17 +10,6 @@ include $(MKFILES_ROOT)/qmacros.mk
 # Suppress the _g suffix from the debug variant
 BUILDNAME=$(IMAGE_PREF_$(BUILD_TYPE))$(NAME)$(IMAGE_SUFF_$(BUILD_TYPE))
 
-# Extra include path libfreetype and for target overrides and patches
-EXTRA_INCVPATH+=$(QNX_TARGET)/usr/include/freetype2 \
-	$(QNX_TARGET)/../target-override/usr/include
-
-# Extra library search path for target overrides and patches
-EXTRA_LIBVPATH+=$(QNX_TARGET)/../target-override/$(CPUVARDIR)/lib \
-	$(QNX_TARGET)/../target-override/$(CPUVARDIR)/usr/lib
-
-# Add USING_GL11 to build bbutil for gles 1.1 use
-CCFLAGS+=-DUSING_GL11
-
 # Compiler options for enhanced security
 CCFLAGS+=-fstack-protector-all -D_FORTIFY_SOURCE=2 \
 	$(if $(filter g so shared,$(VARIANTS)),,-fPIE)
@@ -29,7 +18,7 @@ CCFLAGS+=-fstack-protector-all -D_FORTIFY_SOURCE=2 \
 LDFLAGS+=-Wl,-z,relro -Wl,-z,now $(if $(filter g so shared,$(VARIANTS)),,-pie)
 
 # Basic libraries required by most native applications
-LIBS+=bps screen EGL GLESv1_CM freetype png m
+LIBS+=glview GLESv1_CM m
 
 include $(MKFILES_ROOT)/qtargets.mk
 
