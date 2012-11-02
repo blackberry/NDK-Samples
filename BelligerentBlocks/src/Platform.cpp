@@ -135,8 +135,7 @@ bool Platform::init() {
     }
 
     SC_ScoresController_SetMode(m_scoresController, 0);
-    SC_ScoresController_SetSearchList(m_scoresController, SC_SCORE_SEARCH_LIST_GLOBAL);
-    SC_ScoresController_SetTimeInterval(m_scoresController, SC_TIME_INTERVAL_GLOBAL);
+    SC_ScoresController_SetSearchList(m_scoresController, SC_SCORES_SEARCH_LIST_ALL);
 
     struct stat fileInfo;
     if (stat("data/scores.db", &fileInfo) == -1) {
@@ -372,7 +371,7 @@ void Platform::fetchLeaderboard() {
         return;
     }
 
-    SC_Error_t rc = SC_ScoresController_LoadRange(m_scoresController, scores);
+    SC_Error_t rc = SC_ScoresController_LoadScores(m_scoresController, scores);
     if (rc != SC_OK) {
         fprintf(stderr, "Error loading leaderboard score range: %d\n", rc);
         return;

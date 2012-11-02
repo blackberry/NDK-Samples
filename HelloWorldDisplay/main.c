@@ -14,26 +14,28 @@
  * limitations under the License.
  */
 
+#include "bbutil.h"
+
+#include <png.h>
+
+#include <bps/navigator.h>
+#include <bps/screen.h>
+#include <bps/bps.h>
+#include <bps/event.h>
+
+#include <screen/screen.h>
+#include <sys/keycodes.h>
+
+#include <EGL/egl.h>
+#include <GLES/gl.h>
+
+#include <math.h>
+#include <time.h>
 #include <ctype.h>
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/keycodes.h>
-#include <screen/screen.h>
-#include <bps/navigator.h>
-#include <bps/screen.h>
-#include <bps/bps.h>
-#include <bps/event.h>
-#include <bps/orientation.h>
-#include <math.h>
-#include <time.h>
-#include <screen/screen.h>
-#include <EGL/egl.h>
-#include <GLES/gl.h>
-
-#include "png.h"
-#include "bbutil.h"
 
 static float width, height;
 static GLuint background;
@@ -172,14 +174,6 @@ int main(int argc, char **argv) {
     //Initialize app data
     if (EXIT_SUCCESS != init()) {
         fprintf(stderr, "Unable to initialize app logic\n");
-        bbutil_terminate();
-        screen_destroy_context(screen_cxt);
-        return 0;
-    }
-
-    //Signal BPS library that navigator orientation is to be locked
-    if (BPS_SUCCESS != navigator_rotation_lock(true)) {
-        fprintf(stderr, "navigator_rotation_lock failed\n");
         bbutil_terminate();
         screen_destroy_context(screen_cxt);
         return 0;
