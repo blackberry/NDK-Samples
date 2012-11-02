@@ -53,12 +53,15 @@ bool_str(bool b) {
  */
 static const char*
 get_channel_name(audiomixer_output_t output) {
-    if (output == AUDIOMIXER_OUTPUT_SPEAKER)
-        return "Speaker";
-    if (output == AUDIOMIXER_OUTPUT_HEADPHONE)
-        return "Headphones";
-
-    return "Unknown";
+    static const char *channel_name[] = { "Default", "Speaker", "Headphone", "Headset", "Handset", 
+                                          "A2DP", "BTSCO", "HAC", "HDMI", "Toslink", "TTY", "Lineout" };
+    static const int num_channels = sizeof(channel_name) / sizeof(*channel_name);
+    
+    if (output < 0 || output >= num_channels) {
+        return "Unknown";
+    } else {
+        return channel_name[output];
+    }
 }
 
 /**
