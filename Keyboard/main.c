@@ -14,129 +14,54 @@
 * limitations under the License.
 */
 
-#include <screen/screen.h>
+#include <bps/virtualkeyboard.h>
 #include <bps/navigator.h>
 #include <bps/screen.h>
 #include <bps/bps.h>
 #include <bps/event.h>
-#include <stdlib.h>
-#include <unistd.h>
 
-#include <EGL/egl.h>
+
+#include <glview/glview.h>
 #include <GLES/gl.h>
 
-#include "bbutil.h"
-
-#include <bps/virtualkeyboard.h>
+#include <screen/screen.h>
 #include <sys/keycodes.h>
 #include <math.h>
-
-static GLfloat vertices[8];
-static GLfloat colors[16];
+#include <stdlib.h>
+#include <stdio.h>
+#include <unistd.h>
 
 #define ANGLE_INCREMENT 3.0f
 #define CIRCLE_DEGREES 360.0f
+
+static const GLfloat vertices[] = {
+    -0.25f, -0.25f,
+     0.25f, -0.25f,
+    -0.25f,  0.25f,
+     0.25f,  0.25f
+};
+
+static const GLfloat colors[] = {
+    1.0f, 0.0f, 1.0f, 1.0f,
+    1.0f, 1.0f, 0.0f, 1.0f,
+    0.0f, 1.0f, 1.0f, 1.0f,
+    0.0f, 1.0f, 1.0f, 1.0f
+};
+
 static float angle = 0.0;
+static bool keyboard_visible = false;
 
-void handleScreenEvent(bps_event_t *event)
+static void
+initialize(void *p)
 {
-    screen_event_t screen_event = screen_event_get_event(event);
+    virtualkeyboard_request_events(0);
+    virtualkeyboard_show();
 
-    int screen_val;
-    screen_get_event_property_iv(screen_event, SCREEN_PROPERTY_TYPE, &screen_val);
-
-    switch (screen_val) {
-    case SCREEN_EVENT_KEYBOARD:
-        screen_get_event_property_iv(screen_event, SCREEN_PROPERTY_KEY_FLAGS, &screen_val);
-
-        if (screen_val & KEY_DOWN) {
-            screen_get_event_property_iv(screen_event, SCREEN_PROPERTY_KEY_SYM,&screen_val);
-
-            printf("The '%c' key was pressed\n", (char)screen_val);
-            fflush(stdout);
-
-            switch (screen_val) {
-            case KEYCODE_I:
-                // Display the email layout with "Send" enter key
-                virtualkeyboard_change_options(VIRTUALKEYBOARD_LAYOUT_EMAIL, VIRTUALKEYBOARD_ENTER_SEND);
-                break;
-            case KEYCODE_O:
-                // Display the phone layout with "Connect" enter key
-                virtualkeyboard_change_options(VIRTUALKEYBOARD_LAYOUT_PHONE, VIRTUALKEYBOARD_ENTER_CONNECT);
-                break;
-            case KEYCODE_P:
-                // Display the default layout with default enter key
-                virtualkeyboard_change_options(VIRTUALKEYBOARD_LAYOUT_DEFAULT, VIRTUALKEYBOARD_ENTER_DEFAULT);
-                break;
-            case KEYCODE_H:
-                // Hide the keyboard
-                virtualkeyboard_hide();
-                break;
-            case KEYCODE_A:
-                // Increment rotation angle
-                angle = fmod(angle + ANGLE_INCREMENT, CIRCLE_DEGREES );
-                break;
-            case KEYCODE_Z:
-                // Decrement rotation angle
-                angle = fmod(angle - ANGLE_INCREMENT, CIRCLE_DEGREES );
-                break;
-            default:
-                break;
-            }
-        }
-        break;
-    }
-}
-
-int initialize() {
-    //Initialize vertex and color data
-    vertices[0] = -0.25f;
-    vertices[1] = -0.25f;
-
-    vertices[2] = 0.25f;
-    vertices[3] = -0.25f;
-
-    vertices[4] = -0.25f;
-    vertices[5] = 0.25f;
-
-    vertices[6] = 0.25f;
-    vertices[7] = 0.25f;
-
-    colors[0] = 1.0f;
-    colors[1] = 0.0f;
-    colors[2] = 1.0f;
-    colors[3] = 1.0f;
-
-    colors[4] = 1.0f;
-    colors[5] = 1.0f;
-    colors[6] = 0.0f;
-    colors[7] = 1.0f;
-
-    colors[8] = 0.0f;
-    colors[9] = 1.0f;
-    colors[10] = 1.0f;
-    colors[11] = 1.0f;
-
-    colors[12] = 0.0f;
-    colors[13] = 1.0f;
-    colors[14] = 1.0f;
-    colors[15] = 1.0f;
-
-    //Query width and height of the window surface created by utility code
-    EGLint surface_width, surface_height;
-
-    eglQuerySurface(egl_disp, egl_surf, EGL_WIDTH, &surface_width);
-    eglQuerySurface(egl_disp, egl_surf, EGL_HEIGHT, &surface_height);
-
-    EGLint err = eglGetError();
-    if (err != 0x3000) {
-        fprintf(stderr, "Unable to query EGL surface dimensions\n");
-        return EXIT_FAILURE;
-    }
+    unsigned int surface_width, surface_height;
+    glview_get_size(&surface_width, &surface_height);
 
     glShadeModel(GL_SMOOTH);
 
-    //set clear color to white
     glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 
     glViewport(0, 0, surface_width, surface_height);
@@ -155,10 +80,10 @@ int initialize() {
     return EXIT_SUCCESS;
 }
 
-void render()
+static void
+render(void *p)
 {
-    //Typical render pass
-	glClear(GL_COLOR_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT);
 
     glEnableClientState(GL_VERTEX_ARRAY);
     glVertexPointer(2, GL_FLOAT, 0, vertices);
@@ -172,106 +97,80 @@ void render()
 
     glDisableClientState(GL_VERTEX_ARRAY);
     glDisableClientState(GL_COLOR_ARRAY);
-
-    //Use utility code to update the screen
-    bbutil_swap();
 }
 
-int main(int argc, char *argv[])
+static void
+event(bps_event_t *event, int domain, int code, void *p)
 {
-    int exit_application = 0;
-
-    screen_context_t screen_cxt;
-
-    //Create a screen context that will be used to create an EGL surface to to receive libscreen events
-    screen_create_context(&screen_cxt,0);
-
-    //Initialize BPS library
-    bps_initialize();
-
-    //Use utility code to initialize EGL for 2D rendering with GL ES 1.1
-    if (EXIT_SUCCESS != bbutil_init_egl(screen_cxt)) {
-        bbutil_terminate();
-        screen_destroy_context(screen_cxt);
-        return 0;
-    }
-
-    //Initialize application logic
-    if (EXIT_SUCCESS != initialize()) {
-        fprintf(stderr, "initialize failed\n");
-        bbutil_terminate();
-        screen_destroy_context(screen_cxt);
-        return 0;
-    }
-
-    //Signal BPS library that navigator, screen, and keyboard events will be requested
-    if (BPS_SUCCESS != screen_request_events(screen_cxt)) {
-        fprintf(stderr, "screen_request_events failed\n");
-        bbutil_terminate();
-        screen_destroy_context(screen_cxt);
-        return 0;
-    }
-
-    if (BPS_SUCCESS != navigator_request_events(0)) {
-        fprintf(stderr, "navigator_request_events failed\n");
-        bbutil_terminate();
-        screen_destroy_context(screen_cxt);
-        return 0;
-    }
-
-    if (BPS_SUCCESS != virtualkeyboard_request_events(0)) {
-        fprintf(stderr, "navigator_request_events failed\n");
-        bbutil_terminate();
-        screen_destroy_context(screen_cxt);
-        return 0;
-    }
-
-    //Signal BPS library that navigator orientation is not to be locked
-    if (BPS_SUCCESS != navigator_rotation_lock(false)) {
-        fprintf(stderr, "navigator_rotation_lock failed\n");
-        bbutil_terminate();
-        screen_destroy_context(screen_cxt);
-        return 0;
-    }
-
-    virtualkeyboard_show();
-
-    while (!exit_application) {
-        //Request and process all available BPS events
-        bps_event_t *event = NULL;
-
-        for(;;) {
-            if (BPS_SUCCESS != bps_get_event(&event, 0)) {
-                fprintf(stderr, "bps_get_event failed\n");
-                break;
-            }
-
-            if (event) {
-                int domain = bps_event_get_domain(event);
-
-                if (domain == screen_get_domain()) {
-                    handleScreenEvent(event);
-                } else if ((domain == navigator_get_domain())
-                        && (NAVIGATOR_EXIT == bps_event_get_code(event))) {
-                    exit_application = 1;
-                }
-            } else {
-                break;
-            }
+    if (virtualkeyboard_get_domain() == domain) {
+        switch (code) {
+        case VIRTUALKEYBOARD_EVENT_VISIBLE:
+            keyboard_visible = true;
+            break;
+        case VIRTUALKEYBOARD_EVENT_HIDDEN:
+            keyboard_visible = false;
+            break;
         }
-        render();
+    } else if (screen_get_domain() == domain) {
+
+        screen_event_t screen_event = screen_event_get_event(event);
+
+        int screen_val;
+        screen_get_event_property_iv(screen_event, SCREEN_PROPERTY_TYPE, &screen_val);
+
+        switch (screen_val) {
+        case SCREEN_EVENT_MTOUCH_TOUCH:
+            if (!keyboard_visible) {
+                virtualkeyboard_show();
+            }
+            break;
+        case SCREEN_EVENT_KEYBOARD:
+            screen_get_event_property_iv(screen_event, SCREEN_PROPERTY_KEY_FLAGS, &screen_val);
+
+            if (screen_val & KEY_DOWN) {
+                screen_get_event_property_iv(screen_event, SCREEN_PROPERTY_KEY_SYM,&screen_val);
+
+                fprintf(stderr, "The '%c' key was pressed\n", (char)screen_val);
+
+                switch (screen_val) {
+                case KEYCODE_I:
+                    // Display the email layout with "Send" enter key
+                    virtualkeyboard_change_options(VIRTUALKEYBOARD_LAYOUT_EMAIL, VIRTUALKEYBOARD_ENTER_SEND);
+                    break;
+                case KEYCODE_O:
+                    // Display the phone layout with "Connect" enter key
+                    virtualkeyboard_change_options(VIRTUALKEYBOARD_LAYOUT_PHONE, VIRTUALKEYBOARD_ENTER_CONNECT);
+                    break;
+                case KEYCODE_P:
+                    // Display the default layout with default enter key
+                    virtualkeyboard_change_options(VIRTUALKEYBOARD_LAYOUT_DEFAULT, VIRTUALKEYBOARD_ENTER_DEFAULT);
+                    break;
+                case KEYCODE_H:
+                    // Hide the keyboard
+                    virtualkeyboard_hide();
+                    break;
+                case KEYCODE_A:
+                    // Increment rotation angle
+                    angle = fmod(angle + ANGLE_INCREMENT, CIRCLE_DEGREES );
+                    break;
+                case KEYCODE_Z:
+                    // Decrement rotation angle
+                    angle = fmod(angle - ANGLE_INCREMENT, CIRCLE_DEGREES );
+                    break;
+                default:
+                    break;
+                }
+            }
+            break;
+        }
     }
+}
 
-    //Stop requesting events from libscreen
-    screen_stop_events(screen_cxt);
-
-    //Shut down BPS library for this process
-    bps_shutdown();
-
-    //Use utility code to terminate EGL setup
-    bbutil_terminate();
-
-    //Destroy libscreen context
-    screen_destroy_context(screen_cxt);
-    return 0;
+int
+main(int argc, char *argv[])
+{
+    glview_initialize(GLVIEW_API_OPENGLES_11, &render);
+    glview_register_initialize_callback(&initialize);
+    glview_register_event_callback(&event);
+    return glview_loop();
 }

@@ -14,22 +14,23 @@
  * limitations under the License.
  */
 
-#include <screen/screen.h>
+#include "bbutil.h"
+
 #include <bps/navigator.h>
 #include <bps/screen.h>
 #include <bps/bps.h>
 #include <bps/event.h>
-#include <bps/orientation.h>
+
+#include <screen/screen.h>
+
+#include <EGL/egl.h>
+#include <GLES/gl.h>
+
 #include <stdarg.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
 #include <math.h>
-
-#include <EGL/egl.h>
-#include <GLES/gl.h>
-
-#include "bbutil.h"
 
 static GLfloat radio_btn_unselected_vertices[8], radio_btn_selected_vertices[8],
         background_portrait_vertices[8], background_landscape_vertices[8],
@@ -747,14 +748,6 @@ int main(int argc, char *argv[]) {
 
     if (BPS_SUCCESS != navigator_request_events(0)) {
         fprintf(stderr, "navigator_request_events failed\n");
-        bbutil_terminate();
-        screen_destroy_context(screen_cxt);
-        return 0;
-    }
-
-    //Signal BPS library that navigator orientation is not to be locked
-    if (BPS_SUCCESS != navigator_rotation_lock(false)) {
-        fprintf(stderr, "navigator_rotation_lock failed\n");
         bbutil_terminate();
         screen_destroy_context(screen_cxt);
         return 0;
