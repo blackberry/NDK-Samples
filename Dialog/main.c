@@ -87,7 +87,7 @@ fail:
 }
 
 /**
- * Show an alert dialog that has two buttons: a "Cancel" button, and a "Submit" button.
+ * Show an alert dialog that has two buttons: a "Cancel" button, and a "OK" button.
  */
 static void
 show_alert()
@@ -126,7 +126,7 @@ show_alert()
     /*
      * Use a button label of our own. Don't attach a context to the button.
      */
-    if (dialog_add_button(alert_dialog, "Submit", true, 0, true) != BPS_SUCCESS) {
+    if (dialog_add_button(alert_dialog, DIALOG_OK_LABEL, true, 0, true) != BPS_SUCCESS) {
         fprintf(stderr, "Failed to add button to alert dialog.");
         dialog_destroy(alert_dialog);
         alert_dialog = 0;
