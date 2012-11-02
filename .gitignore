@@ -25,6 +25,8 @@ AudioControl/arm/o.le-v7-g/AudioControl
 AudioControl/arm/o.le-v7/AudioControl
 AudioControl/x86/o-g/AudioControl
 AudioControl/x86/o/AudioControl
+Camera/arm/o.le-v7-g/Camera
+Camera/arm/o.le-v7/Camera
 Channels/arm/o.le-v7-g/Channels
 Channels/arm/o.le-v7/Channels
 Channels/x86/o-g/Channels
