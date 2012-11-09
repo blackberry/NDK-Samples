@@ -76,8 +76,6 @@ initialize(void *p)
 
     glTranslatef((float) (surface_width) / (float) (surface_height) / 2, 0.5f,
             0.0f);
-
-    return EXIT_SUCCESS;
 }
 
 static void
