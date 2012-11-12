@@ -221,51 +221,24 @@ initialize_egl_window(screen_context_t ctx, char * window_group_name) {
         return EXIT_FAILURE;
     }
 
-    int angle = atoi(getenv("ORIENTATION"));
-
-    screen_display_mode_t g_screen_mode;
-    rc = screen_get_display_property_pv(g_screen_disp, SCREEN_PROPERTY_MODE, (void**)&g_screen_mode);
-    if (rc) {
-        perror("screen_get_display_property_pv");
+    const char *env = getenv("WIDTH");
+    if (0 == env) {
+        perror("failed getenv for WIDTH");
         terminate_egl_window();
         return EXIT_FAILURE;
     }
+    int width = atoi(env);
 
-    int size[2];
-    rc = screen_get_window_property_iv(g_screen_win, SCREEN_PROPERTY_BUFFER_SIZE, size);
-    if (rc) {
-        perror("screen_get_window_property_iv");
+    env = getenv("HEIGHT");
+    if (0 == env) {
+        perror("failed getenv for HEIGHT");
         terminate_egl_window();
         return EXIT_FAILURE;
     }
+    int height = atoi(env);
 
-    int buffer_size[2] = {size[0], size[1]};
-    if ((angle == 0) || (angle == 180)) {
-        if (((g_screen_mode.width > g_screen_mode.height) && (size[0] < size[1])) ||
-            ((g_screen_mode.width < g_screen_mode.height) && (size[0] > size[1]))) {
-                buffer_size[1] = size[0];
-                buffer_size[0] = size[1];
-        }
-    } else if ((angle == 90) || (angle == 270)){
-        if (((g_screen_mode.width > g_screen_mode.height) && (size[0] > size[1])) ||
-            ((g_screen_mode.width < g_screen_mode.height && size[0] < size[1]))) {
-                buffer_size[1] = size[0];
-                buffer_size[0] = size[1];
-        }
-    } else {
-         fprintf(stderr, "Navigator returned an unexpected orientation angle.\n");
-         terminate_egl_window();
-         return EXIT_FAILURE;
-    }
-
-    rc = screen_set_window_property_iv(g_screen_win, SCREEN_PROPERTY_BUFFER_SIZE, buffer_size);
-    if (rc) {
-        perror("screen_set_window_property_iv");
-        terminate_egl_window();
-        return EXIT_FAILURE;
-    }
-
-    rc = screen_set_window_property_iv(g_screen_win, SCREEN_PROPERTY_ROTATION, &angle);
+    int size[2] = { width, height };
+    rc = screen_set_window_property_iv(g_screen_win, SCREEN_PROPERTY_BUFFER_SIZE, size);
     if (rc) {
         perror("screen_set_window_property_iv");
         terminate_egl_window();
