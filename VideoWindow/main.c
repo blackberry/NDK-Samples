@@ -267,7 +267,7 @@ initialize_egl_window(screen_context_t ctx, char * window_group_name) {
     }
 
     // Set the clear color to be transparent
-    glClearColor(0.0f, 0.25f, 0.0f, 0.0f);
+    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 
     return EXIT_SUCCESS;
 }
