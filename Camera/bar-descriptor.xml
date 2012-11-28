@@ -34,6 +34,8 @@
     <!-- <authorId>ABC1234YjsnUk235h</authorId> -->
    
     <initialWindow>
+        <aspectRatio>portrait</aspectRatio>
+        <autoOrients>false</autoOrients>
         <systemChrome>none</systemChrome>
         <transparent>false</transparent>
     </initialWindow>
@@ -41,30 +43,50 @@
     <!--  The category where the application appears. Either core.games or core.media. -->
     <category>core.games</category>
     <asset path="icon.png">icon.png</asset>
-    <configuration id="com.qnx.qcc.toolChain.705300587" name="Default">
+    <asset path="LICENSE">LICENSE</asset>
+    <asset path="NOTICE">NOTICE</asset>
+    <configuration name="Device-Debug">
        <platformArchitecture>armle-v7</platformArchitecture>
        <asset path="arm/o.le-v7-g/Camera" entry="true" type="Qnx/Elf">Camera</asset>
     </configuration>
-    <configuration id="com.qnx.qcc.toolChain.540827155" name="Device-Debug">
-       <platformArchitecture>armle-v7</platformArchitecture>
-       <asset path="arm/o.le-v7-g/Camera" entry="true" type="Qnx/Elf">Camera</asset>
-    </configuration>
-    <configuration id="com.qnx.qcc.toolChain.1287204639" name="Device-Release">
+    <configuration name="Device-Release">
        <platformArchitecture>armle-v7</platformArchitecture>
        <asset path="arm/o.le-v7/Camera" entry="true" type="Qnx/Elf">Camera</asset>
     </configuration>
+    <configuration name="Simulator-Debug">
+       <platformArchitecture>x86</platformArchitecture>
+       <asset path="x86/o-g/Camera" entry="true" type="Qnx/Elf">Camera</asset>
+    </configuration>
     
-    <!--  The icon for the application, which should be 86x86. -->
+    <!--  The icon for the application. -->
     <icon>
-        <image>icon.png</image>
+       <image>icon.png</image>
     </icon>
     
-    <!--  The splash screen that will appear when your application is launching. Should be 1024x600. -->
+    <!--  The splash screen that will appear when your application is launching. -->
     <!-- <splashscreen></splashscreen> -->
 
     <!-- Request permission to execute native code.  Required for native applications. -->
     <permission system="true">run_native</permission>
+    <permission>read_geolocation</permission>
     <permission>use_camera</permission>
     <permission>access_shared</permission>
+    
+    <!--  The permissions requested by your application. -->
+    <!--  <permission>access_shared</permission> -->
+    <!--  <permission>record_audio</permission> -->
+    <!--  <permission>read_geolocation</permission> -->
+    <!--  <permission>use_camera</permission> -->
+    <!--  <permission>access_internet</permission> -->
+    <!--  <permission>play_audio</permission> -->
+    <!--  <permission>post_notification</permission> -->
+    <!--  <permission>set_audio_volume</permission> -->
+    <!--  <permission>read_device_identifying_information</permission> -->
+    <!--  <permission>access_led_control</permission> -->
+    <!--  <permission>run_when_backgrounded</permission> -->
+    
+
+    <!-- Ensure that shared libraries in the package are found at run-time. -->
+    <env var="LD_LIBRARY_PATH" value="app/native/lib"/>
     
 </qnx>
