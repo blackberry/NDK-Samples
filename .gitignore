@@ -44,6 +44,9 @@ GLES11Template/x86/o-g/GLES11Template
 GLES20Template/arm/o.le-v7-g/GLES20Template
 GLES20Template/arm/o.le-v7/GLES20Template
 GLES20Template/x86/o-g/GLES20Template
+Gamepad/arm/o.le-v7-g/Gamepad
+Gamepad/arm/o.le-v7/Gamepad
+Gamepad/x86/o-g/Gamepad
 Geolocation/arm/o.le-v7-g/Geolocation
 Geolocation/arm/o.le-v7/Geolocation
 Geolocation/x86/o-g/Geolocation
