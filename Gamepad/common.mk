@@ -13,13 +13,11 @@ EXTRA_INCVPATH+=$(QNX_TARGET)/usr/include/freetype2 \
 EXTRA_LIBVPATH+=$(QNX_TARGET)/../target-override/$(CPUVARDIR)/lib \
 	$(QNX_TARGET)/../target-override/$(CPUVARDIR)/usr/lib
 
-# Add USING_GL11 to build bbutil for gles 1.1 use
-CCFLAGS+=-DUSING_GL11
-
 # Compiler options for enhanced security and recording the compiler options in release builds
 CCFLAGS+=-fstack-protector-strong -D_FORTIFY_SOURCE=2 \
 	$(if $(filter g so shared,$(VARIANTS)),,-fPIE) \
-	$(if $(filter g,$(VARIANTS)),,-frecord-gcc-switches)
+	$(if $(filter g,$(VARIANTS)),,-frecord-gcc-switches) \
+	-DUSING_GL11
 
 # Linker options for enhanced security
 LDFLAGS+=-Wl,-z,relro -Wl,-z,now $(if $(filter g so shared,$(VARIANTS)),,-pie)
