@@ -204,6 +204,10 @@
 
 --------------------------------------------------
 For png.h and pngconf.h
+
+  Copyright (c) 1998-2011 Glenn Randers-Pehrson
+  Copyright (c) 1996, 1997 Andreas Dilger
+  Copyright (c) 1995, 1996 Guy Eric Schalnat, Group 42, Inc.
   
   The PNG Reference Library is supplied "AS IS".  The Contributing Authors
   and Group 42, Inc. disclaim all warranties, expressed or implied,
