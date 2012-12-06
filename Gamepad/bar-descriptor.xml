@@ -34,7 +34,7 @@
     <!-- <authorId>ABC1234YjsnUk235h</authorId> -->
    
     <initialWindow>
-    	<aspectRatio>landscape</aspectRatio>
+        <aspectRatio>landscape</aspectRatio>
         <autoOrients>false</autoOrients>
         <systemChrome>none</systemChrome>
         <transparent>false</transparent>
@@ -43,6 +43,8 @@
     <!--  The category where the application appears. Either core.games or core.media. -->
     <category>core.games</category>
     <asset path="icon.png">icon.png</asset>
+    <asset path="LICENSE">LICENSE</asset>
+    <asset path="NOTICE">NOTICE</asset>
     <asset path="gamepad.png">gamepad.png</asset>
     <configuration name="Device-Debug">
        <platformArchitecture>armle-v7</platformArchitecture>
