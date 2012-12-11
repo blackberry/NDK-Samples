@@ -5,7 +5,7 @@ Sample Description:
 
  The Geolocation sample is an application that demonstrates how to retrieve
  geolocation specific information, such as the latitude, longitude, altitude,
- and bearing of the tablet.
+ and bearing of the device.
 
  When you run the application, geolocation data is displayed in a dialog.
 
@@ -18,10 +18,10 @@ Sample Description:
 ========================================================================
 Requirements:
 
- - BlackBerry Native SDK for Tablet OS 2.0 or later
+ - BlackBerry® 10 Native SDK
  - One of the following:
-   - BlackBerry PlayBook tablet running BlackBerry Tablet OS 2.0 or later
-   - BlackBerry Tablet Simulator 2.0 or later
+   - BlackBerry® 10 device
+   - BlackBerry® 10 simulator
 
 ========================================================================
 Importing a project into the Native SDK:

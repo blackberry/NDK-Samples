@@ -14,11 +14,11 @@
 * limitations under the License.
 */
 
-#include <assert.h>
 #include <bps/bps.h>
 #include <bps/event.h>
 #include <bps/navigator.h>
 #include <bps/screen.h>
+#include <errno.h>
 #include <fcntl.h>
 #include <img/img.h>
 #include <math.h>
@@ -128,12 +128,10 @@ gesture_callback(gesture_base_t* gesture, mtouch_event_t* event, void* param, in
 static void
 init_gestures()
 {
-    gesture_tap_t* tap;
-    gesture_double_tap_t* double_tap;
     set = gestures_set_alloc();
     if (NULL != set) {
-        tap = tap_gesture_alloc(NULL, gesture_callback, set);
-        double_tap = double_tap_gesture_alloc(NULL, gesture_callback, set);
+        tap_gesture_alloc(NULL, gesture_callback, set);
+        double_tap_gesture_alloc(NULL, gesture_callback, set);
         tfpan_gesture_alloc(NULL, gesture_callback, set);
         pinch_gesture_alloc(NULL, gesture_callback, set);
     } else {
@@ -196,13 +194,16 @@ handle_navigator_event(bps_event_t *event) {
 static void
 handle_events()
 {
-    int rc, domain;
+    int domain;
     bool has_events = true;
 
     while(has_events) {
         bps_event_t *event = NULL;
-        rc = bps_get_event(&event, 50);
-        assert(rc == BPS_SUCCESS);
+        if (BPS_SUCCESS != bps_get_event(&event, 50)) {
+            has_events = false;
+            continue;
+        }
+
         if (event) {
             domain = bps_event_get_domain(event);
             if (domain == navigator_get_domain()) {

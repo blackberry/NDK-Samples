@@ -49,55 +49,28 @@ setup_screen()
         return EXIT_FAILURE;
     }
 
-    //Signal BPS library that navigator orientation is to be locked
-    if (BPS_SUCCESS != navigator_rotation_lock(true)) {
-        screen_destroy_context(screen_ctx);
-        return EXIT_FAILURE;
-    }
-
     if (screen_create_window(&screen_win, screen_ctx) != 0) {
         screen_destroy_context(screen_ctx);
         return EXIT_FAILURE;
     }
 
+    if (screen_create_window_group(screen_win, get_window_group_id()) != 0) goto fail;
+
     int usage = SCREEN_USAGE_NATIVE;
     if (screen_set_window_property_iv(screen_win, SCREEN_PROPERTY_USAGE, &usage) != 0) goto fail;
 
-    int size[2];
-    if (screen_get_window_property_iv(screen_win, SCREEN_PROPERTY_BUFFER_SIZE, size) != 0) goto fail;
+    const char *env = getenv("WIDTH");
+    if (0 == env) goto fail;
+    int width = atoi(env);
 
-    screen_display_t screen_disp;
-    screen_get_window_property_pv(screen_win, SCREEN_PROPERTY_DISPLAY, (void **)&screen_disp);
+    env = getenv("HEIGHT");
+    if (0 == env) goto fail;
+    int height = atoi(env);
+    int size[2] = { width, height };
 
-    screen_display_mode_t screen_mode;
-    if (screen_get_display_property_pv(screen_disp, SCREEN_PROPERTY_MODE, (void**)&screen_mode) != 0) goto fail;
-
-    int buffer_size[2] = {size[0], size[1]};
-
-    int angle = atoi(getenv("ORIENTATION"));
-    if ((angle == 0) || (angle == 180)) {
-       if (((screen_mode.width > screen_mode.height) && (size[0] < size[1])) ||
-          ((screen_mode.width < screen_mode.height) && (size[0] > size[1]))) {
-            buffer_size[1] = size[0];
-        buffer_size[0] = size[1];
-       }
-    } else if ((angle == 90) || (angle == 270)){
-       if (((screen_mode.width > screen_mode.height) && (size[0] > size[1])) ||
-          ((screen_mode.width < screen_mode.height && size[0] < size[1]))) {
-        buffer_size[1] = size[0];
-        buffer_size[0] = size[1];
-        }
-    } else {
-        goto fail;
-    }
-
-    if (screen_set_window_property_iv(screen_win, SCREEN_PROPERTY_BUFFER_SIZE, buffer_size) != 0) goto fail;
-
-    if (screen_set_window_property_iv(screen_win, SCREEN_PROPERTY_ROTATION, &angle) != 0) goto fail;
+    if (screen_set_window_property_iv(screen_win, SCREEN_PROPERTY_BUFFER_SIZE, size) != 0) goto fail;
 
     if (screen_create_window_buffers(screen_win, 1) != 0) goto fail;
-
-    if (screen_create_window_group(screen_win, get_window_group_id()) != 0) goto fail;
 
     screen_buffer_t buff;
     if (screen_get_window_property_pv(screen_win, SCREEN_PROPERTY_RENDER_BUFFERS, (void*)&buff) != 0) goto fail;
@@ -105,7 +78,7 @@ setup_screen()
     int attribs[1] = {SCREEN_BLIT_END};
     if (screen_fill(screen_ctx, buff, attribs) != 0) goto fail;
 
-    int dirty_rects[4] = {0, 0, buffer_size[0], buffer_size[1]};
+    int dirty_rects[4] = {0, 0, width, height};
     if (screen_post_window(screen_win, buff, 1, (const int*)dirty_rects, 0) != 0) goto fail;
 
     return EXIT_SUCCESS;
@@ -135,7 +108,6 @@ create_dialog()
 
     dialog_create_alert(&main_dialog);
     dialog_set_alert_message_text(main_dialog, "\n");
-    dialog_set_size(main_dialog, DIALOG_SIZE_FULL);
     dialog_set_group_id(main_dialog, get_window_group_id());
     dialog_set_cancel_required(main_dialog, true);
     dialog_show(main_dialog);

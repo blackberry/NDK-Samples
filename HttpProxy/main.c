@@ -74,7 +74,7 @@ int main(void)
 
     /*
      * Once the BPS infrastructure has been initialized we can register for
-     * events from the various BlackBerry Tablet OS platform services. The
+     * events from the various BlackBerry(R) 10 OS platform services. The
      * Navigator service manages and delivers application life cycle and
      * visibility events.
      * For this sample, we request Navigator events so we can track when

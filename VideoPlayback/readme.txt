@@ -17,10 +17,8 @@ Sample Description:
 ========================================================================
 Requirements:
 
- - BlackBerry Native SDK for Tablet OS 2.0 or later
- - One of the following:
-   - BlackBerry PlayBook tablet running BlackBerry Tablet OS 2.0 or later
-   - BlackBerry Tablet Simulator 2.0 or later
+ - BlackBerry® 10 Native SDK
+ - BlackBerry® 10 device
 
 ========================================================================
 Importing a project into the Native SDK:

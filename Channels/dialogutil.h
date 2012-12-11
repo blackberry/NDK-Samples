@@ -27,7 +27,7 @@
 int setup_screen();
 
 /**
- * Clean up all the resources that were allocated by setup_screen().
+ * Clean up all the resources that were allocated by @c setup_screen().
  */
 void cleanup_screen();
 
@@ -35,41 +35,44 @@ void cleanup_screen();
  * Show an alert dialog to display general data along the bottom
  * of the screen.
  */
-void create_bottom_dialog();
+void create_accelerometer_dialog();
 
 /**
  * Show an alert dialog to display general data along the top
  * of the screen.
  */
-void create_top_dialog();
+void create_geolocation_dialog();
 
 /**
- * Destroy the top dialog that was created by create_top_dialog.
+ * Destroy the top dialog that was created by @c create_geolocation_dialog().
  */
-void destroy_top_dialog();
+void destroy_geolocation_dialog();
 
 /**
- * Destroy the bottom dialog that was created by create_bottom_dialog.
+ * Destroy the bottom dialog that was created by 
+ * @c create_accelerometer_dialog().
  */
-void destroy_bottom_dialog();
+void destroy_accelerometer_dialog();
 
 
 /**
- * Displays a message to the top dialog created by create_dialogs() and
- * outputs that message to stderr.  This means it will get added
- * to the log file in the sandbox and output to the console.
+ * Displays a message to the top dialog created by 
+ * @c create_geolocation_dialogs() and outputs that message to stderr.  This
+ * means it will get added to the log file in the sandbox and output to the
+ * console.
  *
  * @param msg the message to be displayed.
  */
-void show_top_dialog_message(const char *msg);
+void show_geolocation_dialog_message(const char *msg);
 
 /**
- * Displays a message to the bottom dialog created by create_dialogs() and
- * outputs that message to stderr.  This means it will get added
- * to the log file in the sandbox and output to the console.
+ * Displays a message to the bottom dialog created by 
+ * @c create_accelerometer_dialogs() and outputs that message to stderr.
+ * This means it will get added to the log file in the sandbox and output to 
+ * the console.
  *
  * @param msg the message to be displayed.
  */
-void show_bottom_dialog_message(const char *msg);
+void show_accelerometer_dialog_message(const char *msg);
 
 #endif /* DIALOGUTIL_H_ */

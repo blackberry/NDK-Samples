@@ -75,18 +75,25 @@ GameLogic::GameLogic(Platform &platform)
     m_platform.getSize(m_sceneWidth, m_sceneHeight);
 
     int dpi = m_platform.getDPI();
+    int point_size = (int)(15.0f / ((float)dpi / 170.0f ));
 
-    m_font = bbutil_load_font("/usr/fonts/font_repository/adobe/MyriadPro-Bold.otf", 15, dpi);
+    /* As bbutil renders text using device-specifc dpi, we need to compute
+     * a point size for the font, so that the text string fits into the bubble. 
+     * Note that Playbook is used as a reference point in this equation as we 
+     * know that at dpi of 170, font with point size ofi 15 fits into the 
+     * bubble texture.
+     */
+    m_font = bbutil_load_font("/usr/fonts/font_repository/monotype/arial.ttf", point_size, dpi);
     if (!m_font) {
         fprintf(stderr, "Unable to load font\n");
     }
 
-    m_scoreFont = bbutil_load_font("/usr/fonts/font_repository/adobe/MyriadPro-Bold.otf", 30, dpi);
+    m_scoreFont = bbutil_load_font("/usr/fonts/font_repository/monotype/arial.ttf", point_size, dpi);
     if (!m_scoreFont) {
         fprintf(stderr, "Unable to load font\n");
     }
 
-    m_leaderboardFont = bbutil_load_font("/usr/fonts/font_repository/adobe/MyriadPro-Bold.otf", 10, dpi);
+    m_leaderboardFont = bbutil_load_font("/usr/fonts/font_repository/monotype/arial.ttf", point_size, dpi);
     if (!m_scoreFont) {
         fprintf(stderr, "Unable to load font\n");
     }
@@ -357,13 +364,13 @@ void GameLogic::renderGame() {
 
     //Display score
     char buf[100];
-    sprintf(buf, "%i\0", m_score);
+    sprintf(buf, "%i", m_score);
 
     bbutil_render_text(m_scoreFont, buf, m_scorePosX, m_scorePosY, 0.75f, 0.75f, 0.75f, 1.0f);
 
     //Display timer if it is available
     if (m_showClock) {
-        sprintf(buf, "Time left %i\0", m_time - m_scoreTime - 1l);
+        sprintf(buf, "Time left %i", m_time - m_scoreTime - 1);
         bbutil_render_text(m_font, buf, m_timerPosX, m_timerPosY, 0.75f, 0.75f, 0.75f, 1.0f);
     }
     m_platform.finishRender();
@@ -406,7 +413,7 @@ void GameLogic::renderLeadBoard() {
             bbutil_render_text(m_leaderboardFont, buf, m_leaderBoard.PosX() - m_leaderBoard.Width() / 2 + LEADERBOARD_LINE_OFFSET_X, posY,
                                1.0f, 1.0f, 1.0f, 1.0f);
 
-            sprintf(buf, "%i", m_leaderboard[i].score());
+            sprintf(buf, "%li", m_leaderboard[i].score());
             bbutil_measure_text(m_leaderboardFont, buf, &sizeX, &sizeY);
 
             bbutil_render_text(m_leaderboardFont, buf, m_leaderBoard.PosX() + m_leaderBoard.Width() / 2 - sizeX - LEADERBOARD_LINE_OFFSET_X, posY,

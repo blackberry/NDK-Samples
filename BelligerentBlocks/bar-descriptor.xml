@@ -49,13 +49,12 @@
 
 
    <icon><image>icon.png</image></icon>
-   <splashscreen>splash.png</splashscreen>
+   <splashScreens>splash.png</splashScreens>
 
-   <action system="true">run_native</action>
+   <permission system="true">run_native</permission>
 
    <!-- Permission needed for Scoreloop -->
-   <action>read_device_identifying_information</action>
-   <action>play_audio</action>
+   <permission>play_audio</permission>
 
    <env var="LD_LIBRARY_PATH" value="app/native/lib"/>
 
