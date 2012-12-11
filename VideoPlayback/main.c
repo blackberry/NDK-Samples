@@ -15,12 +15,14 @@
  */
 
 #include <fcntl.h>
-#include <mm/renderer.h>
-#include <bps/navigator.h>
-#include <bps/screen.h>
+#include <math.h>
 #include <stdlib.h>
 
 #include <bps/bps.h>
+#include <bps/navigator.h>
+#include <bps/screen.h>
+
+#include <mm/renderer.h>
 
 // I/O devices
 static const char *video_device_url    = "screen:?winid=videosamplewindowgroup&wingrp=videosamplewindowgroup";
@@ -32,6 +34,80 @@ static const char *video_context_name = "samplevideocontextname";
 // Window group name
 static const char *window_group_name = "videosamplewindowgroup";
 
+/* 
+ * we know the video has a resolution of 640x480 so it has an aspect ratio of
+ * of approximately 1.33.  Based on these facts, we can show the video as large
+ * as possible without changing the aspect ratio. 
+ */ 
+strm_dict_t* calculate_rect(int width, int height) {
+    const int image_width = 640;
+    const int image_height = 480;
+    const float image_aspect = (float)image_width / (float)image_height;
+    const float aspect_tolerance = 0.1;
+
+    char buffer[16];
+    strm_dict_t *dict = strm_dict_new();
+
+    if (NULL == dict) {
+        return NULL;
+    }
+
+    //fullscreen is the default.
+    dict = strm_dict_set(dict, "video_dest_x", "0");
+    if (NULL == dict)
+        goto fail;
+    dict = strm_dict_set(dict, "video_dest_y", "0");
+    if (NULL == dict)
+        goto fail;
+    dict = strm_dict_set(dict, "video_dest_w", itoa(width, buffer, 10));
+    if (NULL == dict)
+        goto fail; 
+    dict = strm_dict_set(dict, "video_dest_h", itoa(height, buffer, 10));
+    if (NULL == dict)
+        goto fail;
+
+    float screen_aspect = (float)width/(float)height;
+    if (fabs(screen_aspect - image_aspect) < aspect_tolerance) {
+        //if the screen is at almost the same aspect as the video, just
+        //do full screen.  Nothing to do here.  Fall through and return 
+        //full screen.
+    } else if (screen_aspect < image_aspect) {
+        /* The screen is too tall.  We need to centre top to bottom, set the 
+         * width the same as the screen's while maintaining the same aspect 
+         * ratio.
+         */ 
+        dict = strm_dict_set(dict, "video_dest_y", itoa((height - image_height) / 2, buffer, 10));
+        if (NULL == dict)
+            goto fail;
+
+        height = width / image_aspect;
+
+        dict = strm_dict_set(dict, "video_dest_h", itoa(height, buffer, 10));
+        if (NULL == dict)
+            goto fail;
+    } else {
+        /* The screen is too wide.  We need to centre left to right, set the 
+         * height the same as the screen's while maintaining the same aspect 
+         * ratio.
+         */
+        dict = strm_dict_set(dict, "video_dest_x", itoa((width - image_width) / 2, buffer, 10));
+        if (NULL == dict)
+            goto fail;
+
+        width = height * image_aspect;
+
+        dict = strm_dict_set(dict, "video_dest_w", itoa(width, buffer, 10));
+        if (NULL == dict)
+            goto fail;
+    }
+
+    return dict;
+
+fail:
+    strm_dict_destroy(dict);
+    return NULL;
+}
+
 int main(int argc, char *argv[])
 {
     int rc;
@@ -39,12 +115,14 @@ int main(int argc, char *argv[])
 
     // Screen variables
     screen_context_t    screen_context = 0;
-    screen_window_t        screen_window = 0;
-    int size[2]    = {0,0};
+    screen_window_t     screen_window = 0;
+
+    int screen_size[2] = {0,0};
 
     // Renderer variables
     mmr_connection_t*     mmr_connection = 0;
     mmr_context_t*        mmr_context = 0;
+    strm_dict_t*          dict = NULL;
 
     // I/O variables
     int                    video_device_output_id = -1;
@@ -122,11 +200,11 @@ int main(int argc, char *argv[])
     }
 
     // Make the window visible
-    if (screen_get_window_property_iv(screen_window, SCREEN_PROPERTY_SIZE, size) != 0) {
+    if (screen_get_window_property_iv(screen_window, SCREEN_PROPERTY_SIZE, screen_size) != 0) {
         return EXIT_FAILURE;
     }
 
-    int temp_rectangle[4] = {0,0,size[0],size[1]};
+    int temp_rectangle[4] = {0, 0, screen_size[0], screen_size[1]};
     if (screen_post_window(screen_window, temp_buffer[0], 1, temp_rectangle, 0) != 0) {
         return EXIT_FAILURE;
     }
@@ -157,6 +235,22 @@ int main(int argc, char *argv[])
     if (mmr_play(mmr_context) != 0) {
         return EXIT_FAILURE;
     }
+
+    /* Do some work to make the aspect ratio correct.
+     */
+    dict = calculate_rect(screen_size[0], screen_size[1]);
+    if (NULL == dict) {
+        return EXIT_FAILURE;
+    }
+
+    if (mmr_output_parameters(mmr_context, video_device_output_id, dict) != 0) {
+        return EXIT_FAILURE;
+    }
+
+     /* Note that we allocated memory for the dictionary, but the call to 
+      * mmr_output_parameters() deallocates that memory even on failure.
+      */  
+    dict = NULL;
 
     screen_request_events(screen_context);
     navigator_request_events(0);

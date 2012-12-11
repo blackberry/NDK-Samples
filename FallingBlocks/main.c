@@ -14,141 +14,134 @@
  * limitations under the License.
  */
 
-#include <ctype.h>
-#include <unistd.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <sys/keycodes.h>
-#include <screen/screen.h>
-#include <assert.h>
-#include <bps/sensor.h>
-#include <bps/navigator.h>
-#include <bps/screen.h>
 #include <bps/bps.h>
-#include <bps/event.h>
-#include <bps/orientation.h>
-#include <math.h>
-#include <time.h>
-#include <screen/screen.h>
-#include <EGL/egl.h>
+#include <bps/screen.h>
+#include <bps/navigator.h>
+#include <bps/deviceinfo.h>
+#include <bps/sensor.h>
+
+#include <glview/glview.h>
 #include <GLES/gl.h>
+#include <screen/screen.h>
 
-#include "bbutil.h"
+#include <math.h>
+#include <stdlib.h>
+#include <stdbool.h>
 
-static bool shutdown;
-static int orientation_angle;
-static screen_context_t screen_cxt;
-static float width, height, max_size;
-
-typedef struct box_t {
+typedef struct {
     float x;
     float y;
     float size;
     GLfloat color;
-} box;
+} box_t;
 
-static int num_boxes;
-static box* boxes;
-static GLfloat vertices[8];
+typedef struct {
+    float gravity_x;
+    float gravity_y;
+    float width;
+    float height;
 
+    int num_boxes;
+    box_t *boxes;
+} app_t;
+
+static const GLfloat vertices[] =
+{
+    0.0f, 0.0f,
+    1.0f, 0.0f,
+    0.0f, 1.0f,
+    1.0f, 1.0f,
+};
+
+#define MAX_SIZE 60.0f
 #define MAX_BOXES 200
 
-static float gravity_x, gravity_y;
-
-int init_blocks() {
-    EGLint surface_width, surface_height;
-
-    //Initialize common vertex data
-    vertices[0] = 0.0f;
-    vertices[1] = 0.0f;
-
-    vertices[2] = 1.0f;
-    vertices[3] = 0.0f;
-
-    vertices[4] = 0.0f;
-    vertices[5] = 1.0f;
-
-    vertices[6] = 1.0f;
-    vertices[7] = 1.0f;
-
-    //Initialize app data
-    max_size = 60.0;
-
-    //Query width and height of the window surface created by utility code
-    eglQuerySurface(egl_disp, egl_surf, EGL_WIDTH, &surface_width);
-    eglQuerySurface(egl_disp, egl_surf, EGL_HEIGHT, &surface_height);
-
-    EGLint err = eglGetError();
-    if (err != 0x3000) {
-        fprintf(stderr, "Unable to query EGL surface dimensions\n");
-        return EXIT_FAILURE;
+static void add_cube(app_t *app, int x, int y) {
+    //See if we reached a limit
+    int num_boxes = app->num_boxes;
+    if (num_boxes == MAX_BOXES - 1) {
+        return;
     }
 
-    width = (float) surface_width;
-    height = (float) surface_height;
+    //Add a cube with a random shade of green and some size variation
+    app->boxes[num_boxes].color = ((float) rand()) / RAND_MAX;
 
-    //Initialize GL for 2D rendering
-    glViewport(0, 0, (int) width, (int) height);
+    app->boxes[num_boxes].x = (float)x;
+    app->boxes[num_boxes].y = app->height - (float)y;
+    app->boxes[num_boxes].size = 40.0 + 20.0 * ((float) rand()) / RAND_MAX;
+
+    app->num_boxes++;
+}
+
+static void initialize(void *data) {
+    app_t *app = (app_t *)data;
+
+    unsigned int width;
+    unsigned int height;
+
+    glview_get_size(&width, &height);
+
+    glViewport(0, 0, width, height);
 
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
 
-    glOrthof(0.0f, width / height, 0.0f, 1.0f, -1.0f, 1.0f);
+    glOrthof(0.0f, (float)width / (float)height, 0.0f, 1.0f, -1.0f, 1.0f);
 
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
 
     //Set world coordinates to coincide with screen pixels
-    glScalef(1.0f / height, 1.0f / height, 1.0f);
+    glScalef(1.0f / (float)height, 1.0f / (float)height, 1.0f);
 
-    gravity_x = 0.0;
-    gravity_y = 0.0;
-
-    boxes = (box*) malloc(sizeof(box) * MAX_BOXES);
-
-    if (!boxes) {
-        return EXIT_FAILURE;
-    }
-
-    num_boxes = 0;
+    app->width = (float)width;
+    app->height = (float)height;
 
     //Set clear color to a shade of green for good looks
     glClearColor(0.0f, 0.25f, 0.0f, 1.0f);
 
-    return EXIT_SUCCESS;
+    //Setup Sensors
+    app->gravity_x = 0.0f;
+    app->gravity_y = -1.0f;
+
+    // Gravity data doesn't change for the simulator
+    deviceinfo_details_t *details;
+    bool is_simulator = false;
+    if (BPS_SUCCESS == deviceinfo_get_details(&details)) {
+        is_simulator = deviceinfo_details_is_simulator(details);
+        deviceinfo_free_details(&details);
+    }
+
+    if (!is_simulator && sensor_is_supported(SENSOR_TYPE_GRAVITY)) {
+        //Microseconds between sensor reads. This is the rate at which the
+        //sensor data will be updated from hardware. The hardware update
+        //rate is set below using sensor_set_rate.
+        static const int SENSOR_RATE = 25000;
+
+        //Initialize the sensor by setting the rates at which the
+        //sensor values will be updated from hardware
+        sensor_set_rate(SENSOR_TYPE_GRAVITY, SENSOR_RATE);
+
+        sensor_set_skip_duplicates(SENSOR_TYPE_GRAVITY, true);
+        sensor_request_events(SENSOR_TYPE_GRAVITY);
+    }
+
+    //Start with one cube on the screen
+    add_cube(app, 200, 100);
 }
 
-void set_gravity(float x, float y) {
-    gravity_x = x;
-    gravity_y = y;
-}
-
-void clear_cubes() {
-    num_boxes = 0;
-}
-
-void add_cube(float x, float y) {
-    //See if we reached a limit
-    if (num_boxes == MAX_BOXES - 1)
-        return;
-
-    //Add a cube with a random shade of green and some size variation
-    boxes[num_boxes].color = ((float) rand()) / RAND_MAX;
-
-    boxes[num_boxes].x = (float) x;
-    boxes[num_boxes].y = height - y;
-    boxes[num_boxes].size = 40.0 + 20.0 * ((float) rand()) / RAND_MAX;
-
-    num_boxes++;
-}
-
-static void update() {
+static void update(app_t *app) {
     //Update position of every cube
     int i;
     float m, b;
 
-    for (i = 0; i < num_boxes; i++) {
+    box_t *boxes = app->boxes;
+    float gravity_x = app->gravity_x;
+    float gravity_y = app->gravity_y;
+    float width = app->width;
+    float height = app->height;
+
+    for (i = 0; i < app->num_boxes; i++) {
         boxes[i].x += gravity_x * 5;
         boxes[i].y += gravity_y * 5;
 
@@ -178,7 +171,7 @@ static void update() {
                     boxes[i].x = 0;
                     boxes[i].y = 0;
                 }
-            } else if ((boxes[i].x + max_size < 0.0) && (gravity_x < 0.0)) {
+            } else if ((boxes[i].x + MAX_SIZE < 0.0) && (gravity_x < 0.0)) {
                 //Left edge
                 if ((m * width + b >= 0) && (m * width + b <= height)) {
                     //Intersection with x = APP_WIDTH
@@ -217,7 +210,7 @@ static void update() {
                     boxes[i].x = 0;
                     boxes[i].y = 0;
                 }
-            } else if ((boxes[i].y + max_size <= 0.0) && (gravity_y < 0.0)) {
+            } else if ((boxes[i].y + MAX_SIZE <= 0.0) && (gravity_y < 0.0)) {
                 //Bottom edge
                 if ((m * width + b >= 0) && (m * width + b <= height)) {
                     //Intersection with x = APP_WIDTH
@@ -243,7 +236,7 @@ static void update() {
             if ((boxes[i].y > height) && (gravity_y > 0.0)) {
                 //Top edge
                 boxes[i].y = 0;
-            } else if ((boxes[i].y + max_size <= 0.0) && (gravity_y < 0.0)) {
+            } else if ((boxes[i].y + MAX_SIZE <= 0.0) && (gravity_y < 0.0)) {
                 //Bottom edge
                 boxes[i].y = height;
             }
@@ -251,7 +244,7 @@ static void update() {
     }
 }
 
-void render() {
+static void render(const box_t *boxes, int num_boxes) {
     int i;
 
     //Typical rendering pass
@@ -273,13 +266,16 @@ void render() {
     }
 
     glDisableClientState(GL_VERTEX_ARRAY);
-
-    //Use utility code to update the screen
-    bbutil_swap();
 }
 
-static void handleScreenEvent(bps_event_t *event) {
-    int screen_val, buttons;
+static void frame(void *data) {
+    app_t *app = (app_t *)data;
+    update(app);
+    render(app->boxes, app->num_boxes);
+}
+
+static void screen_event_handler(app_t *app, bps_event_t *event) {
+    int event_type, buttons;
     int pair[2];
 
     static bool mouse_pressed = false;
@@ -288,206 +284,72 @@ static void handleScreenEvent(bps_event_t *event) {
 
     //Query type of screen event and its location on the screen
     screen_get_event_property_iv(screen_event, SCREEN_PROPERTY_TYPE,
-            &screen_val);
+            &event_type);
     screen_get_event_property_iv(screen_event, SCREEN_PROPERTY_SOURCE_POSITION,
             pair);
 
     //There is a difference between touch screen events and mouse events
-    if (screen_val == SCREEN_EVENT_MTOUCH_RELEASE) {
+    if (event_type == SCREEN_EVENT_MTOUCH_RELEASE) {
         //This is touch screen event.
-        add_cube((float) pair[0], (float) pair[1]);
-    } else if (screen_val == SCREEN_EVENT_POINTER) {
+        add_cube(app, pair[0], pair[1]);
+    } else if (event_type == SCREEN_EVENT_POINTER) {
         //This is a mouse move event, it is applicable to a device with a usb mouse or simulator
         screen_get_event_property_iv(screen_event, SCREEN_PROPERTY_BUTTONS,
                 &buttons);
 
-        if (buttons == SCREEN_LEFT_MOUSE_BUTTON) {
+        if ((buttons & SCREEN_LEFT_MOUSE_BUTTON) != 0) {
             //Left mouse button is pressed
             mouse_pressed = true;
-        } else {
-            if (mouse_pressed) {
-                //Left mouse button was released, add a cube
-                add_cube((float) pair[0], (float) pair[1]);
-                mouse_pressed = false;
-            }
+        } else if (mouse_pressed) {
+            //Left mouse button was released, add a cube
+            add_cube(app, pair[0], pair[1]);
+            mouse_pressed = false;
         }
     }
 }
 
-static void handleNavigatorEvent(bps_event_t *event) {
-    switch (bps_event_get_code(event)) {
-    case NAVIGATOR_SWIPE_DOWN:
-        clear_cubes();
-        break;
-    case NAVIGATOR_EXIT:
-        shutdown = true;
-        break;
+static void event_handler(bps_event_t *event, int domain, int code, void *data) {
+    app_t *app = (app_t *)data;
+
+    if (domain == screen_get_domain()) {
+        screen_event_handler(app, event);
+    } else if (domain == navigator_get_domain()) {
+        if (NAVIGATOR_SWIPE_DOWN == code) {
+            app->num_boxes = 0;
+        }
+    } else if (domain == sensor_get_domain()) {
+        if (SENSOR_GRAVITY_READING == code) {
+            float z, x, y;
+            sensor_event_get_xyz(event, &x, &y, &z);
+            app->gravity_x = -x;
+            app->gravity_y = -y;
+        }
     }
 }
 
-static void handleSensorEvent(bps_event_t *event) {
-    if (SENSOR_AZIMUTH_PITCH_ROLL_READING == bps_event_get_code(event)) {
-        float azimuth, pitch, roll;
-        float result_x = 0.0f, result_y = -1.0f;
-
-        sensor_event_get_apr(event, &azimuth, &pitch, &roll);
-
-        float radians = abs(roll) * M_PI / 180 ;
-        float horizontal = sin(radians) * 0.5f;
-        float vertical = cos(radians) * 0.5f;
-
-        if (pitch < 0) {
-            vertical = -vertical;
-        }
-        if (roll >= 0) {
-            horizontal = -horizontal;
-        }
-
-        //Account for axis change due to different starting orientations
-        if (orientation_angle == 0) {
-            result_x = horizontal;
-            result_y = vertical;
-        } else if (orientation_angle == 90) {
-            result_x = -vertical;
-            result_y = horizontal;
-        } else if (orientation_angle == 180) {
-            result_x = -horizontal;
-            result_y = -vertical;
-        } else if (orientation_angle == 270) {
-            result_x = vertical;
-            result_y = -horizontal;
-        }
-
-        set_gravity(result_x, result_y);
-    }
-}
-
-static void handle_events() {
-    int screen_domain = screen_get_domain();
-    int navigator_domain = navigator_get_domain();
-    int sensor_domain = sensor_get_domain();
-
-    int rc;
-
-    //Request and process available BPS events
-    for(;;) {
-        bps_event_t *event = NULL;
-        rc = bps_get_event(&event, 0);
-        assert(rc == BPS_SUCCESS);
-
-        if (event) {
-            int domain = bps_event_get_domain(event);
-
-            if (domain == screen_domain) {
-                handleScreenEvent(event);
-            } else if (domain == navigator_domain) {
-                handleNavigatorEvent(event);
-            } else if (domain == sensor_domain) {
-                handleSensorEvent(event);
-            }
-        } else {
-            //No more events in the queue
-            break;
-        }
-    }
+static void finalize(void *data) {
+    app_t *app = (app_t*)data;
+    free(app->boxes);
+    free(app);
 }
 
 int main(int argc, char **argv) {
-    shutdown = false;
+    glview_initialize(GLVIEW_API_OPENGLES_11, &frame);
+    glview_register_initialize_callback(&initialize);
+    glview_register_finalize_callback(&finalize);
+    glview_register_event_callback(&event_handler);
 
-    //Create a screen context that will be used to create an EGL surface to to receive libscreen events
-    screen_create_context(&screen_cxt, 0);
-
-    //Initialize BPS library
-    bps_initialize();
-
-    //Determine initial orientation angle
-    orientation_direction_t direction;
-    orientation_get(&direction, &orientation_angle);
-
-    //Use utility code to initialize EGL for rendering with GL ES 1.1
-    if (EXIT_SUCCESS != bbutil_init_egl(screen_cxt)) {
-        fprintf(stderr, "bbutil_init_egl failed\n");
-        bbutil_terminate();
-        screen_destroy_context(screen_cxt);
-        return 0;
+    app_t *app = (app_t *)calloc(sizeof(*app), 1);
+    if (!app) {
+        return EXIT_FAILURE;
     }
 
-    //Initialize application logic
-    if (EXIT_SUCCESS != init_blocks()) {
-        fprintf(stderr, "initialize failed\n");
-        bbutil_terminate();
-        screen_destroy_context(screen_cxt);
-        return 0;
+    app->boxes = (box_t *)calloc(sizeof(box_t), MAX_BOXES);
+    if (!app->boxes) {
+        return EXIT_FAILURE;
     }
 
-    //Signal BPS library that navigator and screen events will be requested
-    if (BPS_SUCCESS != screen_request_events(screen_cxt)) {
-        fprintf(stderr, "screen_request_events failed\n");
-        bbutil_terminate();
-        screen_destroy_context(screen_cxt);
-        return 0;
-    }
+    glview_set_callback_data(app);
 
-    if (BPS_SUCCESS != navigator_request_events(0)) {
-        fprintf(stderr, "navigator_request_events failed\n");
-        bbutil_terminate();
-        screen_destroy_context(screen_cxt);
-        return 0;
-    }
-
-    //Signal BPS library that navigator orientation is not to be locked
-    if (BPS_SUCCESS != navigator_rotation_lock(false)) {
-        fprintf(stderr, "navigator_rotation_lock failed\n");
-        bbutil_terminate();
-        screen_destroy_context(screen_cxt);
-        return 0;
-    }
-
-    //Setup Sensors
-    if (sensor_is_supported(SENSOR_TYPE_AZIMUTH_PITCH_ROLL)) {
-        //Microseconds between sensor reads. This is the rate at which the
-        //sensor data will be updated from hardware. The hardware update
-        //rate is set below using sensor_set_rate.
-        static const int SENSOR_RATE = 25000;
-
-        //Initialize the sensor by setting the rates at which the
-        //sensor values will be updated from hardware
-        sensor_set_rate(SENSOR_TYPE_AZIMUTH_PITCH_ROLL, SENSOR_RATE);
-
-        sensor_set_skip_duplicates(SENSOR_TYPE_AZIMUTH_PITCH_ROLL, true);
-        sensor_request_events(SENSOR_TYPE_AZIMUTH_PITCH_ROLL);
-    } else {
-        set_gravity(0.0f, -1.0f);
-    }
-
-    //Start with one cube on the screen
-    add_cube(200, 100);
-
-    while (!shutdown) {
-        // Handle user input and sensors
-        handle_events();
-
-        //Update cube positions
-        update();
-
-        // Draw Scene
-        render();
-    }
-
-    //Stop requesting events from libscreen
-    screen_stop_events(screen_cxt);
-
-    //Shut down BPS library for this process
-    bps_shutdown();
-
-    //Free app data
-    free(boxes);
-
-    //Use utility code to terminate EGL setup
-    bbutil_terminate();
-
-    //Destroy libscreen context
-    screen_destroy_context(screen_cxt);
-    return 0;
+    return glview_loop();
 }

@@ -13,16 +13,16 @@ Sample Description:
  touched, which then starts moving along with the rest of the blocks.
 
  Feature summary
- - Handling screen, navigator, and accelerometer events
+ - Handling screen, navigator, and sensor events
  - Rendering objects on the screen
 
 ========================================================================
 Requirements:
 
- - BlackBerry Native SDK for Tablet OS 2.0 or later
+ - BlackBerry® 10 Native SDK
  - One of the following:
-   - BlackBerry PlayBook tablet running BlackBerry Tablet OS 2.0 or later
-   - BlackBerry Tablet Simulator 2.0 or later
+   - BlackBerry® 10 device
+   - BlackBerry® 10 simulator
 
 ========================================================================
 Importing a project into the Native SDK:
