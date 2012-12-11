@@ -20,7 +20,6 @@
 #include <screen/screen.h>
 #include <stdio.h>
 #include <stdlib.h>
-
 static screen_context_t screen_ctx;
 static screen_window_t screen_win;
 
@@ -57,12 +56,12 @@ setup_screen()
         return EXIT_FAILURE;
     }
 
+    if (screen_create_window_group(screen_win, get_window_group_id()) != 0) goto fail;
+
     int usage = SCREEN_USAGE_NATIVE;
     if (screen_set_window_property_iv(screen_win, SCREEN_PROPERTY_USAGE, &usage) != 0) goto fail;
 
     if (screen_create_window_buffers(screen_win, 1) != 0) goto fail;
-
-    if (screen_create_window_group(screen_win, get_window_group_id()) != 0) goto fail;
 
     screen_buffer_t buff;
     if (screen_get_window_property_pv(screen_win, SCREEN_PROPERTY_RENDER_BUFFERS, (void*)&buff) != 0) goto fail;
@@ -170,10 +169,10 @@ void onGetExistingPurchasesSuccess(bps_event_t *event)
 }
 
 /**
- * A sample application that demonstrates the BlackBerry Native APIs for
- * making in-app purchases. The sample sets the connection mode to local,
- * allows the purchase of a digital good by using the swipe down gesture,
- * and displays any existing purchases.
+ * A sample application that demonstrates the BlackBerry(R) 10 Native SDK APIs
+ * for making in-app purchases. The sample sets the connection mode to local,
+ * allows the purchase of a digital good by using the swipe down gesture, and
+ * displays any existing purchases.
  */
 int
 main(int argc, char *argv[])
@@ -181,7 +180,7 @@ main(int argc, char *argv[])
     int exit_application = 0;
 
     /*
-     * Before we can listen for events from the BlackBerry Tablet OS platform
+     * Before we can listen for events from the BlackBerry(R) 10 OS platform
      * services, we need to initialize the BPS infrastructure
      */
     bps_initialize();
@@ -197,7 +196,7 @@ main(int argc, char *argv[])
 
     /*
      * Once the BPS infrastructure has been initialized we can register for
-     * events from the various BlackBerry Tablet OS platform services. The
+     * events from the various BlackBerry(R) 10 OS platform services. The
      * Navigator service manages and delivers application life cycle and
      * visibility events.
      * For this sample, we request Navigator events so that we can track when

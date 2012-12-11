@@ -53,12 +53,15 @@ bool_str(bool b) {
  */
 static const char*
 get_channel_name(audiomixer_output_t output) {
-    if (output == AUDIOMIXER_OUTPUT_SPEAKER)
-        return "Speaker";
-    if (output == AUDIOMIXER_OUTPUT_HEADPHONE)
-        return "Headphones";
-
-    return "Unknown";
+    static const char *channel_name[] = { "Default", "Speaker", "Headphone", "Headset", "Handset", 
+                                          "A2DP", "BTSCO", "HAC", "HDMI", "Toslink", "TTY", "Lineout" };
+    static const int num_channels = sizeof(channel_name) / sizeof(*channel_name);
+    
+    if (output < 0 || output >= num_channels) {
+        return "Unknown";
+    } else {
+        return channel_name[output];
+    }
 }
 
 /**
@@ -94,8 +97,8 @@ print_audio_event(bps_event_t *event)
 
 
 /**
- * A sample application that demonstrates the BlackBerry Native APIs for
- * managing audio control. The sample queries for the current speaker output
+ * A sample application that demonstrates the BlackBerry(R) 10 Native SDK APIs
+ * for managing audio control. The sample queries for the current speaker output
  * level, sets the speaker output level and then waits for updates to any audio
  * levels.
  */
@@ -103,7 +106,7 @@ int
 main(int argc, char *argv[])
 {
     /*
-     * Before we can listen for events from the BlackBerry Tablet OS platform
+     * Before we can listen for events from the BlackBerry(R) 10 OS platform
      * services, we need to initialize the BPS infrastructure
      */
     bps_initialize();
@@ -116,7 +119,7 @@ main(int argc, char *argv[])
 
     /*
      * Once the BPS infrastructure has been initialized we can register for
-     * events from the various BlackBerry Tablet OS platform services. The
+     * events from the various BlackBerry(R) 10 OS platform services. The
      * Navigator service manages and delivers application life cycle and
      * visibility events.
      * For this sample, we request Navigator events so that we can track when

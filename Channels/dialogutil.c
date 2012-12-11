@@ -25,8 +25,8 @@
 
 static screen_context_t screen_ctx = 0;
 static screen_window_t screen_win = 0;
-static dialog_instance_t top_dialog = 0;
-static dialog_instance_t bottom_dialog = 0;
+static dialog_instance_t geolocation_dialog = 0;
+static dialog_instance_t accelerometer_dialog = 0;
 
 
 /**
@@ -51,55 +51,28 @@ setup_screen()
         return EXIT_FAILURE;
     }
 
-    //Signal BPS library that navigator orientation is to be locked
-    if (BPS_SUCCESS != navigator_rotation_lock(true)) {
-        screen_destroy_context(screen_ctx);
-        return EXIT_FAILURE;
-    }
-
     if (screen_create_window(&screen_win, screen_ctx) != 0) {
         screen_destroy_context(screen_ctx);
         return EXIT_FAILURE;
     }
 
+    if (screen_create_window_group(screen_win, get_window_group_id()) != 0) goto fail;
+
     int usage = SCREEN_USAGE_NATIVE;
     if (screen_set_window_property_iv(screen_win, SCREEN_PROPERTY_USAGE, &usage) != 0) goto fail;
 
-    int size[2];
-    if (screen_get_window_property_iv(screen_win, SCREEN_PROPERTY_BUFFER_SIZE, size) != 0) goto fail;
+    const char *env = getenv("WIDTH");
+    if (0 == env) goto fail;
+    int width = atoi(env);
 
-    screen_display_t screen_disp;
-    screen_get_window_property_pv(screen_win, SCREEN_PROPERTY_DISPLAY, (void **)&screen_disp);
+    env = getenv("HEIGHT");
+    if (0 == env) goto fail;
+    int height = atoi(env);
+    int size[2] = { width, height };
 
-    screen_display_mode_t screen_mode;
-    if (screen_get_display_property_pv(screen_disp, SCREEN_PROPERTY_MODE, (void**)&screen_mode) != 0) goto fail;
-
-    int buffer_size[2] = {size[0], size[1]};
-
-    int angle = atoi(getenv("ORIENTATION"));
-    if ((angle == 0) || (angle == 180)) {
-       if (((screen_mode.width > screen_mode.height) && (size[0] < size[1])) ||
-          ((screen_mode.width < screen_mode.height) && (size[0] > size[1]))) {
-            buffer_size[1] = size[0];
-        buffer_size[0] = size[1];
-       }
-    } else if ((angle == 90) || (angle == 270)){
-       if (((screen_mode.width > screen_mode.height) && (size[0] > size[1])) ||
-          ((screen_mode.width < screen_mode.height && size[0] < size[1]))) {
-        buffer_size[1] = size[0];
-        buffer_size[0] = size[1];
-        }
-    } else {
-        goto fail;
-    }
-
-    if (screen_set_window_property_iv(screen_win, SCREEN_PROPERTY_BUFFER_SIZE, buffer_size) != 0) goto fail;
-
-    if (screen_set_window_property_iv(screen_win, SCREEN_PROPERTY_ROTATION, &angle) != 0) goto fail;
+    if (screen_set_window_property_iv(screen_win, SCREEN_PROPERTY_BUFFER_SIZE, size) != 0) goto fail;
 
     if (screen_create_window_buffers(screen_win, 1) != 0) goto fail;
-
-    if (screen_create_window_group(screen_win, get_window_group_id()) != 0) goto fail;
 
     screen_buffer_t buff;
     if (screen_get_window_property_pv(screen_win, SCREEN_PROPERTY_RENDER_BUFFERS, (void*)&buff) != 0) goto fail;
@@ -107,7 +80,7 @@ setup_screen()
     int attribs[1] = {SCREEN_BLIT_END};
     if (screen_fill(screen_ctx, buff, attribs) != 0) goto fail;
 
-    int dirty_rects[4] = {0, 0, buffer_size[0], buffer_size[1]};
+    int dirty_rects[4] = {0, 0, width, height};
     if (screen_post_window(screen_win, buff, 1, (const int*)dirty_rects, 0) != 0) goto fail;
 
     return EXIT_SUCCESS;
@@ -129,67 +102,60 @@ void cleanup_screen() {
 
 
 void
-create_bottom_dialog()
+create_geolocation_dialog()
 {
-    if (bottom_dialog == NULL) {
-        dialog_create_alert(&bottom_dialog);
-        dialog_set_alert_message_text(bottom_dialog, "\n");
-        dialog_set_background_alpha(bottom_dialog, 0.0);
-        dialog_set_size(bottom_dialog, DIALOG_SIZE_SMALL);
-        dialog_set_position(bottom_dialog, DIALOG_POSITION_BOTTOM_CENTER);
-        dialog_set_group_id(bottom_dialog, get_window_group_id());
-        dialog_set_cancel_required(bottom_dialog, true);
-        dialog_show(bottom_dialog);
+    if (accelerometer_dialog == NULL) {
+        dialog_create_alert(&geolocation_dialog);
+        dialog_set_alert_message_text(geolocation_dialog, "\n");
+        dialog_set_group_id(geolocation_dialog, get_window_group_id());
+        dialog_set_cancel_required(geolocation_dialog, true);
+        dialog_show(geolocation_dialog);
     }
 }
 
 void
-create_top_dialog()
+create_accelerometer_dialog()
 {
-    if (top_dialog == NULL) {
-        dialog_create_alert(&top_dialog);
-        dialog_set_alert_message_text(top_dialog, "\n");
-        dialog_set_background_alpha(top_dialog, 0.0);
-        dialog_set_size(top_dialog, DIALOG_SIZE_SMALL);
-        dialog_set_position(top_dialog, DIALOG_POSITION_TOP_CENTER);
-        dialog_set_group_id(top_dialog, get_window_group_id());
-        dialog_set_cancel_required(top_dialog, true);
-        dialog_show(top_dialog);
+    if (accelerometer_dialog == NULL) {
+        dialog_create_toast(&accelerometer_dialog);
+        dialog_set_toast_message_text(accelerometer_dialog, "\n");
+        dialog_set_toast_position(accelerometer_dialog, DIALOG_POSITION_BOTTOM_CENTER);
+        dialog_set_group_id(accelerometer_dialog, get_window_group_id());
+        dialog_add_button(accelerometer_dialog, "OK", true, NULL, true);
+        dialog_show(accelerometer_dialog);
     }
 
 }
 
 void
-destroy_top_dialog() {
-    if (top_dialog) {
-        dialog_destroy(top_dialog);
+destroy_geolocation_dialog() {
+    if (geolocation_dialog) {
+        dialog_destroy(geolocation_dialog);
     }
-    top_dialog = 0;
+    geolocation_dialog = 0;
 }
 
 void
-destroy_bottom_dialog() {
+destroy_accelerometer_dialog() {
 
-    if (bottom_dialog) {
-        dialog_destroy(bottom_dialog);
+    if (accelerometer_dialog) {
+        dialog_destroy(accelerometer_dialog);
     }
-    bottom_dialog = 0;
+    accelerometer_dialog = 0;
 
 }
 
 void
-show_top_dialog_message(const char * msg) {
-    dialog_set_alert_message_text(top_dialog, msg);
-    dialog_update(top_dialog);
+show_geolocation_dialog_message(const char * msg) {
+    dialog_set_alert_message_text(geolocation_dialog, msg);
+    dialog_update(geolocation_dialog);
     fprintf(stderr, "%s\n", msg);
 }
 
-
-
 void
-show_bottom_dialog_message(const char * msg) {
-    dialog_set_alert_message_text(bottom_dialog, msg);
-    dialog_update(bottom_dialog);
+show_accelerometer_dialog_message(const char * msg) {
+    dialog_set_alert_message_text(accelerometer_dialog, msg);
+    dialog_update(accelerometer_dialog);
     fprintf(stderr, "%s\n", msg);
 
 }

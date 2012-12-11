@@ -15,7 +15,7 @@
  */
 
 /**
- * Sample showing how to use BlackBerry Native APIs for channels to
+ * Sample showing how to use BlackBerry(R) 10 Native SDK APIs for channels to
  * allow different threads to handle events from different services.
  *
  * Note that the main purpose of this sample is to show channels working
@@ -85,7 +85,7 @@ display_accelerometer_reading(float x, float y, float z)
      * Display the accelerometer values
      */
     snprintf(accel_msg, MSG_SIZE, "\n\nx: %f, y: %f, z: %f\n", x, y, z);
-    show_bottom_dialog_message(accel_msg);
+    show_accelerometer_dialog_message(accel_msg);
 }
 
 /**
@@ -136,7 +136,7 @@ handle_geolocation_response(bps_event_t *event)
              count,
              latitude, longitude, accuracy);
 
-    show_top_dialog_message(msg);
+    show_geolocation_dialog_message(msg);
     count++;
 }
 
@@ -168,8 +168,8 @@ accel_main (void *p) {
     /*
      * Create and display a dialog that will show the data.
      */
-    create_bottom_dialog();
-    show_bottom_dialog_message("\n\nThis is the Accelerometer Dialog");
+    create_accelerometer_dialog();
+    show_accelerometer_dialog_message("\n\nThis is the Accelerometer Dialog");
 
     if (BPS_SUCCESS != sensor_request_events(SENSOR_TYPE_ACCELEROMETER)) {
         fprintf(stderr, "Error requesting sensor's accelerometer events: %s", strerror(errno));
@@ -200,7 +200,7 @@ accel_main (void *p) {
     }
 
     sensor_stop_events(0);
-    destroy_bottom_dialog();
+    destroy_accelerometer_dialog();
 
     bps_shutdown();
 
@@ -222,7 +222,7 @@ main(int argc, char *argv[])
     int rc;
 
     /*
-     * Before we can listen for events from the BlackBerry Tablet OS platform
+     * Before we can listen for events from the BlackBerry(R) 10 OS platform
      * services, we need to initialize the BPS infrastructure
      */
     bps_initialize();
@@ -238,7 +238,7 @@ main(int argc, char *argv[])
 
     /*
      * Once the BPS infrastructure has been initialized we can register for
-     * events from the various BlackBerry Tablet OS platform services. The
+     * events from the various BlackBerry(R) 10 OS platform services. The
      * Navigator service manages and delivers application life cycle and
      * visibility events.
      *
@@ -273,8 +273,8 @@ main(int argc, char *argv[])
     /*
      * Create and display the dialogs that will show the data.
      */
-    create_top_dialog();
-    show_top_dialog_message("Geolocation getting first fix");
+    create_geolocation_dialog();
+    show_geolocation_dialog_message("Geolocation getting first fix");
 
     /*
      * Before initializing the accelerometer service we must ensure the device
@@ -286,12 +286,12 @@ main(int argc, char *argv[])
          * clean up and exit
          */
         snprintf(msg, MSG_SIZE, "Accelerometer not supported by device!");
-        show_top_dialog_message(msg);
+        show_geolocation_dialog_message(msg);
 
         /*
          * Destroy the dialog, if it exists and cleanup screen resources.
          */
-        destroy_top_dialog();
+        destroy_geolocation_dialog();
         cleanup_screen();
         bps_shutdown();
         return EXIT_FAILURE;
@@ -353,7 +353,7 @@ main(int argc, char *argv[])
     /*
      * Destroy the dialog, if it exists.
      */
-    destroy_top_dialog();
+    destroy_geolocation_dialog();
 
     bps_shutdown();
     cleanup_screen();

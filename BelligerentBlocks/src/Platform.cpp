@@ -135,8 +135,7 @@ bool Platform::init() {
     }
 
     SC_ScoresController_SetMode(m_scoresController, 0);
-    SC_ScoresController_SetSearchList(m_scoresController, SC_SCORE_SEARCH_LIST_GLOBAL);
-    SC_ScoresController_SetTimeInterval(m_scoresController, SC_TIME_INTERVAL_GLOBAL);
+    SC_ScoresController_SetSearchList(m_scoresController, SC_SCORES_SEARCH_LIST_ALL);
 
     struct stat fileInfo;
     if (stat("data/scores.db", &fileInfo) == -1) {
@@ -316,8 +315,10 @@ void Platform::submitScore(int score) {
         return;
     }
 
-    ASSERT(!m_score);
-    SC_Error_t rc = SC_Score_New(&m_score);
+    ASSERT(NULL == m_score);
+    ASSERT(NULL != m_scoreloopClient);
+
+    SC_Error_t rc = SC_Client_CreateScore(m_scoreloopClient, &m_score);
     if (rc != SC_OK) {
         fprintf(stderr, "Error creating score: %d\n", rc);
         return;
@@ -361,6 +362,8 @@ void Platform::submitScoreComplete(SC_Error_t result) {
 }
 
 void Platform::fetchLeaderboard() {
+    const SC_Range_t scores = {0, NUM_LEADERBOARD_SCORES};
+
     if (m_leaderboardOperationInProgress) {
         // It is a GameLogic error to call fetchLeaderboard more than once
         // before fetchLeaderboardComplete is executed.
@@ -368,7 +371,7 @@ void Platform::fetchLeaderboard() {
         return;
     }
 
-    SC_Error_t rc = SC_ScoresController_LoadRange(m_scoresController, 0, NUM_LEADERBOARD_SCORES);
+    SC_Error_t rc = SC_ScoresController_LoadScores(m_scoresController, scores);
     if (rc != SC_OK) {
         fprintf(stderr, "Error loading leaderboard score range: %d\n", rc);
         return;
@@ -390,10 +393,10 @@ void Platform::fetchLeaderboardComplete(SC_Error_t result) {
             return;
         }
 
-        const unsigned int numScores = SC_ScoreList_GetScoresCount(scoreList);
+        const unsigned int numScores = SC_ScoreList_GetCount(scoreList);
 
         for (unsigned int i = 0; i < numScores; i++) {
-            SC_Score_h score = SC_ScoreList_GetScore(scoreList, i);
+            SC_Score_h score = SC_ScoreList_GetAt(scoreList, i);
             SC_User_h user = SC_Score_GetUser(score);
 
             std::string login = "Unknown";
@@ -423,7 +426,7 @@ void Platform::fetchUser() {
         return;
     }
 
-    SC_Error_t result = SC_UserController_RequestUser(m_userController);
+    SC_Error_t result = SC_UserController_LoadUser(m_userController);
     if (result != SC_OK) {
         fprintf(stderr, "Error requesting scoreloop user: %d\n", result);
     }
@@ -508,7 +511,6 @@ void Platform::displayPrompt(const std::string& prompt) {
     }
     dialog_instance_t displayNamePrompt;
     dialog_create_prompt(&displayNamePrompt);
-    dialog_set_size(displayNamePrompt, DIALOG_SIZE_SMALL);
 
     dialog_set_prompt_message_text(displayNamePrompt, prompt.c_str());
     dialog_add_button(displayNamePrompt, DIALOG_OK_LABEL, true, NULL, true);

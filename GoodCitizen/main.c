@@ -14,29 +14,32 @@
  * limitations under the License.
  */
 
-#include <assert.h>
-#include <screen/screen.h>
+#include "bbutil.h"
+
 #include <bps/navigator.h>
 #include <bps/screen.h>
 #include <bps/bps.h>
 #include <bps/event.h>
-#include <bps/orientation.h>
+
+#include <screen/screen.h>
+
+#include <EGL/egl.h>
+#include <GLES/gl.h>
+
 #include <stdarg.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
 #include <math.h>
 
-#include <EGL/egl.h>
-#include <GLES/gl.h>
-
-#include "bbutil.h"
-
 static GLfloat radio_btn_unselected_vertices[8], radio_btn_selected_vertices[8],
-        shadow_vertices[8];
+        background_portrait_vertices[8], background_landscape_vertices[8],
+        *background_vertices;
 static GLfloat radio_btn_unselected_tex_coord[8],
-        radio_btn_selected_tex_coord[8], shadow_tex_coord[8];
-static GLuint radio_btn_unselected, radio_btn_selected, shadow;
+        radio_btn_selected_tex_coord[8], background_portrait_tex_coord[8],
+        background_landscape_tex_coord[8], *background_tex_coord;
+static GLuint radio_btn_unselected, radio_btn_selected, background_landscape,
+        background_portrait, background;
 static screen_context_t screen_cxt;
 static font_t* font;
 static float width, height, angle;
@@ -45,8 +48,8 @@ static int selected;
 static float cube_color[4];
 static float menu_animation, menu_height, button_size_x, button_size_y;
 static float pos_x, pos_y;
-static float cube_pos_x, cube_pos_y, cube_pos_z, shadow_pos_x, shadow_pos_y,
-        shadow_size_x, shadow_size_y;
+static float cube_pos_x, cube_pos_y, cube_pos_z;
+
 GLfloat light_ambient[] = { 0.5f, 0.5f, 0.5f, 1.0f };
 GLfloat light_diffuse[] = { 0.8f, 0.8f, 0.8f, 1.0f };
 GLfloat light_pos[] = { 0.0f, 25.0f, 0.0f, 1.0f };
@@ -190,9 +193,6 @@ static void handleScreenEvent(bps_event_t *event) {
 }
 
 static void handleNavigatorEvent(bps_event_t *event) {
-    int rc;
-    bps_event_t *activation_event = NULL;
-
     switch (bps_event_get_code(event)) {
     case NAVIGATOR_ORIENTATION_CHECK:
         //Signal navigator that we intend to resize
@@ -213,12 +213,19 @@ static void handleNavigatorEvent(bps_event_t *event) {
     case NAVIGATOR_WINDOW_INACTIVE:
         //Wait for NAVIGATOR_WINDOW_ACTIVE event
         for (;;) {
-            rc = bps_get_event(&activation_event, -1);
-            assert(rc == BPS_SUCCESS);
-
-            if (bps_event_get_code(activation_event)
-                    == NAVIGATOR_WINDOW_ACTIVE) {
+            if (BPS_SUCCESS != bps_get_event(&event, -1)) {
+                fprintf(stderr, "bps_get_event failed\n");
                 break;
+            }
+
+            if (event && (bps_event_get_domain(event) == navigator_get_domain())) {
+                int code = bps_event_get_code(event);
+                if (code == NAVIGATOR_EXIT) {
+                    shutdown = true;
+                    break;
+                } else if (code == NAVIGATOR_WINDOW_ACTIVE) {
+                    break;
+                }
             }
         }
         break;
@@ -226,14 +233,13 @@ static void handleNavigatorEvent(bps_event_t *event) {
 }
 
 static void handle_events() {
-    int rc = BPS_SUCCESS;
-
     //Request and process available BPS events
     for(;;) {
         bps_event_t *event = NULL;
-        rc = bps_get_event(&event, 0);
-
-        assert(rc == BPS_SUCCESS);
+        if (BPS_SUCCESS != bps_get_event(&event, 0)) {
+            fprintf(stderr, "bps_get_event failed\n");
+            break;
+        }
 
         if (event) {
             int domain = bps_event_get_domain(event);
@@ -261,7 +267,6 @@ int resize(bps_event_t *event) {
             fprintf(stderr, "Unable to handle orientation change\n");
             return EXIT_FAILURE;
         }
-
     }
 
     eglQuerySurface(egl_disp, egl_surf, EGL_WIDTH, &surface_width);
@@ -277,29 +282,23 @@ int resize(bps_event_t *event) {
     height = (float) surface_height;
 
     if (width > height) {
-        shadow_pos_x = 365.0f;
-        shadow_pos_y = 0.0f;
-
         cube_pos_x = 2.9f;
         cube_pos_y = 0.3f;
         cube_pos_z = -20.0f;
-    } else {
-        shadow_pos_x = 70.0f;
-        shadow_pos_y = 10.0f;
 
+        background = background_landscape;
+        background_vertices = background_landscape_vertices;
+        background_tex_coord = background_landscape_tex_coord;
+
+    } else {
         cube_pos_x = 0.5f;
         cube_pos_y = -4.1f;
         cube_pos_z = -30.0f;
-    }
 
-    shadow_vertices[0] = shadow_pos_x;
-    shadow_vertices[1] = shadow_pos_y;
-    shadow_vertices[2] = shadow_pos_x + shadow_size_x;
-    shadow_vertices[3] = shadow_pos_y;
-    shadow_vertices[4] = shadow_pos_x;
-    shadow_vertices[5] = shadow_pos_y + shadow_size_y;
-    shadow_vertices[6] = shadow_pos_x + shadow_size_x;
-    shadow_vertices[7] = shadow_pos_y + shadow_size_y;
+        background = background_portrait;
+        background_vertices = background_portrait_vertices;
+        background_tex_coord = background_portrait_tex_coord;
+    }
 
     update();
 
@@ -313,7 +312,9 @@ int resize(bps_event_t *event) {
 }
 
 int initialize() {
-    //Load shadow and button textures
+    EGLint surface_width, surface_height;
+
+    //Load background and button textures
     float tex_x = 1.0f, tex_y = 1.0f;
 
     //Load textures for radio buttons
@@ -370,29 +371,77 @@ int initialize() {
     button_size_x = (float) size_x;
     button_size_y = (float) size_y;
 
-    if (EXIT_SUCCESS
-            != bbutil_load_texture("app/native/shadow.png", NULL, NULL,
-                    &tex_x, &tex_y, &shadow)) {
-        fprintf(stderr, "Unable to load shadow texture\n");
+    eglQuerySurface(egl_disp, egl_surf, EGL_WIDTH, &surface_width);
+    eglQuerySurface(egl_disp, egl_surf, EGL_HEIGHT, &surface_height);
+
+    EGLint err = eglGetError();
+    if (err != 0x3000) {
+        fprintf(stderr, "Unable to query EGL surface dimensions\n");
+        return EXIT_FAILURE;
     }
 
-    shadow_size_x = (float) 512;
-    shadow_size_y = (float) 256;
+    width = (float) surface_width;
+    height = (float) surface_height;
 
-    shadow_tex_coord[0] = 0.0f;
-    shadow_tex_coord[1] = 0.0f;
-    shadow_tex_coord[2] = tex_x;
-    shadow_tex_coord[3] = 0.0f;
-    shadow_tex_coord[4] = 0.0f;
-    shadow_tex_coord[5] = tex_y;
-    shadow_tex_coord[6] = tex_x;
-    shadow_tex_coord[7] = tex_y;
+    if (EXIT_SUCCESS
+            != bbutil_load_texture("app/native/background-landscape.png", NULL, NULL,
+                    &tex_x, &tex_y, &background_landscape)) {
+        fprintf(stderr, "Unable to load landscape background texture\n");
+    }
+
+    size_x = (width > height) ? width : height;
+    size_y = (width > height) ? height : width;
+
+    background_landscape_vertices[0] = 0.0f;
+    background_landscape_vertices[1] = 0.0f;
+    background_landscape_vertices[2] = size_x;
+    background_landscape_vertices[3] = 0.0f;
+    background_landscape_vertices[4] = 0.0f;
+    background_landscape_vertices[5] = size_y;
+    background_landscape_vertices[6] = size_x;
+    background_landscape_vertices[7] = size_y;
+
+    background_landscape_tex_coord[0] = 0.0f;
+    background_landscape_tex_coord[1] = 0.0f;
+    background_landscape_tex_coord[2] = tex_x;
+    background_landscape_tex_coord[3] = 0.0f;
+    background_landscape_tex_coord[4] = 0.0f;
+    background_landscape_tex_coord[5] = tex_y;
+    background_landscape_tex_coord[6] = tex_x;
+    background_landscape_tex_coord[7] = tex_y;
+
+    if (EXIT_SUCCESS
+            != bbutil_load_texture("app/native/background-portrait.png", NULL, NULL,
+                    &tex_x, &tex_y, &background_portrait)) {
+        fprintf(stderr, "Unable to load portrait background texture\n");
+    }
+
+    size_x = (height > width) ? width : height;
+    size_y = (height > width) ? height : width;
+
+    background_portrait_vertices[0] = 0.0f;
+    background_portrait_vertices[1] = 0.0f;
+    background_portrait_vertices[2] = size_x;
+    background_portrait_vertices[3] = 0.0f;
+    background_portrait_vertices[4] = 0.0f;
+    background_portrait_vertices[5] = size_y;
+    background_portrait_vertices[6] = size_x;
+    background_portrait_vertices[7] = size_y;
+
+    background_portrait_tex_coord[0] = 0.0f;
+    background_portrait_tex_coord[1] = 0.0f;
+    background_portrait_tex_coord[2] = tex_x;
+    background_portrait_tex_coord[3] = 0.0f;
+    background_portrait_tex_coord[4] = 0.0f;
+    background_portrait_tex_coord[5] = tex_y;
+    background_portrait_tex_coord[6] = tex_x;
+    background_portrait_tex_coord[7] = tex_y;
 
     angle = 0.0f;
     pos_x = 0.0f;
     pos_y = 0.0f;
 
-    //Load MyriadPro bold to use for our color menu
+    //Load a typical arial font to use for our color menu
     int dpi = bbutil_calculate_dpi(screen_cxt);
 
     if (dpi == EXIT_FAILURE) {
@@ -400,10 +449,17 @@ int initialize() {
         return EXIT_FAILURE;
     }
 
-    font = bbutil_load_font(
-            "/usr/fonts/font_repository/adobe/MyriadPro-Bold.otf", 15, dpi);
+    //As bbutil renders text using device-specifc dpi, we need to compute a point size
+    //for the font, so that the text string fits into the bubble. Note that Playbook is used
+    //as a reference point in this equation as we know that at dpi of 170, font with point size of
+    //15 fits into the bubble texture.
+
+    int point_size = (int)(15.0f / ((float)dpi / 170.0f ));
+
+    font = bbutil_load_font("/usr/fonts/font_repository/monotype/arial.ttf", point_size, dpi);
+
     if (!font) {
-        return EXIT_FAILURE;
+       return EXIT_FAILURE;
     }
 
     float text_width, text_height;
@@ -432,13 +488,16 @@ int initialize() {
 
     //Common gl setup
     glShadeModel(GL_SMOOTH);
-    glClearColor(0.775f, 0.775f, 0.775f, 1.0f);
+    glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+
     glLightfv(GL_LIGHT0, GL_AMBIENT, light_ambient);
     glLightfv(GL_LIGHT0, GL_DIFFUSE, light_diffuse);
     glLightfv(GL_LIGHT0, GL_POSITION, light_pos);
     glLightfv(GL_LIGHT0, GL_SPOT_DIRECTION, light_direction);
 
     glEnable(GL_CULL_FACE);
+
+    menu_show_animation = true;
 
     return EXIT_SUCCESS;
 }
@@ -461,7 +520,7 @@ void enable_3d() {
 
     GLfloat aspect_ratio = width / height;
 
-    GLfloat fovy = 45;
+    GLfloat fovy = 45.0f;
     GLfloat zNear = 1.0f;
     GLfloat zFar = 1000.0f;
 
@@ -512,18 +571,18 @@ void render() {
     enable_2d();
 
     glEnable(GL_TEXTURE_2D);
-
     glEnableClientState(GL_VERTEX_ARRAY);
     glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    glVertexPointer(2, GL_FLOAT, 0, shadow_vertices);
-    glTexCoordPointer(2, GL_FLOAT, 0, shadow_tex_coord);
-    glBindTexture(GL_TEXTURE_2D, shadow);
+    glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 
-    //glColor4f(0.85f, 0.85f, 0.85f, 1.0f);
+    glVertexPointer(2, GL_FLOAT, 0, background_vertices);
+    glTexCoordPointer(2, GL_FLOAT, 0, background_tex_coord);
+    glBindTexture(GL_TEXTURE_2D, background);
+
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
     if (menu_active || menu_show_animation || menu_hide_animation) {
@@ -555,7 +614,6 @@ void render() {
 
     glDisableClientState(GL_VERTEX_ARRAY);
     glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-    glDisableClientState(GL_VERTEX_ARRAY);
     glDisable(GL_TEXTURE_2D);
 
     //Then render the cube
@@ -690,14 +748,6 @@ int main(int argc, char *argv[]) {
 
     if (BPS_SUCCESS != navigator_request_events(0)) {
         fprintf(stderr, "navigator_request_events failed\n");
-        bbutil_terminate();
-        screen_destroy_context(screen_cxt);
-        return 0;
-    }
-
-    //Signal BPS library that navigator orientation is not to be locked
-    if (BPS_SUCCESS != navigator_rotation_lock(false)) {
-        fprintf(stderr, "navigator_rotation_lock failed\n");
         bbutil_terminate();
         screen_destroy_context(screen_cxt);
         return 0;

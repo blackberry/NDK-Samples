@@ -1,6 +1,6 @@
 # NDK Samples Repository 
 
-The _**NDK-Samples**_ repository holds Open Sourced samples for the Native SDK for BlackBerry © Tablet OS.
+The _**NDK-Samples**_ repository holds Open Sourced samples for the BlackBerry® 10 Native SDK.
 
 All APIs shared in this repository are Open Source under the  [Apache 2.0 License](http://www.apache.org/licenses/LICENSE-2.0.html)
 
@@ -21,8 +21,9 @@ To add new Samples or make modifications to existing Samples:
 
 **Repository Committers** 
 
-* [Jonathan Hoffmann](https://github.com/jhoffmannrim)
+* [Anthony Hu](https://github.com/anhu)
 * [Dimitry Tomilovskiy](https://github.com/dtomilovskiy)
+* [Jonathan Hoffmann](https://github.com/jhoffmannrim)
 * [Nick Landry](https://github.com/nlandry)
 
 

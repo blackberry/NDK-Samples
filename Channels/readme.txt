@@ -7,13 +7,13 @@ Sample Description:
  sending events through channels.
 
  We retrieve and display geolocation specific information, such as the latitude,
- longitude, altitude, and bearing of the tablet from the default channel of the
+ longitude, altitude, and bearing of the device from the default channel of the
  main thread.  This thread also listens for the navigator's event telling it to
  exit.  Before joining on the child thread, it sends a custom event to the child
  thread's channel letting it know that it should exit.
 
- We retrieve and display the x, y and z values of the accelerometer device of
- the tablet from the default channel of the child thread.
+ We retrieve and display the x, y and z values of the accelerometer of the
+ device from the default channel of the child thread.
 
  When the application is executed, geolocation data is displayed in a dialog and
  accelerometer data is displayed in another.
@@ -25,10 +25,10 @@ Sample Description:
 ========================================================================
 Requirements:
 
- - BlackBerry Native SDK for Tablet OS 2.0 or later
+ - BlackBerry® 10 Native SDK
  - One of the following:
-   - BlackBerry PlayBook tablet running BlackBerry Tablet OS 2.0 or later
-   - BlackBerry Tablet Simulator 2.0 or later
+   - BlackBerry® 10 device
+   - BlackBerry® 10 simulator
 
 ========================================================================
 Importing a project into the Native SDK:
