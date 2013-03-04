@@ -38,7 +38,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "dialogutil.h"
+#include "dialogchannel.h"
 
 #define MSG_SIZE 1024
 

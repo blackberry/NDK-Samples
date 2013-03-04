@@ -26,7 +26,7 @@ static screen_window_t screen_win;
 /**
  * Use the PID to set the window group id.
  */
-char *
+static const char *
 get_window_group_id()
 {
     static char s_window_group_id[16] = "";
