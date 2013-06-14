@@ -1,18 +1,18 @@
 /*
-* Copyright (c) 2011-2012 Research In Motion Limited.
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-* http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*/
+ * Copyright (c) 2011-2012 Research In Motion Limited.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 #include <bps/bps.h>
 #include <bps/dialog.h>
@@ -21,6 +21,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include <limits.h>
+#include <unistd.h>
 
 #include <bbads/bbads.h>
 #include <bbads/event.h>
@@ -79,6 +80,13 @@ void banner_event_handler(bbads_banner_t* banner, bbads_banner_event_type_t type
 {
     if (BBADS_EVENT_NAVIGATING == type)
         fprintf(stderr, "Handling BBADS_EVENT_NAVIGATING event.\n");
+}
+
+int load_ad_failure()
+{
+	fprintf(stderr, "ERROR: Could not load ad banner!\n");
+	bbads_banner_destroy(ad_banner);
+	return -1;
 }
 
 /**
@@ -185,13 +193,6 @@ int load_ad(screen_window_t screen_window, const char* window_group_name)
 
 }
 
-int load_ad_failure()
-{
-	fprintf(stderr, "ERROR: Could not load ad banner!\n");
-	bbads_banner_destroy(ad_banner);
-	return -1;
-}
-
 int setup_screen()
 {
     /*
@@ -236,11 +237,12 @@ int setup_screen()
     int temp_rectangle[4] = {0,0,screen_size[0],screen_size[1]};
     if (screen_post_window(screen_window, temp_buffer[0], 1, temp_rectangle, 0) != 0)
         return EXIT_FAILURE;
+
+    return EXIT_SUCCESS;
 }
 
 int main(int argc, char *argv[])
 {
-    int rc;
     int exit_application = 0;
 
     bps_initialize();
@@ -278,7 +280,7 @@ int main(int argc, char *argv[])
                 	}
                 	else
                 	{
-                	   fprintf(stderr, "banner destroy");
+                        fprintf(stderr, "banner destroy");
                 	}
 
                     exit_application = 1;
@@ -322,8 +324,8 @@ int main(int argc, char *argv[])
 					break;
 				}
 
-            if (exit_application)
-                break;
+                if (exit_application)
+                    break;
             }
         }
     }
