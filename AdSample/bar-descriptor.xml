@@ -8,11 +8,11 @@
 
     <!-- A universally unique application identifier. Must be unique across all BlackBerry applications.
          Using a reverse DNS-style name as the id is recommended. (Eg. com.example.ExampleApplication.) Required. -->
-    <id>com.example.NativeSampleAdSDK</id>
+    <id>com.example.AdSample</id>
 
     <!-- The name that is displayed in the BlackBerry application installer. 
          May have multiple values for each language. See samples or xsd schema file. Optional. -->
-    <name>NativeSampleAdSDK</name>
+    <name>AdSample</name>
     
     <!-- A string value of the format <0-999>.<0-999>.<0-999> that represents application version which can be used to check for application upgrade. 
          Values can also be 1-part or 2-part. It is not necessary to have a 3-part value.
@@ -25,7 +25,7 @@
                  
     <!-- Description, displayed in the BlackBerry application installer.
          May have multiple values for each language. See samples or xsd schema file. Optional. -->
-    <description>The Native AdSDK Sample application</description>
+    <description>The AdSample application</description>
 
     <!--  Name of author which is used for signing. Must match the developer name of your development certificate. -->
     <author>Example Inc.</author>
@@ -34,6 +34,8 @@
     <!-- <authorId>ABC1234YjsnUk235h</authorId> -->
    
     <initialWindow>
+        <aspectRatio>portrait</aspectRatio>
+        <autoOrients>false</autoOrients>
         <systemChrome>none</systemChrome>
         <transparent>false</transparent>
     </initialWindow>
@@ -42,44 +44,27 @@
     <category>core.games</category>
     <asset path="icon.png">icon.png</asset>
     <asset path="placeholder_468x60.png">placeholder_468x60.png</asset>
-    <configuration id="com.qnx.qcc.configuration.exe.debug.1797198507" name="Device-Debug">
+    <asset path="LICENSE">LICENSE</asset>
+    <asset path="NOTICE">NOTICE</asset>
+    <configuration name="Device-Debug">
        <platformArchitecture>armle-v7</platformArchitecture>
-       <asset path="Device-Debug/NativeSampleAdSDK" entry="true" type="Qnx/Elf">NativeSampleAdSDK</asset>
+       <asset path="arm/o.le-v7-g/AdSample" entry="true" type="Qnx/Elf">AdSample</asset>
     </configuration>
-    <configuration id="com.qnx.qcc.configuration.exe.release.1610022828" name="Device-Release">
+    <configuration name="Device-Release">
        <platformArchitecture>armle-v7</platformArchitecture>
-       <asset path="Device-Release/NativeSampleAdSDK" entry="true" type="Qnx/Elf">NativeSampleAdSDK</asset>
-       <asset path="${workspace_loc:/CascadesAdSDK/NativeAdSDK/arm/so.le-v7/libbbads.so}" type="Qnx/Elf">lib/libbbads.so.1</asset>
+       <asset path="arm/o.le-v7/AdSample" entry="true" type="Qnx/Elf">AdSample</asset>
     </configuration>
-    <configuration id="com.qnx.qcc.configuration.exe.profile.441445730" name="Device-Profile">
-       <platformArchitecture>armle-v7</platformArchitecture>
-       <asset path="Device-Profile/NativeSampleAdSDK" entry="true" type="Qnx/Elf">NativeSampleAdSDK</asset>
-       <asset path="${workspace_loc:/CascadesAdSDK/NativeAdSDK/arm/so.le-v7/libbbads.so}" type="Qnx/Elf">lib/libbbads.so.1</asset>
-    </configuration>
-    <configuration id="com.qnx.qcc.configuration.exe.profile.coverage.2102446966" name="Device-Coverage">
-       <platformArchitecture>armle-v7</platformArchitecture>
-       <asset path="Device-Coverage/NativeSampleAdSDK" entry="true" type="Qnx/Elf">NativeSampleAdSDK</asset>
-       <asset path="${workspace_loc:/CascadesAdSDK/NativeAdSDK/arm/so.le-v7/libbbads.so}" type="Qnx/Elf">lib/libbbads.so.1</asset>
-    </configuration>
-    <configuration id="com.qnx.qcc.configuration.exe.debug.1480735934" name="Simulator-Debug">
+    <configuration name="Simulator-Debug">
        <platformArchitecture>x86</platformArchitecture>
-       <asset path="Simulator-Debug/NativeSampleAdSDK" entry="true" type="Qnx/Elf">NativeSampleAdSDK</asset>
-    </configuration>
-    <configuration id="com.qnx.qcc.configuration.exe.profile.220408472" name="Simulator-Profile">
-       <platformArchitecture>x86</platformArchitecture>
-       <asset path="Simulator-Profile/NativeSampleAdSDK" entry="true" type="Qnx/Elf">NativeSampleAdSDK</asset>
-    </configuration>
-    <configuration id="com.qnx.qcc.configuration.exe.profile.coverage.1790830702" name="Simulator-Coverage">
-       <platformArchitecture>x86</platformArchitecture>
-       <asset path="Simulator-Coverage/NativeSampleAdSDK" entry="true" type="Qnx/Elf">NativeSampleAdSDK</asset>
+       <asset path="x86/o-g/AdSample" entry="true" type="Qnx/Elf">AdSample</asset>
     </configuration>
     
-    <!--  The icon for the application, which should be 86x86. -->
+    <!--  The icon for the application. -->
     <icon>
        <image>icon.png</image>
     </icon>
     
-    <!--  The splash screen that will appear when your application is launching. Should be 1024x600. -->
+    <!--  The splash screen that will appear when your application is launching. -->
     <!-- <splashscreen></splashscreen> -->
 
     <!-- Request permission to execute native code.  Required for native applications. -->
@@ -96,19 +81,10 @@
     <!--  <permission>set_audio_volume</permission> -->
     <permission>read_device_identifying_information</permission>
     <!--  <permission>access_led_control</permission> -->
-    <!--  <action>run_when_backgrounded</action> -->
+    <permission>run_when_backgrounded</permission>
     
 
     <!-- Ensure that shared libraries in the package are found at run-time. -->
     <env var="LD_LIBRARY_PATH" value="app/native/lib"/>
-    <!--asset path="C:/Development/IDE/bbndk/target_127_0_1_1714/qnx6/armle-v7/usr/lib/libwebview.so" type="Qnx/Elf">lib/libwebview.so</asset>
-    <asset path="C:/Development/IDE/bbndk/target_127_0_1_1714/qnx6/armle-v7/usr/lib/libwebview.so.2" type="Qnx/Elf">lib/libwebview.so.2</asset>
-    <asset path="C:/Development/IDE/bbndk/target_127_0_1_1714/qnx6/armle-v7/usr/lib/libwebview.so.2.0" type="Qnx/Elf">lib/libwebview.so.2.0</asset>
-    <asset path="C:/Development/IDE/bbndk/target_127_0_1_1714/qnx6/armle-v7/usr/lib/libwebkit.so" type="Qnx/Elf">lib/libwebkit.so</asset>
-    <asset path="C:/Development/IDE/bbndk/target_127_0_1_1714/qnx6/armle-v7/usr/lib/libwebkit.so.0" type="Qnx/Elf">lib/libwebkit.so.0</asset>
-    <asset path="C:/Development/IDE/bbndk/target_127_0_1_1714/qnx6/armle-v7/usr/lib/libwebkit.so.0.1" type="Qnx/Elf">lib/libwebkit.so.0.1</asset>
-    <asset path="C:/Development/IDE/bbndk/target_127_0_1_1714/qnx6/armle-v7/usr/lib/libwebkitplatform.so" type="Qnx/Elf">lib/libwebkitplatform.so</asset>
-    <asset path="C:/Development/IDE/bbndk/target_127_0_1_1714/qnx6/armle-v7/usr/lib/libwebkitplatform.so.0" type="Qnx/Elf">lib/libwebkitplatform.so.0</asset>
-    <asset path="C:/Development/IDE/bbndk/target_127_0_1_1714/qnx6/armle-v7/usr/lib/libwebkitplatform.so.0.1" type="Qnx/Elf">lib/libwebkitplatform.so.0.1</asset-->
     
 </qnx>
