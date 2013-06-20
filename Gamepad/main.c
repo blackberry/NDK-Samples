@@ -46,29 +46,29 @@ static int rc;
     if (rc) fprintf(stderr, "\n%s in %s: %d", y, __FUNCTION__, errno)
 
 // Constants used when allocating memory for our graphical data.
-static const int QUAD_COUNT = 33;
-static const int VERTEX_COORD_COUNT = 264;    // QUAD_COUNT * 4 vertices per image * 2 vertex coords per vertex.
-static const int INDEX_COUNT = 198;           // QUAD_COUNT * 6 indices per quad.
-static const int TEXCOORD_COUNT = 264;        // QUAD_COUNT * 8 UVs per quad.
+static const int QUAD_COUNT = 41;
+static const int VERTEX_COORD_COUNT = 328;    // QUAD_COUNT * 4 vertices per image * 2 vertex coords per vertex.
+static const int INDEX_COUNT = 246;           // QUAD_COUNT * 6 indices per quad.
+static const int TEXCOORD_COUNT = 328;        // QUAD_COUNT * 8 UVs per quad.
 
 // Size and positions of all the controls.
-static const float ANALOG0_X = 150.0f;
-static const float ANALOG1_X  = 385.0f;
-static const float ANALOG_Y = 125.0f;
+static const float ANALOG0_X = 75.0f;
+static const float ANALOG1_X  = 460.0f;
+static const float ANALOG_Y = 75.0f;
 static const float ANALOG_SIZE = 100.0f;
 
 static const float DPAD_X = 25.0f;
-static const float DPAD_Y = 300.0f;
+static const float DPAD_Y = 275.0f;
 static const float DPAD_LONG = 112.5f;
 static const float DPAD_SHORT = 75.0f;
 
 static const float BUTTONS_X = 400.0f;
-static const float BUTTONS_Y = 300.0f;
+static const float BUTTONS_Y = 275.0f;
 static const float BUTTON_SIZE = 75.0f;
 
 static const float LEFT_TRIGGERS_X = 25.0f;
 static const float RIGHT_TRIGGERS_X = 450.0f;
-static const float TRIGGERS_Y = 550.0f;
+static const float TRIGGERS_Y = 525.0f;
 static const float TRIGGER_WIDTH = 175.0f;
 static const float TRIGGER_HEIGHT = 50.0f;
 
@@ -100,7 +100,8 @@ typedef enum ButtonType_t {
     DPAD_DOWN,
     DPAD_LEFT,
     DPAD_RIGHT,
-    TRIGGER,
+    DIGITAL_TRIGGER,
+    ANALOG_TRIGGER,
     BUTTON
 } ButtonType;
 
@@ -140,12 +141,12 @@ static unsigned int _gamepadTexture;
 static GLfloat* _vertices;
 static GLushort* _indices;
 static GLfloat* _textureCoords;
-static Quad _quads[33];
+static Quad _quads[41];
 
 // Pointers to the quads and buttons we'll need to modify during frame updates.
 static Quad* _analog0Inner[2];
 static Quad* _analog1Inner[2];
-static Button _buttons[2][12];
+static Button _buttons[2][16];
 
 // Tapping an on-screen button will make it 'active', and the next gamepad button-press will map that gamepad button to this on-screen button.
 static Button* _activeButton[2];
@@ -160,8 +161,6 @@ typedef struct GameController_t {
     int analogCount;
     int buttonCount;
     char id[64];
-    char vendor[64];
-    char product[64];
 
     // Current state.
     int buttons;
@@ -177,7 +176,7 @@ typedef struct GameController_t {
 
 // Controller information.
 static int MAX_CONTROLLERS = 2;
-static int MAX_BUTTONS = 12;
+static int MAX_BUTTONS = 16;
 static GameController _controllers[2];
 
 static void initController(GameController* controller, int player)
@@ -248,28 +247,29 @@ int init()
         /**
          * Quads  | Buttons  | Description
          * =======|==========|=============
-         * 0-3    |          | Analog sticks.
-         * 4-7    | 0-3      | D-Pad.  Up, Down, Left, Right.
-         * 8-11   | 4-7      | A, B, X, Y Buttons.
-         * 12,13  | 8, 9     | L1, R1.
-         * 14, 15 | 10, 11   | Select, Start.
+         * 0, 1   | 0, 1     | Analog triggers.
+         * 2-7    | 2, 3     | Analog sticks and their buttons.
+         * 6-9    | 4 - 7    | D-Pad.  Up, Down, Left, Right.
+         * 10-13  | 8 - 12   | A, B, X, Y Buttons.
+         * 14-17  | 13, 14   | Triggers: L1, R1
+         * 18, 19 | 15, 16   | Select, Start.
          */
-        int controllerIndex = 16*i;
+        int controllerIndex = 20*i;
         float xOffset = (_surfaceWidth * 0.5f)*i;
 
         int j;
-        // Assign quads to all buttons.
-        for (j = 0; j < 12; ++j) {
+        // Assign quads to all buttons other than L2, R2, L3 and R3.
+        for (j = 4; j < 16; ++j) {
             _buttons[i][j].quad = &_quads[j+4 + controllerIndex];
         }
 
         // D-Pad.
-        for (j = 0; j < 4; ++j) {
-            _buttons[i][j].type = DPAD_UP + j;
+        for (j = 4; j < 8; ++j) {
+            _buttons[i][j].type = DPAD_UP + j-4;
         }
 
         // Buttons.
-        for (j = 4; j < 8; ++j) {
+        for (j = 8; j < 12; ++j) {
             _buttons[i][j].type = BUTTON;
             _buttons[i][j].quad->width = BUTTON_SIZE;
             _buttons[i][j].quad->height = BUTTON_SIZE;
@@ -277,8 +277,8 @@ int init()
         }
 
         // Triggers.
-        for (j = 8; j < 12; ++j) {
-            _buttons[i][j].type = TRIGGER;
+        for (j = 12; j < 16; ++j) {
+            _buttons[i][j].type = DIGITAL_TRIGGER;
             _buttons[i][j].quad->width = TRIGGER_WIDTH;
             _buttons[i][j].quad->height = TRIGGER_HEIGHT;
             _buttons[i][j].quad->uvs = _triggerUpUVs;
@@ -286,122 +286,165 @@ int init()
 
         // Set quad positions and sizes.
 
+        // Analog triggers
+		_buttons[i][0].label = "L2";
+		_buttons[i][0].type = ANALOG_TRIGGER;
+		_buttons[i][0].quad = &_quads[0 + controllerIndex];
+		_buttons[i][0].quad->x = LEFT_TRIGGERS_X + xOffset;
+		_buttons[i][0].quad->y = TRIGGERS_Y + TRIGGER_HEIGHT + 25.0f;
+		_buttons[i][0].quad->width = TRIGGER_WIDTH;
+		_buttons[i][0].quad->height = TRIGGER_HEIGHT;
+		_buttons[i][0].quad->uvs = _triggerDownUVs;
+		_buttons[i][0].mapping = SCREEN_L2_GAME_BUTTON;
+
+		_buttons[i][1].label = "R2";
+		_buttons[i][1].type = ANALOG_TRIGGER;
+		_buttons[i][1].quad = &_quads[1 + controllerIndex];
+		_buttons[i][1].quad->x = RIGHT_TRIGGERS_X + xOffset;
+		_buttons[i][1].quad->y = TRIGGERS_Y + TRIGGER_HEIGHT + 25.0f;
+		_buttons[i][1].quad->width = TRIGGER_WIDTH;
+		_buttons[i][1].quad->height = TRIGGER_HEIGHT;
+		_buttons[i][1].quad->uvs = _triggerDownUVs;
+		_buttons[i][1].mapping = SCREEN_R2_GAME_BUTTON;
+
         // Right stick
-        Quad* analog1Outer = &_quads[0 + controllerIndex];
-        analog1Outer->x = ANALOG1_X + xOffset;
-        analog1Outer->y = ANALOG_Y;
-        analog1Outer->width = analog1Outer->height = ANALOG_SIZE;
-        analog1Outer->uvs = _outerUVs;
+		Quad* analog1Outer = &_quads[2 + controllerIndex];
+		analog1Outer->x = ANALOG1_X + xOffset;
+		analog1Outer->y = ANALOG_Y;
+		analog1Outer->width = analog1Outer->height = ANALOG_SIZE;
+		analog1Outer->uvs = _outerUVs;
 
-        _analog1Inner[i] = &_quads[1 + controllerIndex];
-        _analog1Inner[i]->x = ANALOG1_X + xOffset;
-        _analog1Inner[i]->y = ANALOG_Y;
-        _analog1Inner[i]->width = _analog1Inner[i]->height = ANALOG_SIZE;
-        _analog1Inner[i]->uvs = _innerUVs;
+		_analog1Inner[i] = &_quads[3 + controllerIndex];
+		_analog1Inner[i]->x = ANALOG1_X + xOffset;
+		_analog1Inner[i]->y = ANALOG_Y;
+		_analog1Inner[i]->width = _analog1Inner[i]->height = ANALOG_SIZE;
+		_analog1Inner[i]->uvs = _innerUVs;
 
-        // Left stick
-        Quad* analog0Outer = &_quads[2 + controllerIndex];
-        analog0Outer->x = ANALOG0_X + xOffset;
-        analog0Outer->y = ANALOG_Y;
-        analog0Outer->width = analog0Outer->height = ANALOG_SIZE;
-        analog0Outer->uvs = _outerUVs;
+		// R3
+		_buttons[i][2].label = "R3";
+		_buttons[i][2].type = BUTTON;
+		_buttons[i][2].quad = &_quads[4 + controllerIndex];
+		_buttons[i][2].quad->x = ANALOG1_X - BUTTON_SIZE*2.0f + xOffset;
+		_buttons[i][2].quad->y = ANALOG_Y + BUTTON_SIZE;
+		_buttons[i][2].quad->width = BUTTON_SIZE;
+		_buttons[i][2].quad->height = BUTTON_SIZE;
+		_buttons[i][2].quad->uvs = _buttonUpUVs;
+		_buttons[i][2].mapping = SCREEN_R3_GAME_BUTTON;
 
-        _analog0Inner[i] = &_quads[3 + controllerIndex];
-        _analog0Inner[i]->x = ANALOG0_X + xOffset;
-        _analog0Inner[i]->y = ANALOG_Y;
-        _analog0Inner[i]->width = _analog0Inner[i]->height = ANALOG_SIZE;
-        _analog0Inner[i]->uvs = _innerUVs;
+		// Left stick
+		Quad* analog0Outer = &_quads[5 + controllerIndex];
+		analog0Outer->x = ANALOG0_X + xOffset;
+		analog0Outer->y = ANALOG_Y;
+		analog0Outer->width = analog0Outer->height = ANALOG_SIZE;
+		analog0Outer->uvs = _outerUVs;
 
-        // Up
-        _buttons[i][0].label = "U";
-        _buttons[i][0].quad->x = DPAD_X + DPAD_SHORT + xOffset;
-        _buttons[i][0].quad->y = DPAD_Y + DPAD_LONG;
-        _buttons[i][0].quad->width = DPAD_SHORT;
-        _buttons[i][0].quad->height = DPAD_LONG;
-        _buttons[i][0].quad->uvs = _upDPadUpUVs;
-        _buttons[i][0].mapping = SCREEN_DPAD_UP_GAME_BUTTON;
+		_analog0Inner[i] = &_quads[6 + controllerIndex];
+		_analog0Inner[i]->x = ANALOG0_X + xOffset;
+		_analog0Inner[i]->y = ANALOG_Y;
+		_analog0Inner[i]->width = _analog0Inner[i]->height = ANALOG_SIZE;
+		_analog0Inner[i]->uvs = _innerUVs;
 
-        // Down
-        _buttons[i][1].label = "D";
-        _buttons[i][1].quad->x = DPAD_X + DPAD_SHORT + xOffset;
-        _buttons[i][1].quad->y = DPAD_Y;
-        _buttons[i][1].quad->width = DPAD_SHORT;
-        _buttons[i][1].quad->height = DPAD_LONG;
-        _buttons[i][1].quad->uvs = _downDPadUpUVs;
-        _buttons[i][1].mapping = SCREEN_DPAD_DOWN_GAME_BUTTON;
+		// L3
+		_buttons[i][3].quad = &_quads[7 + controllerIndex];
+		_buttons[i][3].type = BUTTON;
+		_buttons[i][3].label = "L3";
+		_buttons[i][3].quad->x = ANALOG0_X + BUTTON_SIZE*2.0f + xOffset;
+		_buttons[i][3].quad->y = ANALOG_Y + BUTTON_SIZE;
+		_buttons[i][3].quad->width = BUTTON_SIZE;
+		_buttons[i][3].quad->height = BUTTON_SIZE;
+		_buttons[i][3].quad->uvs = _buttonUpUVs;
+		_buttons[i][3].mapping = SCREEN_L3_GAME_BUTTON;
 
-        // Left
-        _buttons[i][2].label = "L";
-        _buttons[i][2].quad->x = DPAD_X + xOffset;
-        _buttons[i][2].quad->y = DPAD_Y + DPAD_SHORT;
-        _buttons[i][2].quad->width = DPAD_LONG;
-        _buttons[i][2].quad->height = DPAD_SHORT;
-        _buttons[i][2].quad->uvs = _leftDPadUpUVs;
-        _buttons[i][2].mapping = SCREEN_DPAD_LEFT_GAME_BUTTON;
+		// Up
+		_buttons[i][4].label = "U";
+		_buttons[i][4].quad->x = DPAD_X + DPAD_SHORT + xOffset;
+		_buttons[i][4].quad->y = DPAD_Y + DPAD_LONG;
+		_buttons[i][4].quad->width = DPAD_SHORT;
+		_buttons[i][4].quad->height = DPAD_LONG;
+		_buttons[i][4].quad->uvs = _upDPadUpUVs;
+		_buttons[i][4].mapping = SCREEN_DPAD_UP_GAME_BUTTON;
 
-        // Right
-        _buttons[i][3].label = "R";
-        _buttons[i][3].quad->x = DPAD_X + DPAD_LONG + xOffset;
-        _buttons[i][3].quad->y = DPAD_Y + DPAD_SHORT;
-        _buttons[i][3].quad->width = DPAD_LONG;
-        _buttons[i][3].quad->height = DPAD_SHORT;
-        _buttons[i][3].quad->uvs = _rightDPadUpUVs;
-        _buttons[i][3].mapping = SCREEN_DPAD_RIGHT_GAME_BUTTON;
+		// Down
+		_buttons[i][5].label = "D";
+		_buttons[i][5].quad->x = DPAD_X + DPAD_SHORT + xOffset;
+		_buttons[i][5].quad->y = DPAD_Y;
+		_buttons[i][5].quad->width = DPAD_SHORT;
+		_buttons[i][5].quad->height = DPAD_LONG;
+		_buttons[i][5].quad->uvs = _downDPadUpUVs;
+		_buttons[i][5].mapping = SCREEN_DPAD_DOWN_GAME_BUTTON;
 
-        // A, B, X, Y
-        _buttons[i][4].label = "A";
-        _buttons[i][4].quad->x = BUTTONS_X + BUTTON_SIZE + xOffset;
-        _buttons[i][4].quad->y = BUTTONS_Y;
-        _buttons[i][4].mapping = SCREEN_A_GAME_BUTTON;
+		// Left
+		_buttons[i][6].label = "L";
+		_buttons[i][6].quad->x = DPAD_X + xOffset;
+		_buttons[i][6].quad->y = DPAD_Y + DPAD_SHORT;
+		_buttons[i][6].quad->width = DPAD_LONG;
+		_buttons[i][6].quad->height = DPAD_SHORT;
+		_buttons[i][6].quad->uvs = _leftDPadUpUVs;
+		_buttons[i][6].mapping = SCREEN_DPAD_LEFT_GAME_BUTTON;
 
-        _buttons[i][5].label = "B";
-        _buttons[i][5].quad->x = BUTTONS_X + 2*BUTTON_SIZE + xOffset;
-        _buttons[i][5].quad->y = BUTTONS_Y + BUTTON_SIZE;
-        _buttons[i][5].mapping = SCREEN_B_GAME_BUTTON;
+		// Right
+		_buttons[i][7].label = "R";
+		_buttons[i][7].quad->x = DPAD_X + DPAD_LONG + xOffset;
+		_buttons[i][7].quad->y = DPAD_Y + DPAD_SHORT;
+		_buttons[i][7].quad->width = DPAD_LONG;
+		_buttons[i][7].quad->height = DPAD_SHORT;
+		_buttons[i][7].quad->uvs = _rightDPadUpUVs;
+		_buttons[i][7].mapping = SCREEN_DPAD_RIGHT_GAME_BUTTON;
 
-        _buttons[i][6].label = "X";
-        _buttons[i][6].quad->x = BUTTONS_X + xOffset;
-        _buttons[i][6].quad->y = BUTTONS_Y + BUTTON_SIZE;
-        _buttons[i][6].mapping = SCREEN_X_GAME_BUTTON;
+		// A, B, X, Y
+		_buttons[i][8].label = "A";
+		_buttons[i][8].quad->x = BUTTONS_X + BUTTON_SIZE + xOffset;
+		_buttons[i][8].quad->y = BUTTONS_Y;
+		_buttons[i][8].mapping = SCREEN_A_GAME_BUTTON;
 
-        _buttons[i][7].label = "Y";
-        _buttons[i][7].quad->x = BUTTONS_X + BUTTON_SIZE + xOffset;
-        _buttons[i][7].quad->y = BUTTONS_Y + 2*BUTTON_SIZE;
-        _buttons[i][7].mapping = SCREEN_Y_GAME_BUTTON;
+		_buttons[i][9].label = "B";
+		_buttons[i][9].quad->x = BUTTONS_X + 2*BUTTON_SIZE + xOffset;
+		_buttons[i][9].quad->y = BUTTONS_Y + BUTTON_SIZE;
+		_buttons[i][9].mapping = SCREEN_B_GAME_BUTTON;
 
-        // Triggers: L1, R1.
-        _buttons[i][8].label = "L1";
-        _buttons[i][8].quad->x = LEFT_TRIGGERS_X + xOffset;
-        _buttons[i][8].quad->y = TRIGGERS_Y;
-        _buttons[i][8].mapping = SCREEN_L1_GAME_BUTTON;
+		_buttons[i][10].label = "X";
+		_buttons[i][10].quad->x = BUTTONS_X + xOffset;
+		_buttons[i][10].quad->y = BUTTONS_Y + BUTTON_SIZE;
+		_buttons[i][10].mapping = SCREEN_X_GAME_BUTTON;
 
-        _buttons[i][9].label = "R1";
-        _buttons[i][9].quad->x = RIGHT_TRIGGERS_X + xOffset;
-        _buttons[i][9].quad->y = TRIGGERS_Y;
-        _buttons[i][9].mapping = SCREEN_R1_GAME_BUTTON;
+		_buttons[i][11].label = "Y";
+		_buttons[i][11].quad->x = BUTTONS_X + BUTTON_SIZE + xOffset;
+		_buttons[i][11].quad->y = BUTTONS_Y + 2*BUTTON_SIZE;
+		_buttons[i][11].mapping = SCREEN_Y_GAME_BUTTON;
 
-        // Select, Start
-        _buttons[i][10].label = "Select";
-        _buttons[i][10].quad->x = SELECT_X + xOffset;
-        _buttons[i][10].quad->y = SELECT_Y;
-        _buttons[i][10].mapping = SCREEN_MENU1_GAME_BUTTON;
+		// L1, R1
+		_buttons[i][12].label = "L1";
+		_buttons[i][12].quad->x = LEFT_TRIGGERS_X + xOffset;
+		_buttons[i][12].quad->y = TRIGGERS_Y;
+		_buttons[i][12].mapping = SCREEN_L1_GAME_BUTTON;
 
-        _buttons[i][11].label = "Start";
-        _buttons[i][11].quad->x = SELECT_X + xOffset;
-        _buttons[i][11].quad->y = SELECT_Y + TRIGGER_HEIGHT + 25.0f;
-        _buttons[i][11].mapping = SCREEN_MENU2_GAME_BUTTON;
+		_buttons[i][13].label = "R1";
+		_buttons[i][13].quad->x = RIGHT_TRIGGERS_X + xOffset;
+		_buttons[i][13].quad->y = TRIGGERS_Y;
+		_buttons[i][13].mapping = SCREEN_R1_GAME_BUTTON;
+
+		// Select, Start
+		_buttons[i][14].label = "Select";
+		_buttons[i][14].quad->x = SELECT_X + xOffset;
+		_buttons[i][14].quad->y = SELECT_Y;
+		_buttons[i][14].mapping = SCREEN_MENU1_GAME_BUTTON;
+
+		_buttons[i][15].label = "Start";
+		_buttons[i][15].quad->x = SELECT_X + xOffset;
+		_buttons[i][15].quad->y = SELECT_Y + TRIGGER_HEIGHT + 25.0f;
+		_buttons[i][15].mapping = SCREEN_MENU2_GAME_BUTTON;
     }
 
     // Finally, one last quad is used for the "polling" button.
-    Quad* pollingQuad = &_quads[32];
+    Quad* pollingQuad = &_quads[40];
     pollingQuad->x = (surface_width * 0.5f) - TRIGGER_WIDTH * 0.5f;
-    pollingQuad->y = 25.0f;
+    pollingQuad->y = 5.0f;
     pollingQuad->width = TRIGGER_WIDTH;
     pollingQuad->height = TRIGGER_HEIGHT + 20;
     pollingQuad->uvs = _triggerUpUVs;
 
     _pollingButton.quad = pollingQuad;
-    _pollingButton.type = TRIGGER;
+    _pollingButton.type = DIGITAL_TRIGGER;
     _pollingButton.label = "Polling";
 
     // Create our vertex and texture coordinate arrays.
@@ -491,7 +534,7 @@ static void loadController(GameController* controller)
     	++controller->analogCount;
     }
 
-    if (!screen_get_device_property_iv(controller->handle, SCREEN_PROPERTY_ANALOG1, controller->analog0)) {
+    if (!screen_get_device_property_iv(controller->handle, SCREEN_PROPERTY_ANALOG1, controller->analog1)) {
     	++controller->analogCount;
     }
 
@@ -766,7 +809,7 @@ void update()
         if (controller->analogCount > 0) {
 			_analog0Inner[i]->x = ANALOG0_X + xOffset + (controller->analog0[0] >> 2);
 			_analog0Inner[i]->y = ANALOG_Y - (controller->analog0[1] >> 2);
-			sprintf(controller->analog0String, "Analog 0: (%4d, %4d)", controller->analog0[0], controller->analog0[1]);
+			sprintf(controller->analog0String, "Analog 0: (%4d, %4d, %4d)", controller->analog0[0], controller->analog0[1], controller->analog0[2]);
         } else {
         	sprintf(controller->analog0String, "Analog 0: N/A");
         }
@@ -774,7 +817,7 @@ void update()
         if (controller->analogCount == 2) {
 			_analog1Inner[i]->x = ANALOG1_X + xOffset + (controller->analog1[0] >> 2);
 			_analog1Inner[i]->y = ANALOG_Y - (controller->analog1[1] >> 2);
-			sprintf(controller->analog1String, "Analog 1: (%4d, %4d)", controller->analog1[0], controller->analog1[1]);
+			sprintf(controller->analog1String, "Analog 1: (%4d, %4d, %4d)", controller->analog1[0], controller->analog1[1], controller->analog1[2]);
         } else {
         	sprintf(controller->analog1String, "Analog 1: N/A");
         }
@@ -799,7 +842,7 @@ void update()
                 case DPAD_DOWN:
                     button->quad->uvs = _downDPadDownUVs;
                     break;
-                case TRIGGER:
+                case DIGITAL_TRIGGER:
                     button->quad->uvs = _triggerDownUVs;
                     break;
                 case BUTTON:
@@ -820,7 +863,7 @@ void update()
                 case DPAD_DOWN:
                     button->quad->uvs = _downDPadUpUVs;
                     break;
-                case TRIGGER:
+                case DIGITAL_TRIGGER:
                     button->quad->uvs = _triggerUpUVs;
                     break;
                 case BUTTON:
@@ -886,28 +929,47 @@ void render()
     glEnableClientState(GL_VERTEX_ARRAY);
     glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 
-    glColor4f(1.0f, 0.0f, 0.0f, 1.0f);
-
     glVertexPointer(2, GL_FLOAT, 0, _vertices);
     glTexCoordPointer(2, GL_FLOAT, 0, _textureCoords);
     glBindTexture(GL_TEXTURE_2D, _gamepadTexture);
 
     if (_controllers[0].handle || _controllers[1].handle) {
 		// Draw the polling button.
-		glDrawElements(GL_TRIANGLE_STRIP, 6, GL_UNSIGNED_SHORT, _indices + 192);
+		glDrawElements(GL_TRIANGLE_STRIP, 6, GL_UNSIGNED_SHORT, _indices + 240);
     }
 
     // Draw only connected controllers.
-    // Only draw the analog sticks if they're present.
+
+    // L2 and R2 require special attention.
+    // On many controllers, L2 and R2 are analog triggers instead of digital buttons.
+    // First we check to see if the button is down.  If so, we treat the triggers as being "all the way down".
+    // Otherwise, we tint L2 and R2 using the analog values from the triggers.
+
+    // Only draw the analog sticks and their buttons (L3, R3) if they're present.
     for (i = 0; i < MAX_CONTROLLERS; ++i) {
     	GameController* controller = &_controllers[i];
     	if (controller->handle) {
+    		float tint = 1.0f;
+    		if (!(controller->buttons & _buttons[i][0].mapping) && &_buttons[i][0] != _activeButton[i]) {
+    			tint = 0.5f + 0.5f*(float)controller->analog0[2] / 255.0f;
+    		}
+    		glColor4f(tint, 0.0f, 0.0f, 1.0f);
+    		glDrawElements(GL_TRIANGLE_STRIP, 6, GL_UNSIGNED_SHORT, _indices + i*120);
+
+    		tint = 1.0f;
+    		if (!(controller->buttons & _buttons[i][1].mapping) && &_buttons[i][1] != _activeButton[i]) {
+				tint = 0.5f + 0.5f*(float)controller->analog1[2] / 255.0f;
+			}
+			glColor4f(tint, 0.0f, 0.0f, 1.0f);
+			glDrawElements(GL_TRIANGLE_STRIP, 6, GL_UNSIGNED_SHORT, _indices + 6 + i*120);
+
+			glColor4f(1.0f, 0.0f, 0.0f, 1.0f);
     		if (controller->analogCount == 2) {
-    			glDrawElements(GL_TRIANGLE_STRIP, 96, GL_UNSIGNED_SHORT, _indices + i*96);
+    			glDrawElements(GL_TRIANGLE_STRIP, 108, GL_UNSIGNED_SHORT, _indices + 12 + i*120);
     		} else if (controller->analogCount == 1) {
-    			glDrawElements(GL_TRIANGLE_STRIP, 84, GL_UNSIGNED_SHORT, _indices + 12 + i*96);
+    			glDrawElements(GL_TRIANGLE_STRIP, 90, GL_UNSIGNED_SHORT, _indices + 30 + i*120);
     		} else {
-    			glDrawElements(GL_TRIANGLE_STRIP, 72, GL_UNSIGNED_SHORT, _indices + 24 + i*96);
+    			glDrawElements(GL_TRIANGLE_STRIP, 72, GL_UNSIGNED_SHORT, _indices + 48 + i*120);
     		}
     	}
     }
@@ -918,6 +980,20 @@ void render()
     glDisable(GL_BLEND);
 
     // Use utility code to render text.
+    // Only draw L3 and R3 labels if they're present.
+    for (i = 0; i < MAX_CONTROLLERS; ++i) {
+		GameController* controller = &_controllers[i];
+		if (controller->handle) {
+			if (controller->analogCount == 2) {
+    			bbutil_render_text(_font, _buttons[i][2].label, _buttons[i][2].quad->x + 30, _buttons[i][2].quad->y + 30, 1.0f, 0.0f, 0.0f, 1.0f);
+    			bbutil_render_text(_font, _buttons[i][3].label, _buttons[i][3].quad->x + 30, _buttons[i][3].quad->y + 30, 1.0f, 0.0f, 0.0f, 1.0f);
+			} else if (controller->analogCount == 1) {
+    			bbutil_render_text(_font, _buttons[i][3].label, _buttons[i][3].quad->x + 30, _buttons[i][3].quad->y + 30, 1.0f, 0.0f, 0.0f, 1.0f);
+			}
+		}
+    }
+
+    // Now render the rest of the text.
     for (i = 0; i < MAX_CONTROLLERS; ++i) {
         GameController* controller = &_controllers[i];
         float xOffset = (_surfaceWidth * 0.5f)*i;
@@ -930,11 +1006,15 @@ void render()
             bbutil_render_text(_font, controller->analog0String, 5 + xOffset, _surfaceHeight - 60, 1.0f, 0.0f, 0.0f, 1.0f);
             bbutil_render_text(_font, controller->analog1String, 5 + xOffset, _surfaceHeight - 80, 1.0f, 0.0f, 0.0f, 1.0f);
 
+            // L2, R2 labels.
+            bbutil_render_text(_font, _buttons[i][0].label, _buttons[i][0].quad->x + 20, _buttons[i][0].quad->y + 20, 1.0f, 0.0f, 0.0f, 1.0f);
+            bbutil_render_text(_font, _buttons[i][1].label, _buttons[i][1].quad->x + 20, _buttons[i][1].quad->y + 20, 1.0f, 0.0f, 0.0f, 1.0f);
+
             // Button labels.
             int j;
-            for (j = 0; j < MAX_BUTTONS; ++j) {
+            for (j = 4; j < MAX_BUTTONS; ++j) {
                 Button* button = &_buttons[i][j];
-                if (button->type == TRIGGER) {
+                if (button->type == DIGITAL_TRIGGER) {
                     bbutil_render_text(_font, button->label, button->quad->x + 20, button->quad->y + 20, 1.0f, 0.0f, 0.0f, 1.0f);
                 } else if (button->type == DPAD_UP) {
                     bbutil_render_text(_font, button->label, button->quad->x + 30, button->quad->y + 70, 1.0f, 0.0f, 0.0f, 1.0f);
