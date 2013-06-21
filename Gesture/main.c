@@ -110,8 +110,9 @@ gesture_callback(gesture_base_t* gesture, mtouch_event_t* event, void* param, in
             break;
         }
         case GESTURE_DOUBLE_TAP: {
-            gesture_tap_t* d_tap = (gesture_tap_t*)gesture;
-            fprintf(stderr,"Double tap x:%d y:%d", d_tap->touch_coords.x, d_tap->touch_coords.y);
+            gesture_double_tap_t* d_tap = (gesture_double_tap_t*)gesture;
+            fprintf(stderr,"Double tap first_x:%d first_y:%d second_x:%d second_y:%d",
+            		d_tap->first_touch.x, d_tap->first_touch.y, d_tap->second_touch.x, d_tap->second_touch.y);
             break;
         }
         default: {
