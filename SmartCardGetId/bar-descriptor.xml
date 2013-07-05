@@ -63,4 +63,5 @@
     <!-- Ensure that shared libraries in the package are found at run-time. -->
     <env var="LD_LIBRARY_PATH" value="app/native/lib"/>
     
+    <permission system="true">_sys_access_smartcard_api</permission>
 </qnx>
