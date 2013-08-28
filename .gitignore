@@ -20,6 +20,9 @@ Simulator/
 Accelerometer/arm/o.le-v7-g/Accelerometer
 Accelerometer/arm/o.le-v7/Accelerometer
 Accelerometer/x86/o-g/Accelerometer
+AdSample/arm/o.le-v7-g/AdSample
+AdSample/arm/o.le-v7/AdSample
+AdSample/x86/o-g/AdSample
 AudioControl/arm/o.le-v7-g/AudioControl
 AudioControl/arm/o.le-v7/AudioControl
 AudioControl/x86/o-g/AudioControl

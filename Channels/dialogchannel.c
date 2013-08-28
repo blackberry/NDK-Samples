@@ -21,7 +21,7 @@
 #include <bps/bps.h>
 #include <bps/dialog.h>
 #include <bps/navigator.h>
-#include "dialogutil.h"
+#include "dialogchannel.h"
 
 static screen_context_t screen_ctx = 0;
 static screen_window_t screen_win = 0;
@@ -32,7 +32,7 @@ static dialog_instance_t accelerometer_dialog = 0;
 /**
  * Use the PID to set the window group id.
  */
-static char *
+static const char *
 get_window_group_id()
 {
     static char s_window_group_id[16] = "";
