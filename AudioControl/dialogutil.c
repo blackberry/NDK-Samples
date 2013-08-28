@@ -30,7 +30,7 @@ static dialog_instance_t main_dialog = 0;
 /**
  * Use the PID to set the window group id.
  */
-static char *
+static const char *
 get_window_group_id()
 {
     static char s_window_group_id[16] = "";

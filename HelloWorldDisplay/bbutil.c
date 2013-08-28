@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011-2012 Research In Motion Limited.
+ * Copyright (c) 2011-2013 Research In Motion Limited.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -105,6 +105,21 @@ bbutil_egl_perror(const char *msg) {
     fprintf(stderr, "%s: %s\n", msg, errmsg[message_index]);
 }
 
+/**
+ * Use the PID to set the window group id.
+ */
+static const char *
+get_window_group_id()
+{
+    static char s_window_group_id[16] = "";
+
+    if (s_window_group_id[0] == '\0') {
+        snprintf(s_window_group_id, sizeof(s_window_group_id), "%d", getpid());
+    }
+
+    return s_window_group_id;
+}
+
 int
 bbutil_init_egl(screen_context_t ctx) {
     int usage;
@@ -176,6 +191,13 @@ bbutil_init_egl(screen_context_t ctx) {
     rc = screen_create_window(&screen_win, screen_ctx);
     if (rc) {
         perror("screen_create_window");
+        bbutil_terminate();
+        return EXIT_FAILURE;
+    }
+
+    rc = screen_create_window_group(screen_win, get_window_group_id());
+    if (rc) {
+        perror("screen_create_window_group");
         bbutil_terminate();
         return EXIT_FAILURE;
     }
