@@ -89,6 +89,10 @@ PlayWav/x86/o-g/PlayWav
 ScreenTemplate/arm/o.le-v7-g/ScreenTemplate
 ScreenTemplate/arm/o.le-v7/ScreenTemplate
 ScreenTemplate/x86/o-g/ScreenTemplate
+SmartCardGetId/arm/o.le-v7-g/SmartCardGetId
+SmartCardGetId/arm/o.le-v7/SmartCardGetId
+SmartCardGetId/x86/o-g/SmartCardGetId
+SmartCardGetId/x86/o/SmartCardGetId
 VideoPlayback/arm/o.le-v7-g/VideoPlayback
 VideoPlayback/arm/o.le-v7/VideoPlayback
 VideoPlayback/x86/o-g/VideoPlayback

@@ -84,8 +84,12 @@ main(int argc, char *argv[])
      * Retrieve and display the current network status using the
      * netstatus_get_availability(...) call
      */
-    bool is_available;
-    netstatus_get_availability(&is_available);
+    netstatus_info_t *netstatus_info = NULL;
+    bool is_available = false;
+    if (BPS_SUCCESS == netstatus_get_info(&netstatus_info)) {
+        is_available = netstatus_info_get_availability(netstatus_info);
+        netstatus_free_info(&netstatus_info);
+    }
     display_net_status(is_available);
 
    /*
@@ -108,7 +112,8 @@ main(int argc, char *argv[])
              */
             if (bps_event_get_domain(event) == netstatus_get_domain()) {
                 if (NETSTATUS_INFO == bps_event_get_code(event)) {
-                    is_available = netstatus_event_get_availability(event);
+                    netstatus_info = netstatus_event_get_info(event);
+                    is_available = netstatus_info_get_availability(netstatus_info);
                     display_net_status(is_available);
                 }
             }
