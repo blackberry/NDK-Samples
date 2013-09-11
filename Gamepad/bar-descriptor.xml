@@ -42,6 +42,7 @@
     
     <!--  The category where the application appears. Either core.games or core.media. -->
     <category>core.games</category>
+    <permission>use_gamepad</permission>
     <asset path="icon.png">icon.png</asset>
     <asset path="LICENSE">LICENSE</asset>
     <asset path="NOTICE">NOTICE</asset>
