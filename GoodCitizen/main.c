@@ -449,7 +449,7 @@ int initialize() {
         return EXIT_FAILURE;
     }
 
-    //As bbutil renders text using device-specifc dpi, we need to compute a point size
+    //As bbutil renders text using device-specific dpi, we need to compute a point size
     //for the font, so that the text string fits into the bubble. Note that Playbook is used
     //as a reference point in this equation as we know that at dpi of 170, font with point size of
     //15 fits into the bubble texture.
