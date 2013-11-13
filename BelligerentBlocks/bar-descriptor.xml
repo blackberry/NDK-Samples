@@ -58,15 +58,18 @@
 
    <env var="LD_LIBRARY_PATH" value="app/native/lib"/>
 
-   <configuration id="com.qnx.qcc.configuration.exe.release.1871319401" name="Device-Release">
+   <configuration name="Device-Release">
+      <platformArchitecture>armle-v7</platformArchitecture>
       <asset path="Device-Release/BelligerentBlocks" entry="true" type="Qnx/Elf">Blocks</asset>
    </configuration>
 
-   <configuration id="com.qnx.qcc.configuration.exe.debug.834434315" name="Simulator">
+   <configuration name="Simulator">
+      <platformArchitecture>x86</platformArchitecture>
       <asset path="Simulator/BelligerentBlocks" entry="true" type="Qnx/Elf">Blocks</asset>
    </configuration>
 
-   <configuration id="com.qnx.qcc.configuration.exe.debug.2070588019" name="Device-Debug">
+   <configuration name="Device-Debug">
+      <platformArchitecture>armle-v7</platformArchitecture>
       <asset path="Device-Debug/BelligerentBlocks" entry="true" type="Qnx/Elf">Blocks</asset>
    </configuration>
 </qnx>
