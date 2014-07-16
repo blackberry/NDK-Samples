@@ -183,14 +183,19 @@ initialize_egl_window(screen_context_t ctx, char * window_group_name) {
         return EXIT_FAILURE;
     }
 
-    /* Create the window group for our window, this is important, as we pass
-     * the group name to MMR which uses it to 'parent' it's CHILD_WINDOW
-     * which contains the video.
+    /* Create the window group for our window. We pass
+     * the group name to MMR which uses it to 'parent' its CHILD_WINDOW
+     * which contains the video. screen_create_window_group() generates
+     * the window group name which we fetch by calling
+     * screen_get_window_property_cv().
      */
-    if (screen_create_window_group(g_screen_win, window_group_name) != 0) {
+    if (screen_create_window_group(g_screen_win, NULL) != 0) {
         perror("screen_create_window_group");
         return EXIT_FAILURE;
     }
+
+    screen_get_window_property_cv(g_screen_win, SCREEN_PROPERTY_GROUP,
+                                  PATH_MAX, window_group_name);
 
     rc = screen_set_window_property_iv(g_screen_win, SCREEN_PROPERTY_FORMAT, &format);
     if (rc) {
@@ -276,8 +281,8 @@ initialize_egl_window(screen_context_t ctx, char * window_group_name) {
 void render(bool paused)
 {
     /* Clear the window to be fully transparent, this is important because by
-     * default the MM renderer window will be below our window in Z order, so 
-     * we will only see the video if our window is transparent.  Note that 
+     * default the MM renderer window will be below our window in Z order, so
+     * we will only see the video if our window is transparent.  Note that
      * transparency was set using glClearColor().
      */
     glClear(GL_COLOR_BUFFER_BIT);
@@ -286,11 +291,13 @@ void render(bool paused)
 
     if (!paused)
     {
+        // Display the Pause button
         glVertexPointer(2, GL_FLOAT, 0, g_square_vertices);
         glColor4f(0.123f, 0.18f, .9f, 1.0f);
         glDrawArrays(GL_TRIANGLE_STRIP, 0 , 5);
     }
     else {
+        // Display the Play button
         glVertexPointer(2, GL_FLOAT, 0, g_triangle_vertices);
         glColor4f(0.123f, 0.78f, 0.0, 1.0f);
         glDrawArrays(GL_TRIANGLE_STRIP, 0 , 3);
@@ -302,79 +309,54 @@ void render(bool paused)
 }
 
 
-/* 
+/*
  * we know the video has a resolution of 640x480 so it has an aspect ratio of
  * of approximately 1.33.  Based on these facts, we can show the video as large
- * as possible without changing the aspect ratio. 
- */ 
-strm_dict_t* calculate_rect(int width, int height) {
+ * as possible without changing the aspect ratio.
+ */
+void set_video_aspect_ratio(int width, int height, screen_window_t video_window) {
     const int image_width = 640;
     const int image_height = 480;
     const float image_aspect = (float)image_width / (float)image_height;
     const float aspect_tolerance = 0.1;
 
-    char buffer[16];
-    strm_dict_t *dict = strm_dict_new();
-
-    if (NULL == dict) {
-        return NULL;
-    }
-
-    // fullscreen is the default.
-    dict = strm_dict_set(dict, "video_dest_x", "0");
-    if (NULL == dict)
-        goto fail;
-    dict = strm_dict_set(dict, "video_dest_y", "0");
-    if (NULL == dict)
-        goto fail;
-    dict = strm_dict_set(dict, "video_dest_w", itoa(width, buffer, 10));
-    if (NULL == dict)
-        goto fail; 
-    dict = strm_dict_set(dict, "video_dest_h", itoa(height, buffer, 10));
-    if (NULL == dict)
-        goto fail;
+    // Set the default window position and size values for fullscreen
+    int win_position[2] = {0, 0};
+    int win_size[2] = { width, height };
 
     float screen_aspect = (float)width/(float)height;
     if (fabs(screen_aspect - image_aspect) < aspect_tolerance) {
         /* if the screen is at almost the same aspect as the video, just
-         * do full screen.  Nothing to do here.  Fall through and return 
+         * do full screen.  Nothing to do here.  Fall through and return
          * full screen.
          */
     } else if (screen_aspect < image_aspect) {
-        /* The screen is too tall.  We need to centre top to bottom, set the 
-         * width the same as the screen's while maintaining the same aspect 
-         * ratio.
-         */ 
-        dict = strm_dict_set(dict, "video_dest_y", itoa((height - image_height) / 2, buffer, 10));
-        if (NULL == dict)
-            goto fail;
-
-        height = width / image_aspect;
-
-        dict = strm_dict_set(dict, "video_dest_h", itoa(height, buffer, 10));
-        if (NULL == dict)
-            goto fail;
-    } else {
-        /* The screen is too wide.  We need to centre left to right, set the 
-         * height the same as the screen's while maintaining the same aspect 
+        /* The screen is too tall.  We need to center top to bottom, set the
+         * width the same as the screen's while maintaining the same aspect
          * ratio.
          */
-        dict = strm_dict_set(dict, "video_dest_x", itoa((width - image_width) / 2, buffer, 10));
-        if (NULL == dict)
-            goto fail;
-
-        width = height * image_aspect;
-
-        dict = strm_dict_set(dict, "video_dest_w", itoa(width, buffer, 10));
-        if (NULL == dict)
-            goto fail;
+        win_position[1] = (height - image_height) / 2;
+        win_size[1] = width / image_aspect;
+    } else {
+        /* The screen is too wide.  We need to center left to right, set the
+         * height the same as the screen's while maintaining the same aspect
+         * ratio.
+         */
+        win_position[0] = (width - image_width) / 2;
+        win_size[0] = height * image_aspect;
     }
 
-    return dict;
+    // Set x, y positions of the window screen coordinates
+    if (screen_set_window_property_iv(video_window, SCREEN_PROPERTY_POSITION, win_position) != 0) {
+        fprintf(stderr, "Failed to set SCREEN_PROPERTY_POSITION\n");
+    }
 
-fail:
-    strm_dict_destroy(dict);
-    return NULL;
+    // Set the width and height of the window
+    if (screen_set_window_property_iv(video_window, SCREEN_PROPERTY_SIZE, win_size) != 0) {
+        fprintf(stderr, "Failed to set SCREEN_PROPERTY_SIZE\n");
+    }
+
+    return;
 }
 
 int main(int argc, char *argv[])
@@ -384,7 +366,6 @@ int main(int argc, char *argv[])
     // Renderer variables
     mmr_connection_t*     mmr_connection = 0;
     mmr_context_t*        mmr_context = 0;
-    strm_dict_t*          dict = NULL;
 
     // I/O variables
     int                    video_device_output_id = -1;
@@ -403,10 +384,6 @@ int main(int argc, char *argv[])
     // I/O devices
     static char *audio_device_url    = "audio:default";
     static char video_device_url[PATH_MAX];
-    rc = snprintf(video_device_url, PATH_MAX, "screen:?winid=videosamplewindowgroup_%d&wingrp=videosamplewindowgroup_%d", app_id, app_id);
-    if (rc >= PATH_MAX) {
-        fprintf(stderr, "URL too long\n");
-    }
 
     // Name of video context...with a random number appended.
     static char video_context_name[PATH_MAX];
@@ -415,30 +392,31 @@ int main(int argc, char *argv[])
         fprintf(stderr, "Video context name too long\n");
     }
 
-    // Window group name...with the same random number appended.
-    static char window_group_name[PATH_MAX];
-    rc = snprintf(window_group_name, PATH_MAX, "videosamplewindowgroup_%d", app_id);
-    if (rc >= PATH_MAX) {
-        fprintf(stderr, "Video context name too long\n");
-    }
-
     // Video file bundled with our app
     static const char *video_file_relative_path = "app/native/pb_sample.mp4";
 
-
     bps_initialize();
 
-    // Create the Screen Context.
+    // Create the Screen context.
     if (screen_create_context(&g_screen_ctx, SCREEN_APPLICATION_CONTEXT) != 0) {
         fprintf(stderr, "screen_create_context failed\n");
         return EXIT_FAILURE;
     }
+
+    // Window group name is generated by a call to screen_create_window_group()
+    // in initialize_egl_window().
+    static char window_group_name[PATH_MAX];
 
     // Create the window and initialize EGL for GL_ES_1 rendering
     rc = initialize_egl_window(g_screen_ctx, window_group_name);
     if (rc != EXIT_SUCCESS) {
         fprintf(stderr, "initialize_egl_window failed\n");
         return EXIT_FAILURE;
+    }
+
+    rc = snprintf(video_device_url, PATH_MAX, "screen:?winid=videosamplewindowgroup_%d&wingrp=%s", app_id, window_group_name);
+    if (rc >= PATH_MAX) {
+        fprintf(stderr, "URL too long\n");
     }
 
     // Query width and height of the window surface created by utility code
@@ -464,10 +442,11 @@ int main(int argc, char *argv[])
     // Set world coordinates to coincide with screen pixels
     glScalef(1.0f / (float)surface_width, 1.0f / (float)surface_height, 1.0f);
 
-    // We can calculate location and verticies of the controls
+    // Calculate the location and vertices of the controls
     ctrl_x = (float)surface_width  / 2 - ctrl_w / 2;
     ctrl_y = (float)surface_height / 2 - ctrl_h / 2;
 
+    // Define a Play button
     g_triangle_vertices[0] = ctrl_x;
     g_triangle_vertices[1] = ctrl_y;
 
@@ -477,6 +456,7 @@ int main(int argc, char *argv[])
     g_triangle_vertices[4] = ctrl_x + ctrl_w;
     g_triangle_vertices[5] = ctrl_y + ctrl_h / 2;
 
+    // Define a Pause button
     g_square_vertices[0] = ctrl_x;
     g_square_vertices[1] = ctrl_y;
     g_square_vertices[2] = ctrl_x;
@@ -540,33 +520,15 @@ int main(int argc, char *argv[])
 
     // Set the speed to 0 to pause the video initially
     if (mmr_speed_set(mmr_context, video_speed) != 0) {
-        fprintf(stderr, "mmr_set_speed(0) failed\n");
+        fprintf(stderr, "mmr_speed_set(0) failed\n");
         return EXIT_FAILURE;
     }
 
     // Change to the play state, although speed is zero
     if (mmr_play(mmr_context) != 0) {
-        fprintf(stderr, "mmr_play failed\n");
+        fprintf(stderr, "mmr_play() failed\n");
         return EXIT_FAILURE;
     }
-
-    /* Do some work to make the aspect ratio correct.
-     */
-    dict = calculate_rect(surface_width, surface_height);
-    if (NULL == dict) {
-        fprintf(stderr, "calculate_rect failed\n");
-        return EXIT_FAILURE;
-    }
-
-    if (mmr_output_parameters(mmr_context, video_device_output_id, dict) != 0) {
-        fprintf(stderr, "mmr_output_parameters failed\n");
-        return EXIT_FAILURE;
-    }
-
-    /* Note that we allocated memory for the dictionary, but the call to 
-     * mmr_output_parameters() deallocates that memory even on failure.
-     */
-    dict = NULL;
 
     screen_request_events(g_screen_ctx);
     navigator_request_events(0);
@@ -591,9 +553,9 @@ int main(int argc, char *argv[])
 
                         app_window_above = !app_window_above;
                         if (app_window_above) {
-                            screen_val = 1;
+                            screen_val = 1;     // Show the control
                         } else {
-                            screen_val = -1;
+                            screen_val = -1;    // Hide the control
                         }
                         if (screen_set_window_property_iv(video_window, SCREEN_PROPERTY_ZORDER, &screen_val) != 0) {
                             fprintf(stderr, "screen_set_window_property(ZORDER) failed\n");
@@ -628,15 +590,17 @@ int main(int argc, char *argv[])
                         exit_value = EXIT_FAILURE;
                         break;
                     }
-                    fprintf(stderr, "video_window%d\n",(int)video_window);
 
-                    rc = screen_get_window_property_cv(video_window, SCREEN_PROPERTY_ID_STRING, 256, id);
+                    rc = screen_get_window_property_cv(g_screen_win, SCREEN_PROPERTY_GROUP,
+                                                  PATH_MAX, id);
                     if (rc != 0) {
                         fprintf(stderr, "screen_get_window_property(ID) failed\n");
                         exit_value = EXIT_FAILURE;
                         break;
                     }
-                    fprintf(stderr, "window ID is %s\n", id);
+
+                    /* Set the aspect video of the video. */
+                    set_video_aspect_ratio(surface_width, surface_height, video_window);
 
                     if (strncmp(id, window_group_name, strlen(window_group_name)) != 0) {
                         fprintf(stderr, "window ID mismatch\n");
