@@ -41,8 +41,9 @@ static float width, height;
 static GLuint background;
 static GLfloat vertices[8];
 static GLfloat tex_coord[8];
-static screen_context_t screen_cxt;
+static screen_context_t screen_ctx;
 static float pos_x, pos_y;
+const char *message = "Hello world";
 
 static font_t* font;
 
@@ -52,8 +53,9 @@ int init() {
     //Load background texture
     float tex_x, tex_y;
     int size_x, size_y;
+
     if (EXIT_SUCCESS
-            != bbutil_load_texture("app/native/HelloWorld_smaller_bubble.png",
+            != bbutil_load_texture("app/native/HelloWorld_bubble_portrait.png",
                     &size_x, &size_y, &tex_x, &tex_y, &background)) {
         fprintf(stderr, "Unable to load background texture\n");
         return EXIT_FAILURE;
@@ -72,21 +74,26 @@ int init() {
     width = (float) surface_width;
     height = (float) surface_height;
 
-    int dpi = bbutil_calculate_dpi(screen_cxt);
+    int dpi = bbutil_calculate_dpi(screen_ctx);
 
     //As bbutil renders text using device-specifc dpi, we need to compute a point size
-    //for the font, so that the text string fits into the bubble. Note that Playbook is used
-    //as a reference point in this equation as we know that at dpi of 170, font with point size of
+    //for the font, so that the text string fits into the bubble. We use 15 pt as our
+    //font size.
+    //
+    // This app assumes the use of a Z10 in portrait mode. For other devices and
+    // orientations, you need to modify the code and settings accordingly.
+    // font with point size of
     //15 fits into the bubble texture.
+    const float Z10_DPI = 358.0f;
+    const float FONT_PT_SIZE = 15.0f;
     float stretch_factor = (float)surface_width / (float)size_x;
-    int point_size = (int)(15.0f * stretch_factor / ((float)dpi / 170.0f ));
+    int point_size = (int)(FONT_PT_SIZE * stretch_factor / ((float)dpi / Z10_DPI ));
 
     font = bbutil_load_font("/usr/fonts/font_repository/monotype/arial.ttf", point_size, dpi);
 
     if (!font) {
         return EXIT_FAILURE;
     }
-
 
     //Initialize GL for 2D rendering
     glViewport(0, 0, (int) width, (int) height);
@@ -103,7 +110,7 @@ int init() {
     glScalef(1.0f / height, 1.0f / height, 1.0f);
 
     float text_width, text_height;
-    bbutil_measure_text(font, "Hello world", &text_width, &text_height);
+    bbutil_measure_text(font, message, &text_width, &text_height);
     pos_x = (width - text_width) / 2;
     pos_y = height / 2;
 
@@ -151,47 +158,64 @@ void render() {
     glDisable(GL_TEXTURE_2D);
 
     //Use utility code to render welcome text onto the screen
-    bbutil_render_text(font, "Hello world", pos_x, pos_y, 0.35f, 0.35f, 0.35f, 1.0f);
+    bbutil_render_text(font, message, pos_x, pos_y, 0.35f, 0.35f, 0.35f, 1.0f);
 
     //Use utility code to update the screen
     bbutil_swap();
 }
 
 int main(int argc, char **argv) {
+
+    int rc = 0;
+
     //Create a screen context that will be used to create an EGL surface to to receive libscreen events
-    screen_create_context(&screen_cxt, 0);
+    rc = screen_create_context(&screen_ctx, 0);
+    if (BPS_SUCCESS != rc)
+    {
+        fprintf(stderr, "Failed to create context.\n");
+        return rc;
+    }
 
     //Initialize BPS library
-    bps_initialize();
+    rc = bps_initialize();
+    if (BPS_SUCCESS != rc)
+    {
+        fprintf(stderr, "Failed to initialize BPS.\n");
+        return rc;
+    }
 
     //Use utility code to initialize EGL for rendering with GL ES 1.1
-    if (EXIT_SUCCESS != bbutil_init_egl(screen_cxt)) {
+    rc = bbutil_init_egl(screen_ctx);
+    if (EXIT_SUCCESS != rc) {
         fprintf(stderr, "Unable to initialize EGL\n");
-        screen_destroy_context(screen_cxt);
-        return 0;
+        screen_destroy_context(screen_ctx);
+        return rc;
     }
 
     //Initialize app data
-    if (EXIT_SUCCESS != init()) {
+    rc = init();
+    if (EXIT_SUCCESS != rc) {
         fprintf(stderr, "Unable to initialize app logic\n");
         bbutil_terminate();
-        screen_destroy_context(screen_cxt);
-        return 0;
+        screen_destroy_context(screen_ctx);
+        return rc;
     }
 
     //Signal BPS library that navigator and screen events will be requested
-    if (BPS_SUCCESS != screen_request_events(screen_cxt)) {
+    rc = screen_request_events(screen_ctx);
+    if (rc != screen_request_events(screen_ctx)) {
         fprintf(stderr, "screen_request_events failed\n");
         bbutil_terminate();
-        screen_destroy_context(screen_cxt);
-        return 0;
+        screen_destroy_context(screen_ctx);
+        return rc;
     }
 
-    if (BPS_SUCCESS != navigator_request_events(0)) {
+    rc = navigator_request_events(0);
+    if (BPS_SUCCESS != rc) {
         fprintf(stderr, "navigator_request_events failed\n");
         bbutil_terminate();
-        screen_destroy_context(screen_cxt);
-        return 0;
+        screen_destroy_context(screen_ctx);
+        return rc;
     }
 
     for (;;) {
@@ -211,7 +235,7 @@ int main(int argc, char **argv) {
     }
 
     //Stop requesting events from libscreen
-    screen_stop_events(screen_cxt);
+    screen_stop_events(screen_ctx);
 
     //Shut down BPS library for this process
     bps_shutdown();
@@ -223,6 +247,6 @@ int main(int argc, char **argv) {
     bbutil_terminate();
 
     //Destroy libscreen context
-    screen_destroy_context(screen_cxt);
-    return 0;
+    screen_destroy_context(screen_ctx);
+    return rc;
 }
