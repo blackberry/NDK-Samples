@@ -169,7 +169,7 @@ int main(int argc, char **argv) {
     int rc = 0;
 
     //Create a screen context that will be used to create an EGL surface to to receive libscreen events
-    rc = screen_create_context(&screen_ctx, 0);
+    rc = screen_create_context(&screen_ctx, SCREEN_APPLICATION_CONTEXT);
     if (BPS_SUCCESS != rc)
     {
         fprintf(stderr, "Failed to create context.\n");
@@ -203,7 +203,7 @@ int main(int argc, char **argv) {
 
     //Signal BPS library that navigator and screen events will be requested
     rc = screen_request_events(screen_ctx);
-    if (rc != screen_request_events(screen_ctx)) {
+    if (BPS_SUCCESS != rc) {
         fprintf(stderr, "screen_request_events failed\n");
         bbutil_terminate();
         screen_destroy_context(screen_ctx);
