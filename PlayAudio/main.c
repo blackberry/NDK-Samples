@@ -196,8 +196,12 @@ static void handle_dialog_response_events(bps_event_t *event) {
             show_dialog_message("Failed to query the output level.\n");
             return;
         }
-
-        volume *= 2.0;
+        
+        if (volume == 0.0) {
+            volume = 2.0;
+        } else {
+            volume *= 2.0;
+        }
 
         rc = audiomixer_set_output_level(AUDIOMIXER_OUTPUT_SPEAKER, volume);
         if (BPS_SUCCESS == rc) {
