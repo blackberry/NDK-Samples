@@ -44,6 +44,7 @@
     <asset path="LICENSE">LICENSE</asset>
     <asset path="NOTICE">NOTICE</asset>
     <asset path="HelloWorld_smaller_bubble.png">HelloWorld_smaller_bubble.png</asset>
+    <asset path="HelloWorld_bubble_portrait.png">HelloWorld_bubble_portrait.png</asset>
     <configuration name="Device-Debug">
        <platformArchitecture>armle-v7</platformArchitecture>
        <asset path="arm/o.le-v7-g/HelloWorldDisplay" entry="true" type="Qnx/Elf">HelloWorldDisplay</asset>
