@@ -843,6 +843,7 @@ void update()
                     button->quad->uvs = _downDPadDownUVs;
                     break;
                 case DIGITAL_TRIGGER:
+                case ANALOG_TRIGGER:
                     button->quad->uvs = _triggerDownUVs;
                     break;
                 case BUTTON:
@@ -864,6 +865,7 @@ void update()
                     button->quad->uvs = _downDPadUpUVs;
                     break;
                 case DIGITAL_TRIGGER:
+                case ANALOG_TRIGGER:
                     button->quad->uvs = _triggerUpUVs;
                     break;
                 case BUTTON:
