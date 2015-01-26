@@ -286,7 +286,7 @@ main(int argc, char **argv)
     int rect[4] = { 0, 0, 0, 0 };
 
     /* Setup the window */
-    screen_create_context(&screen_ctx, 0);
+    screen_create_context(&screen_ctx, SCREEN_APPLICATION_CONTEXT);
     screen_create_window(&screen_win, screen_ctx);
     screen_set_window_property_iv(screen_win, SCREEN_PROPERTY_USAGE, &usage);
 

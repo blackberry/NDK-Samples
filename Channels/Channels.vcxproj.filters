@@ -1,0 +1,45 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Assets">
+      <UniqueIdentifier>{d99da850-f723-458a-a7b4-12866ca2aa2c}</UniqueIdentifier>
+      <Extensions>qml;js;jpg;png;gif;amd</Extensions>
+    </Filter>
+    <Filter Include="Config Files">
+      <UniqueIdentifier>{ca4e0224-190d-4b77-894d-473c229b3b38}</UniqueIdentifier>
+      <Extensions>pri;pro;xml</Extensions>
+    </Filter>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{1baf9d71-d44d-4528-8f3a-74dc2be8966a}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;bat;h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Translations">
+      <UniqueIdentifier>{2992810f-34b7-455b-aae5-0f1c24b5ed09}</UniqueIdentifier>
+      <Extensions>ts;qm</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="bar-descriptor.xml">
+      <Filter>Config Files</Filter>
+    </None>
+    <None Include="icon.png">
+      <Filter>Assets</Filter>
+    </None>
+    <None Include="LICENSE" />
+    <None Include="NOTICE" />
+    <None Include="readme.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="dialogchannel.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="main.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="dialogchannel.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

@@ -717,7 +717,7 @@ void save_to_file() {
 
 int main(int argc, char *argv[]) {
     //Create a screen context that will be used to create an EGL surface to to receive libscreen events
-    screen_create_context(&screen_cxt, 0);
+    screen_create_context(&screen_cxt, SCREEN_APPLICATION_CONTEXT);
 
     //Initialize BPS library
     bps_initialize();

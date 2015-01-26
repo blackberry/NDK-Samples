@@ -1,0 +1,40 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Assets">
+      <UniqueIdentifier>{a23e593f-d312-4b4d-8d59-b014876de559}</UniqueIdentifier>
+      <Extensions>qml;js;jpg;png;gif;amd</Extensions>
+    </Filter>
+    <Filter Include="Config Files">
+      <UniqueIdentifier>{23eae7e6-299f-49a0-a455-a87621419d91}</UniqueIdentifier>
+      <Extensions>pri;pro;xml</Extensions>
+    </Filter>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{0025e502-fa19-4570-99a5-11134058d87f}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;bat;h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Translations">
+      <UniqueIdentifier>{f68da4c9-e24b-44b4-a5c4-feed67e54737}</UniqueIdentifier>
+      <Extensions>ts;qm</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="bar-descriptor.xml">
+      <Filter>Config Files</Filter>
+    </None>
+    <None Include="icon.png">
+      <Filter>Assets</Filter>
+    </None>
+    <None Include="LICENSE" />
+    <None Include="NOTICE" />
+    <None Include="placeholder_468x60.png">
+      <Filter>Assets</Filter>
+    </None>
+    <None Include="readme.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="main.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>

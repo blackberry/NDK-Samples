@@ -7,6 +7,11 @@ TAGS
 *.pinfo
 *.gcno
 *.bar
+*.flag
+*.user
+Samples.opensdf
+Samples.sdf
+Samples.v12.suo
 .svn/
 .metadata/
 .settings/
@@ -68,6 +73,7 @@ HelloWorldDisplay/x86/o-g/HelloWorldDisplay
 HttpProxy/arm/o.le-v7-g/HttpProxy
 HttpProxy/arm/o.le-v7/HttpProxy
 HttpProxy/x86/o-g/HttpProxy
+IDS_C_Sample/arm/
 Keyboard/arm/o.le-v7-g/Keyboard
 Keyboard/arm/o.le-v7/Keyboard
 Keyboard/x86/o-g/Keyboard

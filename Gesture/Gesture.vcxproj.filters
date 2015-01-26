@@ -1,0 +1,40 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Assets">
+      <UniqueIdentifier>{032196b4-162a-411e-9930-a58b40a1a16b}</UniqueIdentifier>
+      <Extensions>qml;js;jpg;png;gif;amd</Extensions>
+    </Filter>
+    <Filter Include="Config Files">
+      <UniqueIdentifier>{404adf08-f5e4-46da-8ce1-6950ea29d4f8}</UniqueIdentifier>
+      <Extensions>pri;pro;xml</Extensions>
+    </Filter>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{1c64ea68-fa9f-41eb-bccd-99039d6355a7}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;bat;h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Translations">
+      <UniqueIdentifier>{ef5f294c-a7d0-45ce-b04a-f47d1777f05e}</UniqueIdentifier>
+      <Extensions>ts;qm</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="bar-descriptor.xml">
+      <Filter>Config Files</Filter>
+    </None>
+    <None Include="icon.png">
+      <Filter>Assets</Filter>
+    </None>
+    <None Include="LICENSE" />
+    <None Include="NOTICE" />
+    <None Include="readme.txt" />
+    <None Include="wallpaper.jpg">
+      <Filter>Assets</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="main.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>

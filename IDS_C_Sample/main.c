@@ -363,7 +363,7 @@ static void render() {
 int main(int argc, char *argv[]) {
     char windowGroupId[64] = {0};
     //Create a screen context that will be used to create an EGL surface to to receive libscreen events
-    screen_create_context(&screen_cxt, 0);
+    screen_create_context(&screen_cxt, SCREEN_APPLICATION_CONTEXT);
 
     // Get the application's window group id so that it can be passed the identity library in cases
     // where a user may need to be interacted with on the application's behalf.

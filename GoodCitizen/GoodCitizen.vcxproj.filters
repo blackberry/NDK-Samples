@@ -1,0 +1,57 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Assets">
+      <UniqueIdentifier>{9032b433-4cde-4a23-b2ec-10e09e1ba39d}</UniqueIdentifier>
+      <Extensions>qml;js;jpg;png;gif;amd</Extensions>
+    </Filter>
+    <Filter Include="Config Files">
+      <UniqueIdentifier>{44be7b17-1af5-40ee-b959-515474f5964b}</UniqueIdentifier>
+      <Extensions>pri;pro;xml</Extensions>
+    </Filter>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{482c0884-df16-417a-9bc2-de5a18be6aaf}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;bat;h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Translations">
+      <UniqueIdentifier>{730be9db-2efa-4c5b-be14-d6f283605b32}</UniqueIdentifier>
+      <Extensions>ts;qm</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="background-landscape.png">
+      <Filter>Assets</Filter>
+    </None>
+    <None Include="background-portrait.png">
+      <Filter>Assets</Filter>
+    </None>
+    <None Include="bar-descriptor.xml">
+      <Filter>Config Files</Filter>
+    </None>
+    <None Include="icon.png">
+      <Filter>Assets</Filter>
+    </None>
+    <None Include="LICENSE" />
+    <None Include="NOTICE" />
+    <None Include="radio_btn_selected.png">
+      <Filter>Assets</Filter>
+    </None>
+    <None Include="radio_btn_unselected.png">
+      <Filter>Assets</Filter>
+    </None>
+    <None Include="readme.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="bbutil.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="main.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="bbutil.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

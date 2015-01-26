@@ -1,0 +1,36 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Assets">
+      <UniqueIdentifier>{c4a88ec8-d752-4475-a204-6185a21ca7c2}</UniqueIdentifier>
+      <Extensions>qml;js;jpg;png;gif;amd</Extensions>
+    </Filter>
+    <Filter Include="Config Files">
+      <UniqueIdentifier>{e623e26d-9710-4f78-9708-3cc51ffcca92}</UniqueIdentifier>
+      <Extensions>pri;pro;xml</Extensions>
+    </Filter>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{691a7d00-763e-433e-99f8-4888da82f8d7}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;bat;h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Translations">
+      <UniqueIdentifier>{dc4ca440-1d2a-437f-8948-af1064e2e467}</UniqueIdentifier>
+      <Extensions>ts;qm</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="bar-descriptor.xml">
+      <Filter>Config Files</Filter>
+    </None>
+    <None Include="icon.png">
+      <Filter>Assets</Filter>
+    </None>
+    <None Include="LICENSE" />
+    <None Include="NOTICE" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="main.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>
