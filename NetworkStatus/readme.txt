@@ -6,11 +6,11 @@ Sample Description:
  The Network Status sample is an application that is designed to retrieve the
  network status of the device.
 
- When you run the application, the application queries the device for the
+ When you run the application, it queries the device for the
  network status, prints the status to the console, and listens for changes to
  the status.
 
- Feature summary
+ Feature summary:
  - Handling navigator events
  - Responding to network status changes
 

@@ -9,7 +9,7 @@ Sample Description:
  When you run the application, a customized "Hello World" message is displayed
  on the screen.
 
- Feature summary
+ Feature summary:
  - Loading a default font
  - Querying the width and height of the window surface
  - Initializing EGL for 2D rendering

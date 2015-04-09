@@ -9,7 +9,7 @@ Sample Description:
  When you run the application, the value of the pitch and roll of the device is
  printed to the console, and updated every 25 milliseconds.
 
- Feature summary
+ Feature summary:
  - Handling navigator events
  - Handling accelerometer updates
 

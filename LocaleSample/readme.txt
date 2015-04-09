@@ -6,10 +6,10 @@ Sample Description:
  The Locale sample is an application that is designed to show you how to
  retrieve locale information from the device.
 
- When you run the application, the application queries the device for the
+ When you run the application, it queries the device for the
  current locale, and prints the country and language to the console.
 
- Feature summary
+ Feature summary:
  - Handling navigator events
  - Responding to locale changes
 

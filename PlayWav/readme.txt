@@ -8,7 +8,7 @@ Sample Description:
 
  When you run the application, a sample WAV file is played.
 
- Feature summary
+ Feature summary:
  - Opening a sound file
  - Determining the properties of a sound file
  - Preparing a sound file for playback

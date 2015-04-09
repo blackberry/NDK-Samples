@@ -9,7 +9,7 @@ Sample Description:
  When you run the application, different behaviors are triggered depending on
  the key that is pressed. The key presses are also output to the debug console.
 
- Feature summary
+ Feature summary:
  - Handling virtual keyboard events
 
 ========================================================================

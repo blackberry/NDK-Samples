@@ -9,7 +9,7 @@ Sample Description:
 
  When you run the application, geolocation data is displayed in a dialog.
 
- Feature summary
+ Feature summary:
  - Handling a geolocation response
  - Initializing the screen to set the window group Id
  - Requesting dialog events
