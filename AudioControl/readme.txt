@@ -11,7 +11,7 @@ Sample Description:
  When you run the application, you can change one of the properties of the audio
  mixer and the updated audio mixer status is printed to the console.
 
- Feature summary
+ Feature summary:
  - Handling audio mixer events
  - Querying the audio mixer service
 

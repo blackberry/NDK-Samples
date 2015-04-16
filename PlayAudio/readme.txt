@@ -10,7 +10,7 @@ Sample Description:
  When you run the application, a sample MP3 file is played. The volume and mute
  status is adjusted during playback.
 
- Feature summary
+ Feature summary:
  - Connecting and configuring the multimedia renderer
  - Configuring audio input and output
  - Starting and stopping audio playback

@@ -8,8 +8,8 @@ Sample Description:
 
  We retrieve and display geolocation specific information, such as the latitude,
  longitude, altitude, and bearing of the device from the default channel of the
- main thread.  This thread also listens for the navigator's event telling it to
- exit.  Before joining on the child thread, it sends a custom event to the child
+ main thread. This thread also listens for the navigator's event telling it to
+ exit. Before joining on the child thread, it sends a custom event to the child
  thread's channel letting it know that it should exit.
 
  We retrieve and display the x, y and z values of the accelerometer of the
@@ -18,7 +18,7 @@ Sample Description:
  When the application is executed, geolocation data is displayed in a dialog and
  accelerometer data is displayed in another.
 
- Feature summary
+ Feature summary:
  - Requesting events from different channels
  - Multiple dialogs
 

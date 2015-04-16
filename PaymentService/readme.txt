@@ -9,13 +9,13 @@ Sample Description:
  register digital goods in the vendor portal for BlackBerry App World and allow
  users to purchase these digital goods in your applications.
 
- When you run the application it starts with the simulation of a purchase
- already initiated.  Once you're done, you can simulate another purchase by 
+ When you run the application, it starts with the simulation of a purchase
+ already initiated. Once you're done, you can simulate another purchase by 
  swiping down from the top of the screen. The simulated purchase request is 
  performed in local mode, meaning that no information is sent to the Payment 
  Service server and a simulated purchase response is received.
 
- Feature summary
+ Feature summary:
  - Creating purchase parameters
  - Making a purchase request
  - Handling purchase responses

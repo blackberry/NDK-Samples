@@ -6,10 +6,10 @@ Sample Description:
  The HTTP Proxy sample is an application that is designed to retrieve the proxy
  information of the device that was set by the user.
 
- When you run the application, the application queries the device for the proxy
+ When you run the application, it queries the device for the proxy
  information and uses libcurl to retrieve a URL.
 
- Feature summary
+ Feature summary:
  - Querying HTTP proxy information
  - Using libcurl to load a webpage with that information.
 

@@ -9,7 +9,7 @@ Sample Description:
  When you run the application, the application displays a cube that rotates on
  the screen.
 
- Feature summary
+ Feature summary:
  - Initializing EGL and setting up your screen
  - Creating a 3D rotating cube using OpenGL ES
  - Rendering the graphics on the screen

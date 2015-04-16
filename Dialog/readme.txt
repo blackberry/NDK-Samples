@@ -15,7 +15,7 @@ Sample Description:
  dialog by swiping down from the top of the screen. An alert dialog is a simple
  dialog that contains a title, message, and buttons.
 
- Feature summary
+ Feature summary:
  - Handling dialog events
  - Creating and displaying a dialog
  - Setting the properties of a dialog

@@ -10,7 +10,7 @@ Sample Description:
  the gesture used, such as tap, double-tap, and pinch. Information about the
  gestures are also output to the debug console.
 
- Feature summary
+ Feature summary:
  - Handling screen gestures
 
 ========================================================================

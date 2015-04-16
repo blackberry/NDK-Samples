@@ -8,7 +8,7 @@ Sample Description:
 
  When you run the application, a video is played on the screen.
 
- Feature summary
+ Feature summary:
  - Creating a playback window
  - Connecting and configuring the renderer
  - Configuring video input and output

@@ -7,10 +7,10 @@ Sample Description:
  number of common development practices that you can use in your own
  applications.
 
- When you run the application, the application displays a spinning cube that you
+ When you run the application, it displays a spinning cube that you
  can change the color of by selecting different menu options.
 
- Feature summary
+ Feature summary:
  - Display a 3D cube that responds to a light source
  - Load textures and render text on the screen
  - Handle orientation changes and touch events

@@ -6,7 +6,7 @@ Sample Description:
  Belligerent Blocks is a 1 level game created as part of a presentation
  made at DevCon.
 
- Feature summary
+ Feature summary:
  - Rendering 2D graphics
  - Rendering text
  - Using Scoreloop's social platform
