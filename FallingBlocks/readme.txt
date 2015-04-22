@@ -4,7 +4,7 @@ FallingBlocks
 Sample Description:
 
  The Falling Blocks example is a simple application that displays moving colored
- blocks on the screen.  The blocks always move towards the side of the device
+ blocks on the screen. The blocks always move towards the side of the device
  that is angled down, and once they reach the edge of the screen, they wrap
  around and start again from the opposite edge. As you rotate or turn the
  device, the blocks change direction to reflect the new orientation.

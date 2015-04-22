@@ -8,7 +8,7 @@ All APIs shared in this repository are Open Source under the  [Apache 2.0 Licens
 
 ## Code Organization
 
-Each Sample added to the repository should be placed in its own directory.  Make sure you name the directory something simple, yet descriptive.  Each Sample must also have a README file at the root of its directory.
+Each Sample added to the repository should be placed in its own directory. Make sure you name the directory something simple, yet descriptive. Each Sample must also have a README file at the root of its directory.
 
 ## Contributing Samples
 

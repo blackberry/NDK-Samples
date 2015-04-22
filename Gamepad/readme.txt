@@ -4,7 +4,7 @@ Gamepad - Handle and configure game controller events
 Sample Description:
 
 The Gamepad sample is an application that demonstrates how to handle
-gamepad and joystick events.  It can handle two connected game controllers
+gamepad and joystick events. It can handle two connected game controllers
 at once.
 
 When an HID game controller is connected to the device, a collection of
@@ -15,7 +15,7 @@ on the gamepad, allows the buttons to be re-assigned -- much like a game
 would allow players to change how it is controlled.
 
 Feature summary:
-- Discovery of gamepad and joystick devices which are already connnected.
+- Discovery of gamepad and joystick devices which are already connected.
 - Handling of controller connect and disconnect events.
 - Handling of controller input events.
 - Configuration of controller buttons.

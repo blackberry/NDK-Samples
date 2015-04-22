@@ -11,9 +11,9 @@ Sample Description:
  pressed.
 
  When the button is pressed, the play button turns into a blue stop symbol and
- video playback begins.  While the video is playing, the user can chose to stop
- the video by tapping the blue symbol.  The blue stop symbol will then turn into
- a green play symbol.  When the green symbol is pressed, playback will continue.
+ video playback begins. While the video is playing, the user can chose to stop
+ the video by tapping the blue symbol. The blue stop symbol will then turn into
+ a green play symbol. When the green symbol is pressed, playback will continue.
 
  The user may swipe from the top of the bevel into the video (down-swipe) in
  order to hide the symbol.  This is achieved by changing the z-order of the
