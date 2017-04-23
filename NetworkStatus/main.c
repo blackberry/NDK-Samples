@@ -43,15 +43,15 @@ display_net_status(bool is_available)
 }
 
 /**
- * A sample application demonstrates the BlackBerry Native APIs for network status.
- * The sample queries for the current network status and then listens for status
- * update events.
+ * A sample application demonstrates the BlackBerry(R) 10 Native SDK APIs for
+ * network status.  The sample queries for the current network status and then
+ * listens for status update events.
  */
 int
 main(int argc, char *argv[])
 {
     /*
-     * Before we can listen for events from the BlackBerry Tablet OS platform
+     * Before we can listen for events from the BlackBerry(R) 10 OS platform
      * services, we need to initialize the BPS infrastructure
      */
     bps_initialize();
@@ -63,7 +63,7 @@ main(int argc, char *argv[])
 
     /*
      * once the BPS infrastructure has been initialized we can register for
-     * events from the various BlackBerry Tablet OS platform services. The
+     * events from the various BlackBerry(R) 10 OS platform services. The
      * Navigator service manages and delivers application life cycle and
      * visibility events.
      * For this sample, we request Navigator events so that we can track when
@@ -84,8 +84,12 @@ main(int argc, char *argv[])
      * Retrieve and display the current network status using the
      * netstatus_get_availability(...) call
      */
-    bool is_available;
-    netstatus_get_availability(&is_available);
+    netstatus_info_t *netstatus_info = NULL;
+    bool is_available = false;
+    if (BPS_SUCCESS == netstatus_get_info(&netstatus_info)) {
+        is_available = netstatus_info_get_availability(netstatus_info);
+        netstatus_free_info(&netstatus_info);
+    }
     display_net_status(is_available);
 
    /*
@@ -108,7 +112,8 @@ main(int argc, char *argv[])
              */
             if (bps_event_get_domain(event) == netstatus_get_domain()) {
                 if (NETSTATUS_INFO == bps_event_get_code(event)) {
-                    is_available = netstatus_event_get_availability(event);
+                    netstatus_info = netstatus_event_get_info(event);
+                    is_available = netstatus_info_get_availability(netstatus_info);
                     display_net_status(is_available);
                 }
             }

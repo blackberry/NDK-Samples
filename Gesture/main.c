@@ -14,11 +14,11 @@
 * limitations under the License.
 */
 
-#include <assert.h>
 #include <bps/bps.h>
 #include <bps/event.h>
 #include <bps/navigator.h>
 #include <bps/screen.h>
+#include <errno.h>
 #include <fcntl.h>
 #include <img/img.h>
 #include <math.h>
@@ -110,8 +110,9 @@ gesture_callback(gesture_base_t* gesture, mtouch_event_t* event, void* param, in
             break;
         }
         case GESTURE_DOUBLE_TAP: {
-            gesture_tap_t* d_tap = (gesture_tap_t*)gesture;
-            fprintf(stderr,"Double tap x:%d y:%d", d_tap->touch_coords.x, d_tap->touch_coords.y);
+            gesture_double_tap_t* d_tap = (gesture_double_tap_t*)gesture;
+            fprintf(stderr,"Double tap first_x:%d first_y:%d second_x:%d second_y:%d",
+            		d_tap->first_touch.x, d_tap->first_touch.y, d_tap->second_touch.x, d_tap->second_touch.y);
             break;
         }
         default: {
@@ -128,12 +129,10 @@ gesture_callback(gesture_base_t* gesture, mtouch_event_t* event, void* param, in
 static void
 init_gestures()
 {
-    gesture_tap_t* tap;
-    gesture_double_tap_t* double_tap;
     set = gestures_set_alloc();
     if (NULL != set) {
-        tap = tap_gesture_alloc(NULL, gesture_callback, set);
-        double_tap = double_tap_gesture_alloc(NULL, gesture_callback, set);
+        tap_gesture_alloc(NULL, gesture_callback, set);
+        double_tap_gesture_alloc(NULL, gesture_callback, set);
         tfpan_gesture_alloc(NULL, gesture_callback, set);
         pinch_gesture_alloc(NULL, gesture_callback, set);
     } else {
@@ -196,13 +195,16 @@ handle_navigator_event(bps_event_t *event) {
 static void
 handle_events()
 {
-    int rc, domain;
+    int domain;
     bool has_events = true;
 
     while(has_events) {
         bps_event_t *event = NULL;
-        rc = bps_get_event(&event, 50);
-        assert(rc == BPS_SUCCESS);
+        if (BPS_SUCCESS != bps_get_event(&event, 50)) {
+            has_events = false;
+            continue;
+        }
+
         if (event) {
             domain = bps_event_get_domain(event);
             if (domain == navigator_get_domain()) {
@@ -284,7 +286,7 @@ main(int argc, char **argv)
     int rect[4] = { 0, 0, 0, 0 };
 
     /* Setup the window */
-    screen_create_context(&screen_ctx, 0);
+    screen_create_context(&screen_ctx, SCREEN_APPLICATION_CONTEXT);
     screen_create_window(&screen_win, screen_ctx);
     screen_set_window_property_iv(screen_win, SCREEN_PROPERTY_USAGE, &usage);
 
